@@ -269,7 +269,7 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
     await db.users.insert_one(user.dict())
     return UserResponse(**user.dict())
 
-@api_router.post("/evaluators", response_model=UserResponse)
+@api_router.post("/evaluators")
 async def create_evaluator(evaluator_data: EvaluatorCreate, current_user: User = Depends(get_current_user)):
     check_admin_or_secretary(current_user)
     
@@ -295,7 +295,12 @@ async def create_evaluator(evaluator_data: EvaluatorCreate, current_user: User =
     response = UserResponse(**user.dict())
     
     # Return with generated credentials for display
-    return {**response.dict(), "generated_login_id": login_id, "generated_password": password}
+    return {
+        **response.dict(), 
+        "generated_login_id": login_id, 
+        "generated_password": password,
+        "message": f"평가위원이 성공적으로 생성되었습니다. 아이디: {login_id}, 비밀번호: {password}"
+    }
 
 @api_router.get("/evaluators", response_model=List[UserResponse])
 async def get_evaluators(current_user: User = Depends(get_current_user)):
