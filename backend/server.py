@@ -237,7 +237,10 @@ def generate_evaluator_credentials(name: str, phone: str):
     clean_phone = re.sub(r'[^0-9]', '', phone)
     
     login_id = f"{clean_name}{clean_phone[-4:]}"  # name + last 4 digits
-    password = clean_phone[-8:]  # last 8 digits of phone
+    password = clean_phone[-8:] if len(clean_phone) >= 8 else clean_phone  # last 8 digits of phone
+    
+    # Debug logging
+    logging.info(f"Generated credentials for {name}: login_id={login_id}, password={password}")
     
     return login_id, password
 
