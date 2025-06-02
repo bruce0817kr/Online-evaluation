@@ -1,0 +1,51 @@
+# 백엔드 API 서버용 Dockerfile
+FROM python:3.11-slim
+
+# 메타데이터
+LABEL maintainer="Online Evaluation System"
+LABEL version="1.0.0"
+LABEL description="Enterprise-grade Online Evaluation System Backend"
+
+# 작업 디렉터리 설정
+WORKDIR /app
+
+# 시스템 패키지 업데이트 및 필요한 도구 설치
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 의존성 설치
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 백엔드 소스코드 복사
+COPY backend/ .
+
+# 업로드 및 로그 디렉터리 생성
+RUN mkdir -p /app/uploads /app/logs
+
+# 권한 설정
+RUN chmod +x /app && \
+    chown -R www-data:www-data /app
+
+# 비-루트 사용자로 실행
+USER www-data
+
+# 헬스체크 설정
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# 포트 노출
+EXPOSE 8080
+
+# 환경 변수 기본값 설정
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV HOST=0.0.0.0
+ENV PORT=8080
+
+# 서버 시작 명령
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]

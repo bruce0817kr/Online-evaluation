@@ -11,7 +11,7 @@ RUN cat /app/.env
 RUN yarn install --frozen-lockfile && yarn build
 
 # Stage 2: Install Python Backend
-FROM python:3.11-slim as backend
+FROM python:3.11-slim AS backend
 WORKDIR /app
 COPY backend/ /app/
 RUN rm /app/.env
@@ -26,6 +26,7 @@ COPY --from=backend /app /backend
 # Copy nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Install Python and dependencies

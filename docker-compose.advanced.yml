@@ -1,0 +1,337 @@
+# Docker Compose 고급 설정 가이드
+# 가상화 환경 개선 및 엔터프라이즈급 배포
+
+version: '3.8'
+
+services:
+  # Redis 캐시 서버 (개선된 설정)
+  redis:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server 
+      --appendonly yes 
+      --maxmemory 512mb 
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/etc/redis/redis.conf:ro
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  # MongoDB 데이터베이스 (개선된 설정)
+  mongodb:
+    image: mongo:7
+    container_name: online-evaluation-mongodb
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-online_evaluation}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./config/mongod.conf:/etc/mongod.conf:ro
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # 백엔드 API 서버 (개선된 설정)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        - BUILD_ENV=${NODE_ENV:-production}
+    container_name: online-evaluation-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      # 데이터베이스 설정
+      MONGO_URL: "mongodb://${MONGODB_USER:-app_user}:${MONGODB_PASSWORD:-app_password123}@mongodb:27017/${MONGODB_DB:-online_evaluation}?authSource=${MONGODB_DB:-online_evaluation}"
+      DB_NAME: ${MONGODB_DB:-online_evaluation}
+      
+      # Redis 설정
+      REDIS_URL: "redis://redis:6379"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: ${REDIS_DB:-0}
+      
+      # 서버 설정
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      CORS_ORIGINS: "http://localhost:${FRONTEND_PORT:-3000},http://frontend:80"
+      
+      # 보안 설정
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      JWT_ALGORITHM: "HS256"
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
+      
+      # 업로드 설정
+      UPLOAD_DIR: "/app/uploads"
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-50MB}
+      
+      # 로그 설정
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FILE: "/app/logs/application.log"
+      
+      # 성능 설정
+      WORKERS: ${WORKERS:-1}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS:-1000}
+      KEEP_ALIVE: ${KEEP_ALIVE:-2}
+      
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - backend_tmp:/tmp
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # 프론트엔드 웹 서버 (개선된 설정)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - REACT_APP_BACKEND_URL=http://localhost:${BACKEND_PORT:-8080}
+        - REACT_APP_WS_URL=ws://localhost:${BACKEND_PORT:-8080}
+        - NODE_ENV=${NODE_ENV:-production}
+    container_name: online-evaluation-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:${BACKEND_PORT:-8080}"
+      REACT_APP_WS_URL: "ws://localhost:${BACKEND_PORT:-8080}"
+    volumes:
+      - frontend_cache:/var/cache/nginx
+      - frontend_run:/var/run
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Nginx 리버스 프록시 (고급 설정)
+  nginx:
+    image: nginx:alpine
+    container_name: online-evaluation-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+      - nginx_run:/var/run
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    profiles:
+      - production  # 프로덕션 환경에서만 실행
+
+  # 모니터링: Prometheus (선택사항)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: online-evaluation-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - online-evaluation-network
+    profiles:
+      - monitoring
+
+  # 모니터링: Grafana (선택사항)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: online-evaluation-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - online-evaluation-network
+    profiles:
+      - monitoring
+
+volumes:
+  # 데이터 볼륨
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/mongodb
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/redis
+  
+  # 임시 볼륨
+  backend_tmp:
+    driver: local
+  frontend_cache:
+    driver: local
+  frontend_run:
+    driver: local
+  nginx_cache:
+    driver: local
+  nginx_run:
+    driver: local
+  
+  # 모니터링 볼륨
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  online-evaluation-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+    labels:
+      - "com.online-evaluation.network=main"
+      - "com.online-evaluation.environment=${NODE_ENV:-production}"

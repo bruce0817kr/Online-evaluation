@@ -36,10 +36,8 @@ class OnlineEvaluationSystemTester:
         if headers is None:
             headers = {'Content-Type': 'application/json'}
             if self.token:
-                headers['Authorization'] = f'Bearer {self.token}'
-
-        self.tests_run += 1
-        print(f"\n🔍 Testing {name}...")
+                headers['Authorization'] = f'Bearer {self.token}'        self.tests_run += 1
+        print(f"\n[TEST] Testing {name}...")
         
         try:
             if method == 'GET':
@@ -58,13 +56,13 @@ class OnlineEvaluationSystemTester:
             success = response.status_code == expected_status
             if success:
                 self.tests_passed += 1
-                print(f"✅ Passed - Status: {response.status_code}")
+                print(f"[PASS] Passed - Status: {response.status_code}")
                 try:
                     return success, response.json()
                 except:
                     return success, {}
             else:
-                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                print(f"[FAIL] Failed - Expected {expected_status}, got {response.status_code}")
                 try:
                     print(f"Response: {response.text}")
                 except:

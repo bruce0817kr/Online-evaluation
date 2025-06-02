@@ -1,0 +1,230 @@
+{
+  "timestamp": "2025-06-02T22:56:12.242015",
+  "base_url": "http://localhost:8080",
+  "summary": {
+    "total_tests": 22,
+    "passed_tests": 15,
+    "failed_tests": 7,
+    "success_rate": 68.18181818181817
+  },
+  "categories": {
+    "컨테이너": {
+      "total": 1,
+      "passed": 1
+    },
+    "API": {
+      "total": 1,
+      "passed": 1
+    },
+    "헬스": {
+      "total": 1,
+      "passed": 1
+    },
+    "파일": {
+      "total": 8,
+      "passed": 8
+    },
+    "한글": {
+      "total": 5,
+      "passed": 4
+    },
+    "사용자": {
+      "total": 2,
+      "passed": 0
+    },
+    "템플릿": {
+      "total": 1,
+      "passed": 0
+    },
+    "평가": {
+      "total": 1,
+      "passed": 0
+    },
+    "분석": {
+      "total": 1,
+      "passed": 0
+    },
+    "내보내기": {
+      "total": 1,
+      "passed": 0
+    }
+  },
+  "results": [
+    {
+      "test": "컨테이너 응답",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "HTTP 상태 코드: 200",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.159484"
+    },
+    {
+      "test": "API 문서 접근",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "Swagger UI 접근 가능",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.177866"
+    },
+    {
+      "test": "헬스 체크",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "헬스 체크 엔드포인트 응답",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.193676"
+    },
+    {
+      "test": "파일 존재: backend/server.py",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.194204"
+    },
+    {
+      "test": "파일 존재: backend/export_utils.py",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.194730"
+    },
+    {
+      "test": "파일 존재: backend/requirements.txt",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.194730"
+    },
+    {
+      "test": "파일 존재: frontend/src/App.js",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.194730"
+    },
+    {
+      "test": "파일 존재: frontend/package.json",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195255"
+    },
+    {
+      "test": "파일 존재: docker-compose.yml",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195255"
+    },
+    {
+      "test": "파일 존재: README.md",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195255"
+    },
+    {
+      "test": "파일 존재: README_KR.md",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195255"
+    },
+    {
+      "test": "한글 지원: 한글 폰트 등록",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195782"
+    },
+    {
+      "test": "한글 지원: 맑은 고딕 폰트",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.195782"
+    },
+    {
+      "test": "한글 지원: 한글 제목 스타일",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.196302"
+    },
+    {
+      "test": "한글 지원: 한글 본문 스타일",
+      "status": "✅ PASS",
+      "success": true,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.196302"
+    },
+    {
+      "test": "한글 지원: UTF-8 인코딩",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.196302"
+    },
+    {
+      "test": "사용자 등록",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "HTTP 404: {\"detail\":\"Not Found\"}",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.222483"
+    },
+    {
+      "test": "사용자 로그인",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"username\"],\"msg\":\"Field required\",\"input\":null},{\"type\":\"missing\",\"loc\":[\"body\",\"password\"],\"msg\":\"Field required\",\"input\":null}]}",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.238883"
+    },
+    {
+      "test": "템플릿 테스트",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "인증 토큰이 없음",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.239400"
+    },
+    {
+      "test": "평가 테스트",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "인증 토큰이 없음",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.239929"
+    },
+    {
+      "test": "분석 테스트",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "인증 토큰이 없음",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.239929"
+    },
+    {
+      "test": "내보내기 테스트",
+      "status": "❌ FAIL",
+      "success": false,
+      "message": "인증 토큰이 없음",
+      "details": null,
+      "timestamp": "2025-06-02T22:56:12.239929"
+    }
+  ]
+}

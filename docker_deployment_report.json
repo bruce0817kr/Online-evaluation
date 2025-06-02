@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-06-01 23:49:53",
+  "total_checks": 6,
+  "passed_checks": 6,
+  "success_rate": "100.0%",
+  "overall_status": "PASS",
+  "detailed_results": {
+    "docker_containers": true,
+    "port_accessibility": true,
+    "health_endpoints": true,
+    "database_connectivity": true,
+    "api_functionality": true,
+    "network_isolation": true
+  },
+  "recommendations": []
+}

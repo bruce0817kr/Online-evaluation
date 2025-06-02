@@ -2,8 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 .App {
   text-align: left;
+  min-height: 100vh;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Dark mode background and text colors */
+.dark .App {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
 .App-header {
@@ -13,8 +32,16 @@
   text-align: center;
 }
 
+.dark .App-header {
+  background-color: #1f2937;
+}
+
 .App-link {
   color: #61dafb;
+}
+
+.dark .App-link {
+  color: #60a5fa;
 }
 
 /* Custom styles for Korean UI */
@@ -24,6 +51,12 @@ body {
     sans-serif, 'Malgun Gothic', 'Apple SD Gothic Neo';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
 /* Loading animation */

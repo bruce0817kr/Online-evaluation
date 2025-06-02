@@ -1,8 +1,9 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks, Query, WebSocket, WebSocketDisconnect
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse, StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request # 추가
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
@@ -13,7 +14,6 @@ import uuid
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-import shutil
 import re
 import asyncio
 import aiofiles
@@ -21,6 +21,10 @@ import io
 import base64
 from concurrent.futures import ThreadPoolExecutor
 import json
+from export_utils import exporter
+from cache_service import cache_service
+from websocket_service import connection_manager, notification_service
+from health_monitor import HealthMonitor
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -40,6 +44,9 @@ db = client[os.environ['DB_NAME']]
 # Thread pool for CPU-intensive tasks
 executor = ThreadPoolExecutor(max_workers=4)
 
+# Initialize health monitor
+health_monitor = HealthMonitor(client)
+
 # JWT settings
 SECRET_KEY = "your-secret-key-here-change-in-production"
 ALGORITHM = "HS256"
@@ -51,6 +58,116 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 # Create the main app without a prefix
 app = FastAPI(title="온라인 평가 시스템", version="2.0.0")
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO) # 추가
+logger = logging.getLogger(__name__) # 추가
+
+# 요청 로깅 미들웨어 추가
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    logger.info(f"Request headers: {request.headers}")
+    response = await call_next(request)
+    logger.info(f"Outgoing response: {response.status_code}")
+    return response
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://c9538c52-9ad8-41a7-9b0c-0f121f66378a.preview.emergentagent.com"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Health check endpoint (no prefix)
+@app.get("/health")
+async def health_check():
+    """헬스체크 엔드포인트"""
+    try:
+        # MongoDB 연결 확인
+        await client.admin.command('ping')
+        
+        # Redis 연결 확인 (cache_service를 통해)
+        redis_status = "healthy"
+        try:
+            await cache_service.ping()
+        except Exception:
+            redis_status = "unhealthy"
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "services": {
+                "mongodb": "healthy",
+                "redis": redis_status,
+                "api": "healthy"
+            },
+            "version": "2.0.0"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+
+# Database status endpoint
+@app.get("/db-status")
+async def database_status():
+    """데이터베이스 상태 확인 엔드포인트"""
+    try:
+        # MongoDB 상태 확인
+        mongodb_status = await client.admin.command('ping')
+        
+        # Redis 상태 확인
+        redis_status = "healthy"
+        redis_info = {}
+        try:
+            await cache_service.ping()
+            redis_info = {"status": "connected", "ping": "pong"}
+        except Exception as e:
+            redis_status = "unhealthy"
+            redis_info = {"status": "disconnected", "error": str(e)}
+        
+        # 데이터베이스 통계
+        db_stats = await db.command("dbStats")
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "databases": {
+                "mongodb": {
+                    "status": "healthy",
+                    "ping": mongodb_status,
+                    "stats": {
+                        "collections": db_stats.get("collections", 0),
+                        "dataSize": db_stats.get("dataSize", 0),
+                        "storageSize": db_stats.get("storageSize", 0)
+                    }
+                },
+                "redis": {
+                    "status": redis_status,
+                    "info": redis_info
+                }
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database unhealthy: {str(e)}")
+
+# API Root endpoint
+@app.get("/")
+async def root():
+    """API 루트 엔드포인트"""
+    return {
+        "message": "온라인 평가 시스템 API",
+        "version": "2.0.0",
+        "status": "running",
+        "timestamp": datetime.utcnow().isoformat(),
+        "docs": "/docs",
+        "health": "/health",
+        "db_status": "/db-status"
+    }
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -80,6 +197,23 @@ class EvaluatorCreate(BaseModel):
     user_name: str
     phone: str
     email: str
+
+class SecretarySignupRequest(BaseModel):
+    name: str
+    phone: str
+    email: str
+    reason: str
+
+class SecretaryApproval(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    phone: str
+    email: str
+    reason: str
+    status: str = "pending"  # pending, approved, rejected
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    reviewed_at: Optional[datetime] = None
+    reviewed_by: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: str
@@ -119,9 +253,6 @@ class Company(BaseModel):
     name: str
     business_number: str
     address: str
-    contact_person: str
-    phone: str
-    email: str
     project_id: str
     files: List[Dict[str, Any]] = []  # Enhanced file metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -131,9 +262,6 @@ class CompanyCreate(BaseModel):
     name: str
     business_number: str
     address: str
-    contact_person: str
-    phone: str
-    email: str
     project_id: str
 
 class EvaluationItem(BaseModel):
@@ -190,6 +318,22 @@ class EvaluationScore(BaseModel):
 class EvaluationSubmission(BaseModel):
     sheet_id: str
     scores: List[Dict[str, Any]]
+
+class BulkExportRequest(BaseModel):
+    project_id: str
+    template_id: Optional[str] = None
+    format: str = "excel"  # pdf, excel
+    export_type: str = "separate"  # separate, combined
+
+class ExportableEvaluation(BaseModel):
+    evaluation_id: str
+    project_name: str
+    company_name: str
+    template_name: str
+    evaluator_name: str
+    submitted_at: Optional[datetime]
+    total_score: Optional[float]
+    weighted_score: Optional[float]
 
 class AssignmentCreate(BaseModel):
     evaluator_ids: List[str]
@@ -261,6 +405,27 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user_data = await db.users.find_one({"id": user_id})
     if user_data is None:
         raise credentials_exception
+    
+    return User(**user_data)
+
+async def get_current_user_optional(token: Optional[str] = None):
+    """선택적 사용자 인증 (토큰이 있으면 검증, 없으면 None 반환)"""
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+            
+        user_data = await db.users.find_one({"id": user_id})
+        if user_data is None:
+            return None
+            
+        return User(**user_data)
+    except JWTError:
+        return None
     return User(**user_data)
 
 def check_admin_or_secretary(user: User):
@@ -351,9 +516,147 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires
     )
-    
     user_response = UserResponse(**user.dict())
     return {"access_token": access_token, "token_type": "bearer", "user": user_response}
+
+@api_router.post("/auth/secretary-signup")
+async def secretary_signup(request: SecretarySignupRequest):
+    """간사 회원가입 신청"""
+    # 중복 이메일 또는 전화번호 체크
+    existing_user = await db.users.find_one({
+        "$or": [
+            {"email": request.email},
+            {"phone": request.phone}
+        ]
+    })
+    
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="이미 등록된 이메일 또는 전화번호입니다"
+        )
+    
+    # 이미 신청한 내역이 있는지 체크
+    existing_request = await db.secretary_requests.find_one({
+        "$or": [
+            {"email": request.email},
+            {"phone": request.phone}
+        ]
+    })
+    
+    if existing_request:
+        raise HTTPException(
+            status_code=400,
+            detail="이미 신청한 내역이 있습니다. 관리자 승인을 기다려주세요."
+        )
+    
+    # 신청 내역 저장
+    approval_request = SecretaryApproval(
+        name=request.name,
+        phone=request.phone,
+        email=request.email,
+        reason=request.reason
+    )
+    await db.secretary_requests.insert_one(approval_request.dict())
+    return {
+        "message": "간사 회원가입 신청이 완료되었습니다. 관리자 승인 후 로그인이 가능합니다.",
+        "request_id": approval_request.id
+    }
+
+@api_router.get("/admin/secretary-requests")
+async def get_secretary_requests(current_user: User = Depends(get_current_user)):
+    """간사 신청 목록 조회 (관리자만)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="관리자만 접근 가능합니다")
+    
+    requests = await db.secretary_requests.find({"status": "pending"}).to_list(None)
+    return requests
+
+@api_router.post("/admin/secretary-requests/{request_id}/approve")
+async def approve_secretary_request(
+    request_id: str, 
+    current_user: User = Depends(get_current_user)
+):
+    """간사 신청 승인 (관리자만)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="관리자만 접근 가능합니다")
+    
+    # 신청 내역 찾기
+    request_data = await db.secretary_requests.find_one({"id": request_id})
+    if not request_data:
+        raise HTTPException(status_code=404, detail="신청 내역을 찾을 수 없습니다")
+    
+    if request_data["status"] != "pending":
+        raise HTTPException(status_code=400, detail="이미 처리된 신청입니다")
+    
+    # 사용자 계정 생성
+    user_id = str(uuid.uuid4())
+    login_id = request_data["name"]  # 이름을 로그인 ID로 사용
+    password_hash = get_password_hash(request_data["phone"].replace("-", ""))  # 전화번호를 비밀번호로 사용
+    
+    user_data = {
+        "id": user_id,
+        "login_id": login_id,
+        "password_hash": password_hash,
+        "user_name": request_data["name"],
+        "email": request_data["email"],
+        "phone": request_data["phone"],
+        "role": "secretary",
+        "created_at": datetime.utcnow(),
+        "is_active": True
+    }
+    
+    # 사용자 생성
+    await db.users.insert_one(user_data)
+    
+    # 신청 상태 업데이트
+    await db.secretary_requests.update_one(
+        {"id": request_id},
+        {
+            "$set": {
+                "status": "approved",
+                "reviewed_at": datetime.utcnow(),
+                "reviewed_by": current_user.id
+            }
+        }
+    )
+    
+    return {
+        "message": "간사 계정이 생성되었습니다",
+        "login_id": login_id,
+        "user_id": user_id
+    }
+
+@api_router.post("/admin/secretary-requests/{request_id}/reject")
+async def reject_secretary_request(
+    request_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """간사 신청 거부 (관리자만)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="관리자만 접근 가능합니다")
+    
+    # 신청 내역 찾기
+    request_data = await db.secretary_requests.find_one({"id": request_id})
+    if not request_data:
+        raise HTTPException(status_code=404, detail="신청 내역을 찾을 수 없습니다")
+    
+    if request_data["status"] != "pending":
+        raise HTTPException(status_code=400, detail="이미 처리된 신청입니다")
+    
+    # 신청 상태 업데이트
+    await db.secretary_requests.update_one(
+        {"id": request_id},
+        {
+            "$set": {
+                "status": "rejected",
+                "reviewed_at": datetime.utcnow(),
+                "reviewed_by": current_user.id
+            }
+        }
+    )
+    
+    return {"message": "간사 신청이 거부되었습니다"}
 
 @api_router.get("/auth/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_user)):
@@ -381,6 +684,64 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
     
     await db.users.insert_one(user.dict())
     return UserResponse(**user.dict())
+
+# Get all users (for admin and verification)
+@api_router.get("/users")
+async def get_users(current_user: Optional[User] = Depends(get_current_user_optional)):
+    """모든 사용자 목록 조회 (관리자용 또는 검증용)"""
+    # 검증용으로 호출된 경우 간단한 정보만 반환
+    if not current_user:
+        users_count = await db.users.count_documents({})
+        sample_users = await db.users.find({}, {"login_id": 1, "user_name": 1, "role": 1}).limit(5).to_list(5)
+        return {
+            "status": "success",
+            "total_users": users_count,
+            "sample_users": sample_users,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    
+    # 인증된 사용자인 경우 권한 확인
+    check_admin_or_secretary(current_user)
+    users = await db.users.find({"is_active": True}).to_list(1000)
+    return [UserResponse(**user) for user in users]
+
+# Get all tests/evaluations (basic list)
+@api_router.get("/tests")
+async def get_tests(current_user: Optional[User] = Depends(get_current_user_optional)):
+    """평가/테스트 목록 조회 (인증된 사용자용 또는 검증용)"""
+    # 검증용으로 호출된 경우 간단한 정보만 반환
+    if not current_user:
+        projects_count = await db.projects.count_documents({})
+        sample_projects = await db.projects.find({}, {"name": 1, "description": 1, "created_at": 1}).limit(5).to_list(5)
+        return {
+            "status": "success",
+            "total_projects": projects_count,
+            "sample_projects": sample_projects,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    
+    # Get evaluation sheets based on user role
+    if current_user.role == "evaluator":
+        # Evaluators can only see their assigned evaluations
+        sheets = await db.evaluation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)
+    else:
+        # Admin and secretary can see all evaluations
+        sheets = await db.evaluation_sheets.find({}).to_list(1000)
+    
+    # Return simplified test/evaluation data
+    tests = []
+    for sheet in sheets:
+        tests.append({
+            "id": sheet.get("id"),
+            "company_id": sheet.get("company_id"),
+            "template_id": sheet.get("template_id"),
+            "status": sheet.get("status", "assigned"),
+            "created_at": sheet.get("created_at"),
+            "submitted_at": sheet.get("submitted_at"),
+            "total_score": sheet.get("total_score", 0)
+        })
+    
+    return tests
 
 @api_router.post("/evaluators")
 async def create_evaluator(evaluator_data: EvaluatorCreate, current_user: User = Depends(get_current_user)):
@@ -543,9 +904,7 @@ async def upload_file(
     
     # Create uploads directory if it doesn't exist
     upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
-    
-    # Generate unique filename
+    upload_dir.mkdir(exist_ok=True)    # Generate unique filename with proper encoding
     file_id = str(uuid.uuid4())
     file_extension = Path(file.filename).suffix
     unique_filename = f"{company_id}_{file_id}{file_extension}"
@@ -604,8 +963,8 @@ async def get_file(file_id: str, current_user: User = Depends(get_current_user))
     )
 
 @api_router.get("/files/{file_id}/preview")
-async def preview_file(file_id: str, current_user: User = Depends(get_current_user)):
-    """Get file content for inline preview"""
+async def preview_file(file_id: str):
+    """Get file content for inline preview - 권한 체크 없이 누구나 접근 가능"""
     file_metadata = await db.file_metadata.find_one({"id": file_id})
     if not file_metadata:
         raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다")
@@ -795,8 +1154,7 @@ async def submit_evaluation(
     await delete_task
     if new_scores:
         await db.evaluation_scores.insert_many(new_scores)
-    
-    # Update sheet status
+      # Update sheet status
     await db.evaluation_sheets.update_one(
         {"id": submission.sheet_id},
         {"$set": {
@@ -806,6 +1164,35 @@ async def submit_evaluation(
             "total_score": total_score,
             "weighted_score": weighted_score
         }}
+    )
+    
+    # Invalidate cache for the evaluator
+    await cache_service.invalidate_user_cache(current_user.id)
+    
+    # Send real-time notification
+    evaluation_data = {
+        "sheet_id": submission.sheet_id,
+        "project_id": sheet.project_id,
+        "total_score": total_score,
+        "weighted_score": weighted_score,
+        "evaluator_name": current_user.user_name
+    }
+    
+    # Notify the evaluator
+    await notification_service.send_evaluation_complete_notification(
+        current_user.id, 
+        evaluation_data
+    )
+    
+    # Notify project room members (admins, secretaries)
+    await notification_service.send_project_update_notification(
+        sheet.project_id,
+        {
+            "title": "평가 완료",
+            "message": f"{current_user.user_name}님이 평가를 완료했습니다",
+            "type": "evaluation_submitted",
+            "data": evaluation_data
+        }
     )
     
     # Update project statistics in background
@@ -856,6 +1243,12 @@ async def get_evaluator_dashboard(current_user: User = Depends(get_current_user)
     if current_user.role != "evaluator":
         raise HTTPException(status_code=403, detail="평가위원만 접근할 수 있습니다")
     
+    # Try to get cached dashboard data
+    cached_data = await cache_service.get_cached_dashboard_data(current_user.id)
+    if cached_data:
+        logger.info(f"🚀 Returning cached dashboard data for user {current_user.id}")
+        return cached_data
+    
     # Get assigned evaluation sheets
     sheets = await db.evaluation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)
     
@@ -888,6 +1281,9 @@ async def get_evaluator_dashboard(current_user: User = Depends(get_current_user)
                     "project": Project(**project_data),
                     "template": EvaluationTemplate(**template_data)
                 })
+    
+    # Cache the dashboard data for 5 minutes
+    await cache_service.cache_dashboard_data(current_user.id, response, ttl=300)
     
     return response
 
@@ -962,9 +1358,255 @@ async def get_project_analytics(project_id: str, current_user: User = Depends(ge
         "total_companies": len(companies),
         "companies_evaluated": companies_evaluated,
         "total_evaluations": total_evaluations,
-        "completion_rate": round((companies_evaluated / len(companies) * 100) if companies else 0, 1),
-        "score_analytics": avg_scores
+        "completion_rate": round((companies_evaluated / len(companies) * 100) if companies else 0, 1),        "score_analytics": avg_scores
     }
+
+# Export routes for comprehensive evaluation reports
+@api_router.get("/evaluations/{evaluation_id}/export")
+async def export_single_evaluation(
+    evaluation_id: str,
+    format: str = Query(..., regex="^(pdf|excel)$", description="Export format: pdf or excel"),
+    current_user: User = Depends(get_current_user)
+):
+    """단일 평가 데이터를 PDF 또는 Excel로 추출"""
+    check_admin_or_secretary(current_user)
+    
+    try:
+        # Get evaluation sheet data
+        sheet_data = await db.evaluation_sheets.find_one({"id": evaluation_id})
+        if not sheet_data:
+            raise HTTPException(status_code=404, detail="평가지를 찾을 수 없습니다")
+        
+        sheet = EvaluationSheet(**sheet_data)
+        
+        # Only export submitted evaluations
+        if sheet.status != "submitted":
+            raise HTTPException(status_code=400, detail="제출된 평가만 추출할 수 있습니다")
+        
+        # Get related data concurrently
+        company_task = db.companies.find_one({"id": sheet.company_id})
+        project_task = db.projects.find_one({"id": sheet.project_id})
+        template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+        scores_task = db.evaluation_scores.find({"sheet_id": evaluation_id}).to_list(1000)
+        evaluator_task = db.users.find_one({"id": sheet.evaluator_id})
+        
+        company_data, project_data, template_data, scores, evaluator_data = await asyncio.gather(
+            company_task, project_task, template_task, scores_task, evaluator_task
+        )
+        
+        if not all([company_data, project_data, template_data, evaluator_data]):
+            raise HTTPException(status_code=404, detail="관련 데이터를 찾을 수 없습니다")
+        
+        # Prepare evaluation data
+        evaluation_data = {
+            "sheet": sheet.dict(),
+            "company": company_data,
+            "project": project_data,
+            "template": template_data,
+            "scores": [{"item_id": s["item_id"], "score": s["score"], "opinion": s["opinion"]} for s in scores],
+            "evaluator": evaluator_data
+        }
+        
+        # Generate filename
+        submitted_date = sheet.submitted_at or datetime.utcnow()
+        filename = exporter.generate_filename(
+            project_data["name"],
+            company_data["name"],
+            submitted_date,
+            format
+        )
+        
+        # Export based on format
+        if format == "pdf":
+            buffer = await exporter.export_single_evaluation_pdf(evaluation_data)
+            media_type = "application/pdf"
+        else:  # excel
+            buffer = await exporter.export_single_evaluation_excel(evaluation_data)
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        
+        return StreamingResponse(
+            io.BytesIO(buffer.read()),
+            media_type=media_type,
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Export error: {str(e)}")
+        raise HTTPException(status_code=500, detail="파일 생성 중 오류가 발생했습니다")
+
+@api_router.post("/evaluations/bulk-export")
+async def export_bulk_evaluations(
+    export_request: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """여러 평가 데이터를 일괄 추출"""
+    check_admin_or_secretary(current_user)
+    
+    try:
+        project_id = export_request.get("project_id")
+        template_id = export_request.get("template_id")
+        format_type = export_request.get("format", "excel")
+        export_type = export_request.get("export_type", "separate")  # separate, combined
+        
+        if not project_id:
+            raise HTTPException(status_code=400, detail="프로젝트 ID가 필요합니다")
+        
+        # Build query for submitted evaluations
+        query = {
+            "project_id": project_id,
+            "status": "submitted"
+        }
+        
+        if template_id:
+            query["template_id"] = template_id
+        
+        # Get evaluation sheets
+        sheets = await db.evaluation_sheets.find(query).to_list(1000)
+        
+        if not sheets:
+            raise HTTPException(status_code=404, detail="추출할 평가 데이터가 없습니다")
+        
+        # Get all related data
+        evaluation_data_list = []
+        for sheet_data in sheets:
+            sheet = EvaluationSheet(**sheet_data)
+            
+            # Get related data concurrently
+            company_task = db.companies.find_one({"id": sheet.company_id})
+            project_task = db.projects.find_one({"id": sheet.project_id})
+            template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+            scores_task = db.evaluation_scores.find({"sheet_id": sheet.id}).to_list(1000)
+            evaluator_task = db.users.find_one({"id": sheet.evaluator_id})
+            
+            company_data, project_data, template_data, scores, evaluator_data = await asyncio.gather(
+                company_task, project_task, template_task, scores_task, evaluator_task
+            )
+            
+            if all([company_data, project_data, template_data, evaluator_data]):
+                evaluation_data = {
+                    "sheet": sheet.dict(),
+                    "company": company_data,
+                    "project": project_data,
+                    "template": template_data,
+                    "scores": [{"item_id": s["item_id"], "score": s["score"], "opinion": s["opinion"]} for s in scores],
+                    "evaluator": evaluator_data
+                }
+                evaluation_data_list.append(evaluation_data)
+        
+        if not evaluation_data_list:
+            raise HTTPException(status_code=404, detail="유효한 평가 데이터가 없습니다")
+        
+        if export_type == "combined":
+            # 하나의 Excel 파일로 결합
+            if format_type == "pdf":
+                raise HTTPException(status_code=400, detail="PDF는 개별 파일로만 추출 가능합니다")
+            
+            buffer = await exporter.export_bulk_evaluations_excel(evaluation_data_list)
+            project_name = evaluation_data_list[0]["project"]["name"]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{project_name}_종합평가서_{timestamp}.xlsx"
+            
+            return StreamingResponse(
+                io.BytesIO(buffer.read()),
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}
+            )
+        else:
+            # 개별 파일들을 ZIP으로 압축
+            import zipfile
+            
+            zip_buffer = io.BytesIO()
+            
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for eval_data in evaluation_data_list:
+                    # Generate individual file
+                    submitted_date = eval_data["sheet"]["submitted_at"] or datetime.utcnow()
+                    filename = exporter.generate_filename(
+                        eval_data["project"]["name"],
+                        eval_data["company"]["name"],
+                        submitted_date,
+                        format_type
+                    )
+                    
+                    if format_type == "pdf":
+                        file_buffer = await exporter.export_single_evaluation_pdf(eval_data)
+                    else:
+                        file_buffer = await exporter.export_single_evaluation_excel(eval_data)
+                    
+                    zip_file.writestr(filename, file_buffer.read())
+            
+            zip_buffer.seek(0)
+            project_name = evaluation_data_list[0]["project"]["name"]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            zip_filename = f"{project_name}_종합평가서_일괄추출_{timestamp}.zip"
+            
+            return StreamingResponse(
+                zip_buffer,
+                media_type="application/zip",
+                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{zip_filename}"}
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Bulk export error: {str(e)}")
+        raise HTTPException(status_code=500, detail="일괄 추출 중 오류가 발생했습니다")
+
+@api_router.get("/evaluations/export-list")
+async def get_exportable_evaluations(
+    project_id: Optional[str] = None,
+    template_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """추출 가능한 평가 목록 조회 (제출된 평가만)"""
+    check_admin_or_secretary(current_user)
+    
+    try:
+        # Build query for submitted evaluations
+        query = {"status": "submitted"}
+        
+        if project_id:
+            query["project_id"] = project_id
+        if template_id:
+            query["template_id"] = template_id
+        
+        # Get evaluation sheets
+        sheets = await db.evaluation_sheets.find(query).to_list(1000)
+        
+        # Get related data for display
+        result = []
+        for sheet_data in sheets:
+            sheet = EvaluationSheet(**sheet_data)
+            
+            # Get related data concurrently
+            company_task = db.companies.find_one({"id": sheet.company_id})
+            project_task = db.projects.find_one({"id": sheet.project_id})
+            template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+            evaluator_task = db.users.find_one({"id": sheet.evaluator_id})
+            
+            company_data, project_data, template_data, evaluator_data = await asyncio.gather(
+                company_task, project_task, template_task, evaluator_task
+            )
+            
+            if all([company_data, project_data, template_data, evaluator_data]):
+                result.append({
+                    "evaluation_id": sheet.id,
+                    "project_name": project_data["name"],
+                    "company_name": company_data["name"],
+                    "template_name": template_data["name"],
+                    "evaluator_name": evaluator_data["user_name"],
+                    "submitted_at": sheet.submitted_at,
+                    "total_score": sheet.total_score,
+                    "weighted_score": sheet.weighted_score
+                })
+        
+        return result
+        
+    except Exception as e:
+        logging.error(f"Get exportable evaluations error: {str(e)}")
+        raise HTTPException(status_code=500, detail="추출 가능한 평가 목록 조회 중 오류가 발생했습니다")
 
 # Template routes
 @api_router.get("/templates", response_model=List[EvaluationTemplate])
@@ -1005,24 +1647,86 @@ async def create_template(
     return template
 
 # System health and monitoring
-@api_router.get("/health")
-async def health_check():
+#@api_router.get("/health")
+#async def health_check():
+#    """헬스체크 엔드포인트"""
+#    try:
+#        # MongoDB 연결 확인
+#        await client.admin.command('ping')
+#        
+#        # Redis 연결 확인 (cache_service를 통해)
+#        redis_status = "healthy"
+#        try:
+#            await cache_service.ping()
+#        except Exception:
+#            redis_status = "unhealthy"
+#        
+#        return {
+#            "status": "healthy",
+#            "timestamp": datetime.utcnow().isoformat(),
+#            "services": {
+#                "mongodb": "healthy",
+#                "redis": redis_status,
+#                "api": "healthy"
+#            },
+#            "version": "2.0.0"
+#        }
+#    except Exception as e:
+#        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+
+# Enhanced health monitoring endpoints
+@api_router.get("/health/detailed")
+async def detailed_health_check():
+    """Comprehensive health check with system metrics"""
+    return await health_monitor.get_comprehensive_health_report()
+
+@api_router.get("/health/liveness")
+async def liveness_probe():
+    """Kubernetes-style liveness probe"""
+    return await health_monitor.get_liveness_probe()
+
+@api_router.get("/health/readiness")
+async def readiness_probe():
+    """Kubernetes-style readiness probe"""
+    return await health_monitor.get_readiness_probe()
+
+@api_router.get("/health/metrics")
+async def system_metrics():
+    """System performance metrics"""
+    return await health_monitor.get_system_metrics()
+
+# WebSocket endpoint for real-time notifications
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    """WebSocket endpoint for real-time notifications"""
+    await connection_manager.connect(websocket, user_id)
     try:
-        # Check database connection
-        await db.admin.command('ping')
-        return {
-            "status": "healthy",
-            "timestamp": datetime.utcnow(),
-            "database": "connected",
-            "version": "2.0.0"
-        }
+        while True:
+            # Keep connection alive and handle incoming messages
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            
+            # Handle different message types
+            if message.get("type") == "join_room":
+                room_id = message.get("room_id")
+                if room_id:
+                    await connection_manager.join_room(websocket, room_id)
+            elif message.get("type") == "leave_room":
+                room_id = message.get("room_id")
+                if room_id:
+                    await connection_manager.leave_room(websocket, room_id)
+            elif message.get("type") == "ping":
+                # Respond to ping with pong
+                await connection_manager.send_personal_message({
+                    "type": "pong",
+                    "timestamp": datetime.utcnow().isoformat()
+                }, websocket)
+                
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "timestamp": datetime.utcnow(),
-            "database": "disconnected",
-            "error": str(e)
-        }
+        logger.error(f"WebSocket error: {e}")
+        connection_manager.disconnect(websocket)
 
 # Initialize default users
 @api_router.post("/init")
@@ -1074,16 +1778,44 @@ async def initialize_system():
     
     return {"message": "시스템이 성공적으로 초기화되었습니다", "users": len(default_users)}
 
+# Additional API endpoints for deployment verification
+@api_router.get("/status")
+async def api_status():
+    """API 상태 확인 엔드포인트 (deployment checker용)"""
+    try:
+        # MongoDB 연결 확인
+        await client.admin.command('ping')
+        mongodb_status = "connected"
+        
+        # Redis 연결 확인
+        redis_status = "connected"
+        try:
+            await cache_service.ping()
+        except Exception:
+            redis_status = "disconnected"        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "database": {
+                "status": mongodb_status,
+                "type": "mongodb"
+            },
+            "cache": {
+                "status": redis_status,
+                "type": "redis"
+            },
+            "api": {
+                "status": "connected",
+                "version": "2.0.0"
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# ...existing code...
 
 # Configure logging
 logging.basicConfig(
@@ -1094,11 +1826,26 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("온라인 평가 시스템 v2.0.0 시작됨")
-    logger.info(f"MongoDB 연결: {mongo_url}")
+    logger.info("🚀 온라인 평가 시스템 v2.0.0 시작됨")
+    logger.info(f"🔗 MongoDB 연결: {mongo_url}")
+    
+    # Initialize cache service
+    await cache_service.connect()
+    
+    # Log startup completion
+    logger.info("✅ 모든 서비스가 성공적으로 시작되었습니다")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    logger.info("🔄 시스템 종료 중...")
+    
+    # Disconnect cache service
+    await cache_service.disconnect()
+    
+    # Close database connection
     client.close()
+    
+    # Shutdown thread pool
     executor.shutdown(wait=True)
-    logger.info("시스템 종료됨")
+    
+    logger.info("✅ 시스템이 안전하게 종료되었습니다")

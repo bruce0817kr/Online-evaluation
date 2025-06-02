@@ -1,0 +1,7 @@
+{
+  "frontend": 3000,
+  "backend": 8080,
+  "mongodb": 27017,
+  "redis": 6379,
+  "nginx": 80
+}
