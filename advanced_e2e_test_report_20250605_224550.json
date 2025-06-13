@@ -1,0 +1,53 @@
+{
+  "test_summary": {
+    "test_type": "Advanced E2E Workflow Test",
+    "total_tests": 5,
+    "passed_tests": 1,
+    "failed_tests": 4,
+    "success_rate": 20.0,
+    "test_timestamp": "2025-06-05T22:45:50.831801"
+  },
+  "test_results": [
+    {
+      "test_name": "프로젝트 생성",
+      "success": false,
+      "message": "생성된 프로젝트가 목록에 나타나지 않음",
+      "duration": "6.17s",
+      "timestamp": "2025-06-05T22:44:17.050360"
+    },
+    {
+      "test_name": "사용자 생성",
+      "success": false,
+      "message": "예외 발생: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('⚙️ 관리자')\")\n    - locator resolved to <button class=\"py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300\">⚙️ 관리자</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "duration": "30.02s",
+      "timestamp": "2025-06-05T22:44:47.167672"
+    },
+    {
+      "test_name": "템플릿 관리",
+      "success": false,
+      "message": "예외 발생: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('📄 템플릿 관리')\")\n    - locator resolved to <button class=\"py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300\">📄 템플릿 관리</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "duration": "30.01s",
+      "timestamp": "2025-06-05T22:45:17.267083"
+    },
+    {
+      "test_name": "분석 리포트",
+      "success": false,
+      "message": "예외 발생: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('분석')\")\n    - locator resolved to <button class=\"py-4 px-1 border-b-2 font-medium text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300\">📊 결과 분석</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    57 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <div class=\"p-6 border-b border-gray-200\">…</div> from <main class=\"max-w-7xl mx-auto py-6 sm:px-6 lg:px-8\">…</main> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "duration": "30.01s",
+      "timestamp": "2025-06-05T22:45:47.358894"
+    },
+    {
+      "test_name": "반응형 디자인",
+      "success": true,
+      "message": "3/3 뷰포트에서 정상 작동",
+      "duration": "3.39s",
+      "timestamp": "2025-06-05T22:45:50.831297"
+    }
+  ],
+  "environment": {
+    "frontend_url": "http://localhost:3000",
+    "backend_url": "http://localhost:8080",
+    "test_project_name": "E2E 테스트 프로젝트 0605_2244",
+    "test_company_name": "E2E 테스트 회사 0605_2244"
+  }
+}

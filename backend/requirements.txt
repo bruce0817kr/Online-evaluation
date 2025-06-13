@@ -30,3 +30,8 @@ pandas>=2.1.0
 redis>=5.0.0
 psutil>=5.9.0
 websockets>=12.0
+bleach>=6.2.0
+python-magic>=0.4.27
+# Prometheus monitoring dependencies
+prometheus_client>=0.20.0
+prometheus_fastapi_instrumentator>=6.1.0

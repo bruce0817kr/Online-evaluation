@@ -1,0 +1,300 @@
+version: '3.8'
+
+services:
+  # Redis 캐시 서버 - 스테이징 환경
+  redis:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis-staging
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data_staging:/data
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+
+  # MongoDB 데이터베이스 - 스테이징 환경
+  mongodb:
+    image: mongo:7
+    container_name: online-evaluation-mongodb-staging
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    volumes:
+      - mongodb_data_staging:/data/db
+      - mongodb_config_staging:/data/configdb
+      - ./backup:/backup:ro
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # 백엔드 API 서버 - 스테이징 환경
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: production  # 프로덕션 빌드 사용
+    container_name: online-evaluation-backend-staging
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Database Configuration
+      MONGO_URL: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin"
+      DB_NAME: ${DB_NAME}
+      
+      # Redis Configuration
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      
+      # JWT Configuration
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: "HS256"
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      
+      # CORS Configuration
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      CORS_ALLOW_CREDENTIALS: "true"
+      
+      # Security Settings
+      SECURITY_HEADERS_ENABLED: "true"
+      RATE_LIMIT_REQUESTS_PER_MINUTE: "120"
+      RATE_LIMIT_BURST: "20"
+      
+      # File Upload
+      MAX_FILE_SIZE_MB: "50"
+      ALLOWED_FILE_TYPES: "pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif"
+      UPLOAD_PATH: "/app/uploads"
+      
+      # Staging Environment
+      ENVIRONMENT: "staging"
+      DEBUG: "false"
+      LOG_LEVEL: "INFO"
+      
+      # API Configuration
+      API_TITLE: "Online Evaluation System API - Staging"
+      API_DESCRIPTION: "Staging environment for evaluation management platform"
+      
+      # Monitoring
+      ENABLE_METRICS: "true"
+      ENABLE_TRACING: "true"
+    volumes:
+      - uploads_data_staging:/app/uploads
+      - logs_data_staging:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # 프론트엔드 웹 서버 - 스테이징 환경
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: production
+    container_name: online-evaluation-frontend-staging
+    restart: always
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
+      REACT_APP_WS_URL: ${REACT_APP_WS_URL}
+      REACT_APP_ENV: "staging"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # Nginx 리버스 프록시 - 스테이징 환경
+  nginx:
+    image: nginx:alpine
+    container_name: online-evaluation-nginx-staging
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/staging.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache_staging:/var/cache/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - staging-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.3'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+
+  # 백업 서비스 - 스테이징 환경
+  backup:
+    image: alpine:latest
+    container_name: online-evaluation-backup-staging
+    restart: "no"
+    environment:
+      MONGO_URL: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin"
+      BACKUP_SCHEDULE: "0 2 * * *"  # 매일 새벽 2시
+      BACKUP_RETENTION_DAYS: "7"
+    volumes:
+      - ./backup:/backup
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
+    depends_on:
+      - mongodb
+    networks:
+      - staging-network
+    profiles:
+      - backup
+    command: |
+      sh -c "
+        apk add --no-cache mongodb-tools curl &&
+        chmod +x /usr/local/bin/backup.sh &&
+        crond -f -d 8
+      "
+
+  # 모니터링: Prometheus (선택사항)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: online-evaluation-prometheus-staging
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.staging.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_staging:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - staging-network
+    profiles:
+      - monitoring
+
+  # 모니터링: Grafana (선택사항)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: online-evaluation-grafana-staging
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data_staging:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - staging-network
+    profiles:
+      - monitoring
+
+volumes:
+  mongodb_data_staging:
+    driver: local
+  mongodb_config_staging:
+    driver: local
+  redis_data_staging:
+    driver: local
+  uploads_data_staging:
+    driver: local
+  logs_data_staging:
+    driver: local
+  nginx_cache_staging:
+    driver: local
+  prometheus_data_staging:
+    driver: local
+  grafana_data_staging:
+    driver: local
+
+networks:
+  staging-network:
+    driver: bridge
+    name: online-evaluation-staging-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-06-02T22:56:12.242015",
+  "timestamp": "2025-06-04T23:22:48.854268",
   "base_url": "http://localhost:8080",
   "summary": {
     "total_tests": 22,
@@ -56,7 +56,7 @@
       "success": true,
       "message": "HTTP 상태 코드: 200",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.159484"
+      "timestamp": "2025-06-04T23:22:48.768024"
     },
     {
       "test": "API 문서 접근",
@@ -64,7 +64,7 @@
       "success": true,
       "message": "Swagger UI 접근 가능",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.177866"
+      "timestamp": "2025-06-04T23:22:48.783868"
     },
     {
       "test": "헬스 체크",
@@ -72,7 +72,7 @@
       "success": true,
       "message": "헬스 체크 엔드포인트 응답",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.193676"
+      "timestamp": "2025-06-04T23:22:48.799280"
     },
     {
       "test": "파일 존재: backend/server.py",
@@ -80,7 +80,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.194204"
+      "timestamp": "2025-06-04T23:22:48.799809"
     },
     {
       "test": "파일 존재: backend/export_utils.py",
@@ -88,7 +88,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.194730"
+      "timestamp": "2025-06-04T23:22:48.800330"
     },
     {
       "test": "파일 존재: backend/requirements.txt",
@@ -96,7 +96,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.194730"
+      "timestamp": "2025-06-04T23:22:48.800330"
     },
     {
       "test": "파일 존재: frontend/src/App.js",
@@ -104,7 +104,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.194730"
+      "timestamp": "2025-06-04T23:22:48.800330"
     },
     {
       "test": "파일 존재: frontend/package.json",
@@ -112,7 +112,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195255"
+      "timestamp": "2025-06-04T23:22:48.800855"
     },
     {
       "test": "파일 존재: docker-compose.yml",
@@ -120,7 +120,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195255"
+      "timestamp": "2025-06-04T23:22:48.800855"
     },
     {
       "test": "파일 존재: README.md",
@@ -128,7 +128,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195255"
+      "timestamp": "2025-06-04T23:22:48.800855"
     },
     {
       "test": "파일 존재: README_KR.md",
@@ -136,7 +136,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195255"
+      "timestamp": "2025-06-04T23:22:48.800855"
     },
     {
       "test": "한글 지원: 한글 폰트 등록",
@@ -144,7 +144,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195782"
+      "timestamp": "2025-06-04T23:22:48.801380"
     },
     {
       "test": "한글 지원: 맑은 고딕 폰트",
@@ -152,7 +152,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.195782"
+      "timestamp": "2025-06-04T23:22:48.801380"
     },
     {
       "test": "한글 지원: 한글 제목 스타일",
@@ -160,7 +160,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.196302"
+      "timestamp": "2025-06-04T23:22:48.801907"
     },
     {
       "test": "한글 지원: 한글 본문 스타일",
@@ -168,7 +168,7 @@
       "success": true,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.196302"
+      "timestamp": "2025-06-04T23:22:48.801907"
     },
     {
       "test": "한글 지원: UTF-8 인코딩",
@@ -176,7 +176,7 @@
       "success": false,
       "message": "",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.196302"
+      "timestamp": "2025-06-04T23:22:48.801907"
     },
     {
       "test": "사용자 등록",
@@ -184,7 +184,7 @@
       "success": false,
       "message": "HTTP 404: {\"detail\":\"Not Found\"}",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.222483"
+      "timestamp": "2025-06-04T23:22:48.828975"
     },
     {
       "test": "사용자 로그인",
@@ -192,7 +192,7 @@
       "success": false,
       "message": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"username\"],\"msg\":\"Field required\",\"input\":null},{\"type\":\"missing\",\"loc\":[\"body\",\"password\"],\"msg\":\"Field required\",\"input\":null}]}",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.238883"
+      "timestamp": "2025-06-04T23:22:48.851641"
     },
     {
       "test": "템플릿 테스트",
@@ -200,7 +200,7 @@
       "success": false,
       "message": "인증 토큰이 없음",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.239400"
+      "timestamp": "2025-06-04T23:22:48.852165"
     },
     {
       "test": "평가 테스트",
@@ -208,7 +208,7 @@
       "success": false,
       "message": "인증 토큰이 없음",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.239929"
+      "timestamp": "2025-06-04T23:22:48.852165"
     },
     {
       "test": "분석 테스트",
@@ -216,7 +216,7 @@
       "success": false,
       "message": "인증 토큰이 없음",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.239929"
+      "timestamp": "2025-06-04T23:22:48.852705"
     },
     {
       "test": "내보내기 테스트",
@@ -224,7 +224,7 @@
       "success": false,
       "message": "인증 토큰이 없음",
       "details": null,
-      "timestamp": "2025-06-02T22:56:12.239929"
+      "timestamp": "2025-06-04T23:22:48.852705"
     }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-06-12T18:02:23.870847",
+  "tests_passed": 2,
+  "total_tests": 3,
+  "score": 66,
+  "backend_healthy": true,
+  "frontend_accessible": true,
+  "authentication_working": false
+}

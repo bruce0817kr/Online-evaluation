@@ -1,0 +1,44 @@
+{
+  "test_session": {
+    "start_time": "2025-06-05T22:52:32.616418",
+    "end_time": "2025-06-05T22:52:46.836768",
+    "duration": "0:00:14.220350",
+    "base_url": "http://localhost:3000"
+  },
+  "summary": {
+    "total_tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "success_rate": "100.0%"
+  },
+  "test_results": [
+    {
+      "test_name": "네비게이션 구조 발견",
+      "status": "PASS",
+      "message": "0 개의 네비게이션 요소 발견",
+      "duration": "0.18s",
+      "timestamp": "2025-06-05T22:52:34.691774",
+      "nav_elements": []
+    },
+    {
+      "test_name": "접근성 검사",
+      "status": "PASS",
+      "message": "접근성 검사 완료 - 0개 이슈 발견",
+      "duration": "0.11s",
+      "timestamp": "2025-06-05T22:52:34.797952",
+      "accessibility_info": {
+        "total_images": 0,
+        "total_inputs": 0,
+        "total_buttons": 0,
+        "issues": []
+      }
+    },
+    {
+      "test_name": "정밀한 로그인 워크플로우",
+      "status": "PASS",
+      "message": "로그인 성공, 대시보드 접근 확인됨",
+      "duration": "11.28s",
+      "timestamp": "2025-06-05T22:52:46.074211"
+    }
+  ]
+}

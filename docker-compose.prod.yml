@@ -1,0 +1,609 @@
+version: '3.8'
+
+services:
+  # Redis 캐시 서버 - 프로덕션 환경
+  redis:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis-prod
+    restart: always
+    ports:
+      - "127.0.0.1:6379:6379"  # 로컬호스트에서만 접근
+    command: |
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data_prod:/data
+      - redis_config_prod:/usr/local/etc/redis
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    user: "999:999"  # redis user
+
+  # MongoDB 데이터베이스 - 프로덕션 환경
+  mongodb:
+    image: mongo:7
+    container_name: online-evaluation-mongodb-prod
+    restart: always
+    ports:
+      - "127.0.0.1:27017:27017"  # 로컬호스트에서만 접근
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+    volumes:
+      - mongodb_data_prod:/data/db
+      - mongodb_config_prod:/data/configdb
+      - mongodb_logs_prod:/var/log/mongodb
+      - ./backup:/backup:ro
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.5'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    security_opt:
+      - no-new-privileges:true
+    user: "999:999"  # mongodb user
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # 백엔드 API 서버 - 프로덕션 환경
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: production
+    image: online-evaluation-backend:latest
+    container_name: online-evaluation-backend-prod
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"  # 로컬호스트에서만 접근
+    environment:
+      # Database Configuration
+      MONGO_URL: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin&ssl=false&retryWrites=true&w=majority"
+      DB_NAME: ${DB_NAME}
+      
+      # Redis Configuration
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379"
+      
+      # JWT Configuration
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: "HS256"
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      
+      # CORS Configuration
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      CORS_ALLOW_CREDENTIALS: "true"
+      
+      # Security Settings
+      SECURITY_HEADERS_ENABLED: "true"
+      RATE_LIMIT_REQUESTS_PER_MINUTE: "60"
+      RATE_LIMIT_BURST: "10"
+      
+      # File Upload Security
+      MAX_FILE_SIZE_MB: "50"
+      ALLOWED_FILE_TYPES: "pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png"
+      UPLOAD_PATH: "/app/uploads"
+      
+      # Production Environment
+      ENVIRONMENT: "production"
+      DEBUG: "false"
+      LOG_LEVEL: "WARNING"
+      
+      # SSL Configuration
+      SSL_CERT_PATH: "/app/ssl/cert.pem"
+      SSL_KEY_PATH: "/app/ssl/key.pem"
+      
+      # API Configuration
+      API_TITLE: "Online Evaluation System API"
+      API_DESCRIPTION: "Production evaluation management platform"
+      
+      # Performance Settings
+      WORKERS: "4"
+      MAX_CONNECTIONS: "1000"
+      
+      # Monitoring and Logging
+      ENABLE_METRICS: "true"
+      ENABLE_TRACING: "true"
+      SENTRY_DSN: ${SENTRY_DSN}
+    volumes:
+      - uploads_data_prod:/app/uploads:rw
+      - logs_data_prod:/app/logs:rw
+      - ssl_certs_prod:/app/ssl:ro
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache
+    user: "1000:1000"  # non-root user
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # 프론트엔드 웹 서버 - 프로덕션 환경
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: production
+    image: online-evaluation-frontend:latest
+    container_name: online-evaluation-frontend-prod
+    restart: always
+    ports:
+      - "127.0.0.1:3000:80"  # 로컬호스트에서만 접근
+    environment:
+      REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
+      REACT_APP_WS_URL: ${REACT_APP_WS_URL}
+      REACT_APP_ENV: "production"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    user: "101:101"  # nginx user
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Nginx 리버스 프록시 - 프로덕션 환경
+  nginx:
+    image: nginx:alpine
+    container_name: online-evaluation-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/production.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache_prod:/var/cache/nginx
+      - nginx_logs_prod:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    user: "101:101"  # nginx user
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # 자동 백업 서비스 - 프로덕션 환경
+  backup:
+    image: alpine:latest
+    container_name: online-evaluation-backup-prod
+    restart: always
+    environment:
+      MONGO_URL: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin"
+      BACKUP_SCHEDULE: "0 2 * * *"  # 매일 새벽 2시
+      BACKUP_RETENTION_DAYS: "30"
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${BACKUP_S3_BUCKET}
+    volumes:
+      - ./backup:/backup
+      - ./scripts/backup-production.sh:/usr/local/bin/backup.sh:ro
+    depends_on:
+      - mongodb
+    networks:
+      - prod-network
+    security_opt:
+      - no-new-privileges:true
+    user: "1000:1000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    command: |
+      sh -c "
+        apk add --no-cache mongodb-tools aws-cli curl &&
+        chmod +x /usr/local/bin/backup.sh &&
+        echo '${BACKUP_SCHEDULE} /usr/local/bin/backup.sh' | crontab - &&
+        crond -f -d 8
+      "
+
+  # =====================================================
+  # MONITORING STACK - PRODUCTION
+  # =====================================================
+  
+  # Prometheus - 메트릭 수집 서버
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: online-evaluation-prometheus-prod
+    restart: always
+    ports:
+      - "127.0.0.1:9090:9090"  # 내부 접근만 허용
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--log.level=info'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerting:/etc/prometheus/rules:ro
+      - prometheus_data_prod:/prometheus
+    networks:
+      - prod-network
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    user: "65534:65534"  # nobody user
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Grafana - 시각화 대시보드
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: online-evaluation-grafana-prod
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"  # 내부 접근만 허용
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin123}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY:-grafana-secret-key-change-in-production}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_ALLOW_ORG_CREATE: "false"
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel,grafana-clock-panel"
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SECURITY_COOKIE_SAMESITE: "strict"
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s/grafana/"
+      GF_LOG_LEVEL: "info"
+    volumes:
+      - grafana_data_prod:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - prod-network
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    user: "472:472"  # grafana user
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Node Exporter - 호스트 시스템 메트릭
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: online-evaluation-node-exporter-prod
+    restart: always
+    ports:
+      - "127.0.0.1:9100:9100"
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.systemd'
+      - '--collector.processes'
+      - '--web.max-requests=40'
+      - '--log.level=info'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    user: "65534:65534"
+    pid: host
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # cAdvisor - 컨테이너 메트릭
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: online-evaluation-cadvisor-prod
+    restart: always
+    ports:
+      - "127.0.0.1:8081:8080"
+    command:
+      - '--housekeeping_interval=30s'
+      - '--max_housekeeping_interval=35s'
+      - '--allow_dynamic_housekeeping=true'
+      - '--storage_duration=1m0s'
+      - '--docker_only=true'
+      - '--disable_metrics=accelerator,cpu_topology,disk,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.3'
+    security_opt:
+      - no-new-privileges:true
+    privileged: true
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Redis Exporter - Redis 메트릭
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.53.0
+    container_name: online-evaluation-redis-exporter-prod
+    restart: always
+    ports:
+      - "127.0.0.1:9121:9121"
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_EXPORTER_LOG_FORMAT: "json"
+    networks:
+      - prod-network
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    user: "59000:59000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9121/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # MongoDB Exporter - MongoDB 메트릭
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.39.0
+    container_name: online-evaluation-mongodb-exporter-prod
+    restart: always
+    ports:
+      - "127.0.0.1:9216:9216"
+    environment:
+      MONGODB_URI: "mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb:27017/${MONGODB_DATABASE}?authSource=${MONGODB_AUTH_DATABASE}"
+      MONGODB_EXPORTER_LOG_LEVEL: "info"
+    networks:
+      - prod-network
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+    security_opt:
+      - no-new-privileges:true
+    user: "65534:65534"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9216/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Blackbox Exporter - 엔드포인트 헬스체크
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: online-evaluation-blackbox-exporter-prod
+    restart: always
+    ports:
+      - "127.0.0.1:9115:9115"
+    volumes:
+      - ./monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    user: "65534:65534"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9115/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongodb_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/online-evaluation/mongodb
+  mongodb_config_prod:
+    driver: local
+  mongodb_logs_prod:
+    driver: local
+  redis_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/online-evaluation/redis
+  redis_config_prod:
+    driver: local
+  uploads_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/online-evaluation/uploads
+  logs_data_prod:
+    driver: local  ssl_certs_prod:
+    driver: local
+  nginx_cache_prod:
+    driver: local
+  nginx_logs_prod:
+    driver: local
+  # Monitoring stack volumes
+  prometheus_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/online-evaluation/prometheus
+  grafana_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/online-evaluation/grafana
+
+networks:
+  prod-network:
+    driver: bridge
+    name: online-evaluation-prod-network
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: br-eval-prod

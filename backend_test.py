@@ -35,8 +35,9 @@ class OnlineEvaluationSystemTester:
         
         if headers is None:
             headers = {'Content-Type': 'application/json'}
-            if self.token:
-                headers['Authorization'] = f'Bearer {self.token}'        self.tests_run += 1
+        if self.token:
+            headers['Authorization'] = f'Bearer {self.token}'
+        self.tests_run += 1
         print(f"\n[TEST] Testing {name}...")
         
         try:
@@ -783,8 +784,7 @@ class OnlineEvaluationSystemTester:
 
 def main():
     # Get backend URL from environment variable or use default
-    backend_url = "https://c9538c52-9ad8-41a7-9b0c-0f121f66378a.preview.emergentagent.com"
-    
+    backend_url = os.environ.get("BACKEND_URL", "http://localhost:8080")
     print(f"Testing backend at: {backend_url}")
     
     # Setup tester

@@ -1,0 +1,88 @@
+{
+  "timestamp": "2025-06-12T15:09:08.415679",
+  "summary": {
+    "overall_score": 92.9,
+    "status": "EXCELLENT",
+    "total_tests": 14,
+    "passed_tests": 13,
+    "recommendations": [
+      "Frontend 서비스 상태 확인 및 복구"
+    ]
+  },
+  "detailed_results": {
+    "services": {
+      "Backend": {
+        "status": "PASS",
+        "response_time": 23.45
+      },
+      "Frontend": {
+        "status": "FAIL",
+        "error": "('Connection aborted.', ConnectionAbortedError(10053, '현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다', None, 10053, None))"
+      },
+      "Elasticsearch": {
+        "status": "PASS",
+        "response_time": 4.32
+      },
+      "Kibana": {
+        "status": "PASS",
+        "response_time": 25.97
+      },
+      "Logstash": {
+        "status": "PASS",
+        "response_time": 12.54
+      }
+    },
+    "api": {
+      "/health": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 5.0
+      },
+      "/docs": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 13.83
+      },
+      "/api/users": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 50.47
+      },
+      "/api/evaluations": {
+        "status": "PASS",
+        "code": 404,
+        "response_time": 30.46
+      }
+    },
+    "elk": {
+      "elasticsearch": {
+        "status": "PASS",
+        "cluster_status": "green"
+      },
+      "kibana": {
+        "status": "PASS"
+      },
+      "logstash": {
+        "status": "PASS",
+        "version": "8.15.0"
+      }
+    },
+    "database": {
+      "mongodb": {
+        "status": "PASS"
+      },
+      "redis": {
+        "status": "PASS"
+      }
+    },
+    "security": {
+      "security_headers": 4,
+      "cors_configured": true,
+      "total_score": 5
+    }
+  },
+  "test_info": {
+    "script_version": "1.0",
+    "test_type": "comprehensive_system_verification"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "index_patterns": ["docker-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.refresh_interval": "60s",
+      "index.lifecycle.name": "docker-logs-policy"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "container_id": {
+          "type": "keyword"
+        },
+        "container_name": {
+          "type": "keyword"
+        },
+        "image": {
+          "type": "keyword"
+        },
+        "image_tag": {
+          "type": "keyword"
+        },
+        "source": {
+          "type": "keyword"
+        },
+        "log": {
+          "type": "text"
+        },
+        "stream": {
+          "type": "keyword"
+        },
+        "attrs": {
+          "type": "object",
+          "dynamic": true
+        },
+        "host": {
+          "type": "keyword"
+        },
+        "service": {
+          "type": "keyword"
+        },
+        "environment": {
+          "type": "keyword"
+        }
+      }
+    }
+  },
+  "priority": 100,
+  "version": 1,
+  "_meta": {
+    "description": "Template for Docker container logs"
+  }
+}

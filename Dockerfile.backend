@@ -1,51 +1,163 @@
-# 백엔드 API 서버용 Dockerfile
-FROM python:3.11-slim
+# 멀티스테이지 빌드를 위한 최적화된 백엔드 Dockerfile
+# Stage 1: Base image with common dependencies
+FROM python:3.11-slim as base
 
 # 메타데이터
 LABEL maintainer="Online Evaluation System"
-LABEL version="1.0.0"
-LABEL description="Enterprise-grade Online Evaluation System Backend"
+LABEL version="2.0.0"
+LABEL description="Production-ready Online Evaluation System Backend"
 
-# 작업 디렉터리 설정
-WORKDIR /app
-
-# 시스템 패키지 업데이트 및 필요한 도구 설치
+# 시스템 패키지 업데이트 및 기본 도구 설치
 RUN apt-get update && apt-get install -y \
     curl \
     gcc \
     g++ \
+    libc-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Python 최적화 설정
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# 작업 디렉터리 설정
+WORKDIR /app
+
+# Stage 2: Development dependencies
+FROM base as development
+
+# Development tools 설치
+RUN apt-get update && apt-get install -y \
+    git \
+    vim \
+    less \
+    tree \
+    htop \
     && rm -rf /var/lib/apt/lists/*
 
-# Python 의존성 설치
+# 개발용 Python 패키지 설치
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir \
+    pytest \
+    pytest-asyncio \
+    pytest-cov \
+    black \
+    isort \
+    flake8 \
+    mypy \
+    debugpy
+
+# 백엔드 소스코드 복사 (개발 시에는 볼륨 마운트 사용)
+COPY backend/ .
+
+# 디렉터리 생성
+RUN mkdir -p /app/uploads /app/logs /app/tests
+
+# 개발 환경 설정
+ENV PYTHONPATH=/app \
+    HOST=0.0.0.0 \
+    PORT=8080 \
+    RELOAD=true \
+    DEBUG=true
+
+# 개발 서버 시작 (Hot reload 지원)
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--log-level", "debug"]
+
+# Stage 3: Production dependencies
+FROM base as production-deps
+
+# Production 전용 Python 패키지 설치
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir gunicorn
+
+# Stage 4: Production image
+FROM python:3.11-slim as production
+
+# 보안 강화를 위한 시스템 설정
+RUN apt-get update && apt-get install -y \
+    curl \
+    dumb-init \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && groupadd -r appuser \
+    && useradd -r -g appuser -s /bin/false -c "App User" appuser
+
+# Python 최적화 설정 (Production)
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PYTHONPATH=/app
+
+# 작업 디렉터리 설정
+WORKDIR /app
+
+# Production dependencies 복사
+COPY --from=production-deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=production-deps /usr/local/bin /usr/local/bin
 
 # 백엔드 소스코드 복사
 COPY backend/ .
 
-# 업로드 및 로그 디렉터리 생성
-RUN mkdir -p /app/uploads /app/logs
+# 필요한 디렉터리 생성 및 권한 설정
+RUN mkdir -p /app/uploads /app/logs \
+    && chown -R appuser:appuser /app \
+    && chmod -R 755 /app \
+    && chmod -R 777 /app/uploads /app/logs
 
-# 권한 설정
-RUN chmod +x /app && \
-    chown -R www-data:www-data /app
-
-# 비-루트 사용자로 실행
-USER www-data
+# 비루트 사용자로 전환
+USER appuser
 
 # 헬스체크 설정
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # 포트 노출
 EXPOSE 8080
 
-# 환경 변수 기본값 설정
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
-ENV HOST=0.0.0.0
-ENV PORT=8080
+# Production 환경 변수
+ENV HOST=0.0.0.0 \
+    PORT=8080 \
+    WORKERS=4 \
+    WORKER_CLASS=uvicorn.workers.UvicornWorker \
+    MAX_REQUESTS=1000 \
+    MAX_REQUESTS_JITTER=100 \
+    PRELOAD_APP=true \
+    TIMEOUT=30
 
-# 서버 시작 명령
-CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
+# dumb-init을 사용하여 프로세스 관리 개선
+ENTRYPOINT ["dumb-init", "--"]
+
+# Gunicorn을 사용한 프로덕션 서버 시작
+CMD ["gunicorn", "server:app", \
+     "--bind", "0.0.0.0:8080", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--max-requests", "1000", \
+     "--max-requests-jitter", "100", \
+     "--preload", \
+     "--timeout", "30", \
+     "--keep-alive", "5", \
+     "--log-level", "info", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]
+
+# Stage 5: Testing image (선택적)
+FROM development as testing
+
+# 테스트 도구 추가 설치
+RUN pip install --no-cache-dir \
+    pytest-xdist \
+    pytest-benchmark \
+    coverage \
+    locust
+
+# 테스트 실행 명령
+CMD ["python", "-m", "pytest", "tests/", "-v", "--cov=.", "--cov-report=html"]

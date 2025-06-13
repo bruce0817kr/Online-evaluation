@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # Redis 캐시 서버
+  redis:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MongoDB 데이터베이스 (초기화 스크립트 없이)
+  mongodb:
+    image: mongo:7
+    container_name: online-evaluation-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: online_evaluation
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 백엔드 API 서버
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: online-evaluation-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # 데이터베이스 설정
+      MONGO_URL: "mongodb://admin:password123@mongodb:27017/online_evaluation?authSource=admin"
+      DB_NAME: "online_evaluation"
+      
+      # Redis 설정
+      REDIS_URL: "redis://redis:6379"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      
+      # 서버 설정
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      CORS_ORIGINS: "http://localhost:3000,http://frontend:3000"
+      
+      # JWT 설정
+      JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+      JWT_ALGORITHM: "HS256"
+      
+      # 업로드 설정
+      UPLOAD_DIR: "/app/uploads"
+      MAX_FILE_SIZE: "50MB"
+      
+      # 로그 설정
+      LOG_LEVEL: "INFO"
+    volumes:
+      - uploads_data:/app/uploads
+      - logs_data:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 프론트엔드 웹 서버
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: online-evaluation-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:8080"
+      REACT_APP_WS_URL: "ws://localhost:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - online-evaluation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx 리버스 프록시 (선택사항)
+  nginx:
+    image: nginx:alpine
+    container_name: online-evaluation-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - online-evaluation-network
+    profiles:
+      - production  # 프로덕션 환경에서만 실행
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+  logs_data:
+    driver: local
+
+networks:
+  online-evaluation-network:
+    driver: bridge

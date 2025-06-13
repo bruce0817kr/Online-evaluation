@@ -1,0 +1,48 @@
+[
+  {
+    "test": "App.js checkAuthStatus 수정 확인",
+    "success": true,
+    "message": "서버 응답 데이터 사용 수정사항 확인됨",
+    "timestamp": "2025-06-05T16:40:16.981540",
+    "details": {
+      "file": "c:/Project/Online-evaluation/frontend/src/App.js",
+      "fixes_found": {
+        "server_response_usage": true,
+        "set_user_with_server_data": true,
+        "fresh_data_comment": true,
+        "auth_me_endpoint": true
+      },
+      "all_fixes_present": true
+    }
+  },
+  {
+    "test": "백엔드 헬스 체크",
+    "success": true,
+    "message": "백엔드 서버 정상 응답",
+    "timestamp": "2025-06-05T16:40:16.990387",
+    "details": {
+      "status": "healthy",
+      "database": null,
+      "timestamp": "2025-06-05T07:40:18.428268"
+    }
+  },
+  {
+    "test": "프론트엔드 접근",
+    "success": true,
+    "message": "프론트엔드 서버 정상 응답",
+    "timestamp": "2025-06-05T16:40:17.011915",
+    "details": {
+      "status_code": 200,
+      "content_length": 3268
+    }
+  },
+  {
+    "test": "로그인 실패",
+    "success": false,
+    "message": "상태 코드: 401",
+    "timestamp": "2025-06-05T16:40:17.018974",
+    "details": {
+      "response": "{\"detail\":\"아이디 또는 비밀번호가 잘못되었습니다\"}"
+    }
+  }
+]

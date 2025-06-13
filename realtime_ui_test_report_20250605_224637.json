@@ -1,0 +1,62 @@
+{
+  "test_summary": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_timestamp": "2025-06-05T22:46:37.047003"
+  },
+  "test_results": [
+    {
+      "test_name": "초기 페이지 로딩",
+      "success": true,
+      "message": "모든 요소 정상 로딩 (제목: Emergent | Fullstack App)",
+      "duration": "1.80s",
+      "timestamp": "2025-06-05T22:46:18.891158"
+    },
+    {
+      "test_name": "오류 처리",
+      "success": true,
+      "message": "잘못된 로그인에 대한 적절한 오류 표시",
+      "duration": "3.08s",
+      "timestamp": "2025-06-05T22:46:22.063107"
+    },
+    {
+      "test_name": "관리자 로그인",
+      "success": true,
+      "message": "로그인 성공, 대시보드 접근됨",
+      "duration": "3.10s",
+      "timestamp": "2025-06-05T22:46:25.245035"
+    },
+    {
+      "test_name": "네비게이션 탭",
+      "success": true,
+      "message": "5/5 탭 정상 작동",
+      "duration": "5.69s",
+      "timestamp": "2025-06-05T22:46:31.048490"
+    },
+    {
+      "test_name": "사용자 관리",
+      "success": true,
+      "message": "사용자 관리 기능 접근 성공",
+      "duration": "3.59s",
+      "timestamp": "2025-06-05T22:46:34.643109"
+    },
+    {
+      "test_name": "로그아웃",
+      "success": true,
+      "message": "성공적으로 로그아웃됨",
+      "duration": "2.23s",
+      "timestamp": "2025-06-05T22:46:36.962836"
+    }
+  ],
+  "environment": {
+    "frontend_url": "http://localhost:3000",
+    "backend_url": "http://localhost:8080",
+    "test_accounts": [
+      "admin",
+      "secretary",
+      "evaluator"
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "timestamp": "2025-06-12T15:17:29.717995",
+  "summary": {
+    "overall_score": 92.3,
+    "production_ready": true,
+    "recommendations": [
+      "Frontend 접근성 문제 해결 (Docker 컨테이너 헬스체크 설정 개선)"
+    ],
+    "test_summary": {
+      "total": 13,
+      "passed": 12,
+      "partial": 0,
+      "failed": 1
+    }
+  },
+  "detailed_results": [
+    {
+      "test": "Backend Health Check",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.503149",
+      "details": {
+        "status": "healthy",
+        "services": {
+          "mongodb": "healthy",
+          "redis": "healthy",
+          "api": "healthy"
+        },
+        "response_time": "17ms"
+      }
+    },
+    {
+      "test": "API Documentation",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.511648",
+      "details": {
+        "accessible": true
+      }
+    },
+    {
+      "test": "CORS Configuration",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.517043",
+      "details": {
+        "cors_origin": "*"
+      }
+    },
+    {
+      "test": "MongoDB Connection",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.540543",
+      "details": {
+        "status": "healthy"
+      }
+    },
+    {
+      "test": "Redis Connection",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.541546",
+      "details": {
+        "status": "healthy"
+      }
+    },
+    {
+      "test": "Database Layer Health",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.541546",
+      "details": {
+        "mongodb": "healthy",
+        "redis": "healthy"
+      }
+    },
+    {
+      "test": "Elasticsearch Cluster",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.565374",
+      "details": {
+        "cluster_status": "green",
+        "nodes": 1
+      }
+    },
+    {
+      "test": "Kibana Service",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.583935",
+      "details": {
+        "status": "healthy",
+        "response_time": "17ms"
+      }
+    },
+    {
+      "test": "Logstash Service",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.595131",
+      "details": {
+        "status": "healthy",
+        "response_time": "10ms"
+      }
+    },
+    {
+      "test": "ELK Stack Overall",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.595131",
+      "details": {
+        "healthy_components": "3/3"
+      }
+    },
+    {
+      "test": "Security Headers",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.600719",
+      "details": {
+        "score": "100%",
+        "found": "4/4",
+        "Content Type Protection": "✅ Present",
+        "Clickjacking Protection": "✅ Present",
+        "XSS Protection": "✅ Present",
+        "HTTPS Enforcement": "✅ Present"
+      }
+    },
+    {
+      "test": "API Endpoints",
+      "status": "PASS",
+      "timestamp": "2025-06-12T15:17:29.704888",
+      "details": {
+        "success_rate": "80%",
+        "functional": "4/5",
+        "System Health": "✅ Functional",
+        "API Documentation": "✅ Functional",
+        "User Management": "✅ Functional",
+        "Evaluation Management": "✅ Functional (Auth Required/Not Found)",
+        "Authentication": "❌ Error (405)"
+      }
+    },
+    {
+      "test": "Frontend Accessibility",
+      "status": "FAIL",
+      "timestamp": "2025-06-12T15:17:29.716910",
+      "details": {
+        "error": "('Connection aborted.', ConnectionAbortedError(10053, '현재 연결은 사용자의 호스트 시스템의 소프트웨어의 의해 중단되었습니다', None",
+        "note": "Backend systems remain functional"
+      }
+    }
+  ],
+  "test_info": {
+    "version": "1.0",
+    "type": "practical_integration_test"
+  }
+}

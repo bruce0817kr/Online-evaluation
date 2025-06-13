@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-06-03T11:23:28.831366",
+  "summary": {
+    "total_console_errors": 4,
+    "total_network_errors": 3,
+    "console_error_types": {
+      "error": 4
+    },
+    "network_error_codes": {
+      "404": 2,
+      "405": 1
+    }
+  },
+  "console_errors": [
+    {
+      "timestamp": "2025-06-03T11:23:16.942804",
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://localhost:3000/",
+      "location": {
+        "url": "http://localhost:8080/api/health",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "timestamp": "2025-06-03T11:23:17.125650",
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://localhost:3000/",
+      "location": {
+        "url": "http://localhost:3000/favicon.ico",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "timestamp": "2025-06-03T11:23:24.603455",
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://localhost:3000/",
+      "location": {
+        "url": "http://localhost:8080/api/health",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    },
+    {
+      "timestamp": "2025-06-03T11:23:25.304037",
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 405 (Method Not Allowed)",
+      "url": "http://localhost:3000/",
+      "location": {
+        "url": "http://localhost:8080/api/auth/login",
+        "lineNumber": 0,
+        "columnNumber": 0
+      }
+    }
+  ],
+  "network_errors": [
+    {
+      "timestamp": "2025-06-03T11:23:16.942493",
+      "status": 404,
+      "url": "http://localhost:8080/api/health",
+      "method": "GET",
+      "status_text": "Not Found"
+    },
+    {
+      "timestamp": "2025-06-03T11:23:24.603041",
+      "status": 404,
+      "url": "http://localhost:8080/api/health",
+      "method": "GET",
+      "status_text": "Not Found"
+    },
+    {
+      "timestamp": "2025-06-03T11:23:25.303713",
+      "status": 405,
+      "url": "http://localhost:8080/api/auth/login",
+      "method": "GET",
+      "status_text": "Method Not Allowed"
+    }
+  ]
+}

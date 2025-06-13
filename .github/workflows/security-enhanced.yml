@@ -1,0 +1,667 @@
+name: 'Enhanced Security CI/CD Pipeline - Online Evaluation System'
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    name: 'Run Tests'
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin123
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+          
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
+      
+    - name: 'Setup Node.js'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+        
+    - name: 'Setup Python'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        cache-dependency-path: 'backend/requirements.txt'
+        
+    - name: 'Install backend dependencies'
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        
+    - name: 'Install frontend dependencies'
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: 'Install Playwright browsers'
+      run: npx playwright install --with-deps
+      
+    - name: 'Lint backend code'
+      run: |
+        cd backend
+        pip install flake8 black
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        black --check .
+        
+    - name: 'Lint frontend code'
+      run: |
+        cd frontend
+        npm run lint
+        
+    - name: 'Run backend unit tests'
+      run: |
+        cd backend
+        python -m pytest tests/ -v --cov=. --cov-report=xml
+      env:
+        MONGODB_URL: mongodb://admin:admin123@localhost:27017/test_db?authSource=admin
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test-secret-key
+        
+    - name: 'Build frontend'
+      run: |
+        cd frontend
+        npm run build
+        
+    - name: 'Start backend server'
+      run: |
+        cd backend
+        python -m uvicorn server:app --host 0.0.0.0 --port 8080 &
+        sleep 10
+      env:
+        MONGODB_URL: mongodb://admin:admin123@localhost:27017/test_db?authSource=admin
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test-secret-key
+        
+    - name: 'Start frontend server'
+      run: |
+        cd frontend
+        npm start &
+        sleep 15
+      env:
+        REACT_APP_BACKEND_URL: http://localhost:8080
+        
+    - name: 'Wait for services'
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:8080/api/health; do sleep 1; done'
+        timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 1; done'
+        
+    - name: 'Run E2E tests'
+      run: npx playwright test
+      env:
+        BACKEND_URL: http://localhost:8080
+        FRONTEND_URL: http://localhost:3000
+        
+    - name: 'Upload test results'
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          test-results/
+          playwright-report/
+          backend/coverage.xml
+        retention-days: 30
+
+  comprehensive-security-scan:
+    name: 'Comprehensive Security Scanning'
+    runs-on: ubuntu-latest
+    needs: test
+    
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for better analysis
+      
+    - name: 'Setup Python for security tools'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 'Setup Node.js for security tools'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: 'Initialize CodeQL'
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript, python
+        queries: security-extended,security-and-quality
+        
+    - name: 'Install comprehensive security scanning tools'
+      run: |
+        # Python security tools
+        pip install safety bandit semgrep pip-audit
+        pip install cyclonedx-bom  # For SBOM generation
+        
+        # Node.js security tools
+        npm install -g npm-audit-resolver snyk @microsoft/rush-stack-compiler-3.9
+        
+        # Install additional security tools
+        curl -sfL https://raw.githubusercontent.com/securecodewarrior/github-action-add-sarif/main/dist/index.js
+        
+    - name: 'Generate Software Bill of Materials (SBOM)'
+      run: |
+        echo "=== Generating SBOM for Backend ==="
+        cd backend
+        cyclonedx-py -o sbom-backend.json
+        
+        echo "=== Generating SBOM for Frontend ==="
+        cd ../frontend
+        npx @cyclonedx/cyclonedx-npm --output-file sbom-frontend.json
+        
+    - name: 'Run Trivy filesystem scanner'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-fs-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        
+    - name: 'Run Trivy configuration scanner'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'config'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-config-results.sarif'
+        
+    - name: 'Run Trivy secret scanner'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        scanners: 'secret'
+        format: 'sarif'
+        output: 'trivy-secret-results.sarif'
+        
+    - name: 'Build Docker images for security scanning'
+      run: |
+        echo "=== Building images for security analysis ==="
+        docker build -t online-eval-backend:security-scan ./backend
+        docker build -t online-eval-frontend:security-scan ./frontend
+        
+    - name: 'Docker image security scan with Trivy'
+      run: |
+        echo "=== Scanning backend image ==="
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $(pwd):/workspace aquasec/trivy:latest image \
+          --format sarif --output /workspace/trivy-backend-image.sarif \
+          --severity CRITICAL,HIGH,MEDIUM \
+          online-eval-backend:security-scan
+          
+        echo "=== Scanning frontend image ==="
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $(pwd):/workspace aquasec/trivy:latest image \
+          --format sarif --output /workspace/trivy-frontend-image.sarif \
+          --severity CRITICAL,HIGH,MEDIUM \
+          online-eval-frontend:security-scan
+          
+    - name: 'Backend comprehensive security analysis'
+      run: |
+        cd backend
+        echo "=== Running Safety (dependency vulnerabilities) ==="
+        safety check -r requirements.txt --json --output safety-results.json || true
+        
+        echo "=== Running Bandit (static security analysis) ==="
+        bandit -r . -f json -o bandit-results.json -ll || true
+        
+        echo "=== Running pip-audit (package vulnerabilities) ==="
+        pip-audit --format=json --output=pip-audit-results.json || true
+        
+        echo "=== Running Semgrep (security patterns) ==="
+        semgrep --config=auto --json --output=semgrep-results.json . || true
+        
+        echo "=== Checking for secrets in code ==="
+        grep -r -i -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . \
+          --exclude-dir=__pycache__ --exclude="*.json" || echo "No hardcoded secrets found"
+        
+    - name: 'Frontend comprehensive security analysis'
+      run: |
+        cd frontend
+        echo "=== Running npm audit ==="
+        npm audit --audit-level=moderate --json > npm-audit-results.json || true
+        
+        echo "=== Running Snyk test ==="
+        if [ -n "${{ secrets.SNYK_TOKEN }}" ]; then
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+          snyk test --json > snyk-results.json || true
+          snyk code test --json > snyk-code-results.json || true
+        fi
+        
+        echo "=== Checking package.json for known malicious packages ==="
+        npm ls --depth=0 --json > package-tree.json
+        
+    - name: 'Infrastructure security validation'
+      run: |
+        echo "=== Validating security configurations ==="
+        
+        # Check Docker security best practices
+        echo "Validating Docker security..."
+        if [ -f "docker-compose.yml" ]; then
+          # Check for privileged containers
+          if grep -q "privileged.*true" docker-compose.yml; then
+            echo "❌ WARNING: Privileged containers detected"
+            echo "::warning::Privileged containers found in docker-compose.yml"
+          fi
+          
+          # Check for host networking
+          if grep -q "network_mode.*host" docker-compose.yml; then
+            echo "❌ WARNING: Host networking detected"
+            echo "::warning::Host networking found in docker-compose.yml"
+          fi
+          
+          # Check for exposed ports
+          exposed_ports=$(grep -c "ports:" docker-compose.yml || echo "0")
+          echo "📊 Exposed ports count: $exposed_ports"
+        fi
+        
+        # Check environment file security
+        echo "Validating environment configuration..."
+        if [ -f "backend/.env.example" ]; then
+          # Ensure no default passwords
+          if grep -E "(password|secret|key).*=.*(admin|password|123|default)" backend/.env.example; then
+            echo "❌ WARNING: Default credentials found in .env.example"
+            echo "::error::Default credentials detected in environment template"
+          fi
+        fi
+        
+        # Check GitHub workflow security
+        echo "Validating GitHub Actions security..."
+        if find .github/workflows -name "*.yml" -exec grep -l "pull_request_target" {} \;; then
+          echo "⚠️ WARNING: pull_request_target trigger found - review for security"
+        fi
+        
+    - name: 'OWASP Dependency Check'
+      run: |
+        echo "=== Running OWASP Dependency Check ==="
+        # Download and run OWASP Dependency Check
+        wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+        unzip -q dependency-check-8.4.0-release.zip
+        
+        ./dependency-check/bin/dependency-check.sh \
+          --project "Online-Evaluation-System" \
+          --scan backend frontend \
+          --format JSON \
+          --out owasp-dependency-check-results.json \
+          --nvdApiKey ${{ secrets.NVD_API_KEY }} || true
+        
+    - name: 'Upload Trivy scan results to GitHub Security'
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: |
+          trivy-fs-results.sarif
+          trivy-config-results.sarif
+          trivy-secret-results.sarif
+          trivy-backend-image.sarif
+          trivy-frontend-image.sarif
+        
+    - name: 'Run CodeQL Analysis'
+      uses: github/codeql-action/analyze@v3
+      with:
+        languages: javascript, python
+        
+    - name: 'Generate comprehensive security report'
+      run: |
+        echo "# 🔒 Comprehensive Security Scan Report" > security-report.md
+        echo "**Generated on:** $(date)" >> security-report.md
+        echo "**Commit:** ${{ github.sha }}" >> security-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> security-report.md
+        echo "" >> security-report.md
+        
+        echo "## 📊 Security Scan Summary" >> security-report.md
+        echo "| Scan Type | Status | Issues Found |" >> security-report.md
+        echo "|-----------|--------|--------------|" >> security-report.md
+        
+        # Trivy scans
+        echo "| Trivy Filesystem | $([ -f trivy-fs-results.sarif ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Trivy Configuration | $([ -f trivy-config-results.sarif ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Trivy Secrets | $([ -f trivy-secret-results.sarif ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Docker Image Scans | $([ -f trivy-backend-image.sarif ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        
+        # Backend scans
+        echo "| Backend Safety | $([ -f backend/safety-results.json ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Backend Bandit | $([ -f backend/bandit-results.json ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Backend Semgrep | $([ -f backend/semgrep-results.json ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        
+        # Frontend scans
+        echo "| Frontend npm audit | $([ -f frontend/npm-audit-results.json ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        echo "| Frontend Snyk | $([ -f frontend/snyk-results.json ] && echo '✅ Completed' || echo '❌ Failed') | TBD |" >> security-report.md
+        
+        echo "" >> security-report.md
+        echo "## 🚨 Critical Findings" >> security-report.md
+        
+        # Analyze critical findings
+        if [ -f backend/safety-results.json ]; then
+          critical_vulns=$(jq '.vulnerabilities | length' backend/safety-results.json 2>/dev/null || echo "0")
+          echo "- **Safety Critical Vulnerabilities:** $critical_vulns" >> security-report.md
+        fi
+        
+        if [ -f backend/bandit-results.json ]; then
+          high_issues=$(jq '.results | map(select(.issue_severity == "HIGH")) | length' backend/bandit-results.json 2>/dev/null || echo "0")
+          echo "- **Bandit High Severity Issues:** $high_issues" >> security-report.md
+        fi
+        
+        echo "" >> security-report.md
+        echo "## 📋 Recommendations" >> security-report.md
+        echo "1. Review all high and critical severity vulnerabilities" >> security-report.md
+        echo "2. Update dependencies with known vulnerabilities" >> security-report.md
+        echo "3. Fix static analysis security issues" >> security-report.md
+        echo "4. Validate configuration security settings" >> security-report.md
+        echo "5. Review Docker image security recommendations" >> security-report.md
+        
+    - name: 'Upload comprehensive security results'
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: comprehensive-security-results
+        path: |
+          security-report.md
+          trivy-*.sarif
+          backend/safety-results.json
+          backend/bandit-results.json
+          backend/pip-audit-results.json
+          backend/semgrep-results.json
+          backend/sbom-backend.json
+          frontend/npm-audit-results.json
+          frontend/snyk-results.json
+          frontend/snyk-code-results.json
+          frontend/sbom-frontend.json
+          frontend/package-tree.json
+          owasp-dependency-check-results.json
+        retention-days: 90
+        
+    - name: 'Security gate validation'
+      run: |
+        echo "=== 🔒 Security Gate Validation ==="
+        EXIT_CODE=0
+        
+        # Check for critical vulnerabilities in dependencies
+        if [ -f backend/safety-results.json ]; then
+          critical_vulns=$(jq '.vulnerabilities | map(select(.severity == "critical")) | length' backend/safety-results.json 2>/dev/null || echo "0")
+          if [ "$critical_vulns" -gt 0 ]; then
+            echo "❌ CRITICAL: Found $critical_vulns critical vulnerabilities in Python dependencies"
+            EXIT_CODE=1
+          fi
+        fi
+        
+        # Check Bandit results for high severity issues
+        if [ -f backend/bandit-results.json ]; then
+          high_issues=$(jq '.results | map(select(.issue_severity == "HIGH")) | length' backend/bandit-results.json 2>/dev/null || echo "0")
+          if [ "$high_issues" -gt 0 ]; then
+            echo "❌ HIGH: Found $high_issues high severity security issues in Python code"
+            EXIT_CODE=1
+          fi
+        fi
+        
+        # Check npm audit results
+        if [ -f frontend/npm-audit-results.json ]; then
+          npm_critical=$(jq '.vulnerabilities | to_entries | map(select(.value.severity == "critical")) | length' frontend/npm-audit-results.json 2>/dev/null || echo "0")
+          if [ "$npm_critical" -gt 0 ]; then
+            echo "❌ CRITICAL: Found $npm_critical critical vulnerabilities in npm dependencies"
+            EXIT_CODE=1
+          fi
+        fi
+        
+        # Check for secrets in code
+        if grep -r -i -E "(password|secret|key|token).*=.*['\"][^'\"]{8,}['\"]" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=__pycache__ --exclude="*.json"; then
+          echo "❌ SECRETS: Potential hardcoded secrets detected"
+          EXIT_CODE=1
+        fi
+        
+        if [ $EXIT_CODE -eq 0 ]; then
+          echo "✅ Security gate passed - no critical issues found"
+        else
+          echo "❌ Security gate failed - critical issues must be resolved before deployment"
+          echo "::error::Security gate validation failed"
+          exit $EXIT_CODE
+        fi
+        
+    - name: 'Create security issue on failure'
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `Security scan failed - ${context.sha.substring(0, 7)}`;
+          const body = `
+          🚨 **Security Scan Failure Alert** 🚨
+          
+          **Details:**
+          - **Commit:** ${context.sha}
+          - **Branch:** ${context.ref}
+          - **Workflow:** ${context.workflow}
+          - **Run:** [${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+          
+          **Action Required:**
+          1. Review the security scan results in the workflow artifacts
+          2. Address all critical and high severity issues
+          3. Re-run the security scan after fixes
+          
+          **Artifacts:**
+          - Download the \`comprehensive-security-results\` artifact from the failed workflow run
+          - Review \`security-report.md\` for a summary of findings
+          
+          This issue will be automatically closed when security scans pass.
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['security', 'critical', 'automated']
+          });
+
+  build-secure:
+    name: 'Build Secure Docker Images'
+    runs-on: ubuntu-latest
+    needs: [test, comprehensive-security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    outputs:
+      backend-image: ${{ steps.meta.outputs.tags }}
+      frontend-image: ${{ steps.meta-frontend.outputs.tags }}
+    
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
+      
+    - name: 'Set up Docker Buildx'
+      uses: docker/setup-buildx-action@v3
+      
+    - name: 'Login to Container Registry'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 'Extract metadata for backend'
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+        
+    - name: 'Extract metadata for frontend'
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+        
+    - name: 'Build and push backend image'
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+        
+    - name: 'Build and push frontend image'
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+        
+    - name: 'Scan final Docker images'
+      run: |
+        echo "=== Final security scan of published images ==="
+        
+        # Extract the latest tag for scanning
+        BACKEND_IMAGE=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+        FRONTEND_IMAGE=$(echo "${{ steps.meta-frontend.outputs.tags }}" | head -n1)
+        
+        echo "Scanning backend image: $BACKEND_IMAGE"
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasec/trivy:latest image --exit-code 1 --severity CRITICAL,HIGH $BACKEND_IMAGE
+        
+        echo "Scanning frontend image: $FRONTEND_IMAGE"  
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasec/trivy:latest image --exit-code 1 --severity CRITICAL,HIGH $FRONTEND_IMAGE
+
+  deploy-staging:
+    name: 'Deploy to Staging Environment'
+    runs-on: ubuntu-latest
+    needs: [build-secure]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: staging
+    
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
+      
+    - name: 'Deploy to staging environment'
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "Backend Image: ${{ needs.build-secure.outputs.backend-image }}"
+        echo "Frontend Image: ${{ needs.build-secure.outputs.frontend-image }}"
+        
+        # Here you would add your actual deployment commands
+        # For example:
+        # - kubectl apply -f k8s/staging/
+        # - docker-compose -f docker-compose.staging.yml up -d
+        # - Update staging server with new images
+        
+    - name: 'Run staging smoke tests'
+      run: |
+        echo "🧪 Running smoke tests on staging..."
+        # Add your smoke test commands here
+        # curl -f https://staging.yourapp.com/health
+        # Run basic functionality tests
+        
+    - name: 'Staging security validation'
+      run: |
+        echo "🔒 Running security validation on staging..."
+        # Add security checks for staging environment
+        # Check SSL certificates, security headers, etc.
+        
+    - name: 'Notify deployment status'
+      if: always()
+      run: |
+        STATUS="${{ job.status }}"
+        if [ "$STATUS" = "success" ]; then
+          echo "✅ Staging deployment successful"
+        else
+          echo "❌ Staging deployment failed"
+        fi
+
+  deploy-production:
+    name: 'Deploy to Production Environment'
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: 'Checkout code'
+      uses: actions/checkout@v4
+      
+    - name: 'Production deployment with rollback capability'
+      run: |
+        echo "🚀 Deploying to production environment..."
+        # Add production deployment commands with rollback capability
+        
+    - name: 'Production health checks'
+      run: |
+        echo "🏥 Running production health checks..."
+        # Add comprehensive health checks
+        
+    - name: 'Final security verification'
+      run: |
+        echo "🔒 Final security verification..."
+        # Run final security checks on production
+        
+    - name: 'Notify deployment completion'
+      if: always()
+      run: |
+        STATUS="${{ job.status }}"
+        if [ "$STATUS" = "success" ]; then
+          echo "✅ Production deployment successful"
+        else
+          echo "❌ Production deployment failed"
+        fi

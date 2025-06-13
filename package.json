@@ -1,0 +1,38 @@
+{
+  "name": "online-evaluation-system",
+  "version": "1.0.0",
+  "description": "Complete Online Evaluation System with E2E test automation",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug", 
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:auth": "playwright test tests/e2e/auth.spec.js",
+    "test:workflow": "playwright test tests/e2e/workflow.spec.js",
+    "test:system": "playwright test tests/e2e/system.spec.js",
+    "test:ui-tests": "playwright test tests/e2e/ui.spec.js",
+    "test:parallel": "playwright test --workers=4",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:safari": "playwright test --project=webkit",
+    "test:mobile": "playwright test --project='Mobile Chrome'",
+    "install:browsers": "playwright install",
+    "install:deps": "playwright install-deps",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f",
+    "start:dev": "docker-compose -f docker-compose.dev.yml up",
+    "start:prod": "docker-compose -f docker-compose.prod.yml up"
+  },
+  "dependencies": {
+    "react-beautiful-dnd": "^13.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  },
+  "keywords": ["evaluation", "testing", "playwright", "automation", "fastapi", "react"],
+  "author": "Online Evaluation System Team",
+  "license": "MIT"
+}

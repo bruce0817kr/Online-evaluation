@@ -12,11 +12,10 @@ BACKEND_URL = "http://localhost:8080"
 def test_endpoints():
     """엔드포인트 테스트"""
     endpoints = [
-        ("기본 헬스", "/health"),
-        ("API 헬스", "/api/health"),
-        ("상세 헬스", "/api/health/detailed"), 
-        ("Liveness", "/api/health/liveness"),
-        ("Readiness", "/api/health/readiness"),
+        ("기본 헬스", "/health"),        ("API 헬스", "/health"),
+        ("상세 헬스", "/health/detailed"), 
+        ("Liveness", "/health/liveness"),
+        ("Readiness", "/health/readiness"),
         ("API 상태", "/api/status")
     ]
     

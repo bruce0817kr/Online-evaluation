@@ -1,0 +1,88 @@
+{
+  "timestamp": "2025-06-12T15:00:44.128752",
+  "summary": {
+    "overall_score": 92.9,
+    "status": "EXCELLENT",
+    "total_tests": 14,
+    "passed_tests": 13,
+    "recommendations": [
+      "Frontend 서비스 상태 확인 및 복구"
+    ]
+  },
+  "detailed_results": {
+    "services": {
+      "Backend": {
+        "status": "PASS",
+        "response_time": 42.22
+      },
+      "Frontend": {
+        "status": "FAIL",
+        "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+      },
+      "Elasticsearch": {
+        "status": "PASS",
+        "response_time": 6.02
+      },
+      "Kibana": {
+        "status": "PASS",
+        "response_time": 15.63
+      },
+      "Logstash": {
+        "status": "PASS",
+        "response_time": 24.49
+      }
+    },
+    "api": {
+      "/health": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 25.46
+      },
+      "/docs": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 28.1
+      },
+      "/api/users": {
+        "status": "PASS",
+        "code": 200,
+        "response_time": 39.42
+      },
+      "/api/evaluations": {
+        "status": "PASS",
+        "code": 404,
+        "response_time": 4.05
+      }
+    },
+    "elk": {
+      "elasticsearch": {
+        "status": "PASS",
+        "cluster_status": "green"
+      },
+      "kibana": {
+        "status": "PASS"
+      },
+      "logstash": {
+        "status": "PASS",
+        "version": "8.15.0"
+      }
+    },
+    "database": {
+      "mongodb": {
+        "status": "PASS"
+      },
+      "redis": {
+        "status": "PASS"
+      }
+    },
+    "security": {
+      "security_headers": 4,
+      "cors_configured": true,
+      "total_score": 5
+    }
+  },
+  "test_info": {
+    "script_version": "1.0",
+    "test_type": "comprehensive_system_verification"
+  }
+}

@@ -1,0 +1,109 @@
+# =================== Custom Grok Patterns ===================
+#
+# Custom patterns for parsing logs specific to the Online Evaluation System
+# These patterns extend the built-in Grok patterns with application-specific formats
+
+# ============================= APPLICATION PATTERNS =============================
+
+# FastAPI request pattern
+FASTAPI_REQUEST %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{DATA:logger} - %{WORD:method} %{URIPATH:path}(?: %{URIQUERY:query})? - %{NUMBER:status_code:int} - %{NUMBER:response_time:float}ms
+
+# FastAPI error pattern  
+FASTAPI_ERROR %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{DATA:logger} - %{DATA:error_type}: %{GREEDYDATA:error_message}
+
+# User authentication pattern
+USER_AUTH %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - AUTH - User: %{USERNAME:username} - Action: %{WORD:auth_action} - Result: %{WORD:auth_result} - IP: %{IPORHOST:remote_addr}
+
+# Database operation pattern
+DB_OPERATION %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - DB - Collection: %{WORD:collection} - Operation: %{WORD:operation} - Duration: %{NUMBER:duration:float}ms
+
+# File upload pattern
+FILE_UPLOAD %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - UPLOAD - User: %{USERNAME:username} - File: %{DATA:filename} - Size: %{NUMBER:file_size:int} bytes - Status: %{WORD:upload_status}
+
+# Security event pattern
+SECURITY_EVENT %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - SECURITY - Event: %{DATA:security_event} - User: %{USERNAME:username} - IP: %{IPORHOST:remote_addr} - Details: %{GREEDYDATA:security_details}
+
+# ============================= NGINX PATTERNS =============================
+
+# Extended Nginx access log with response time and upstream
+NGINXACCESS_EXTENDED %{IPORHOST:remote_addr} - %{USER:remote_user} \[%{HTTPDATE:timestamp}\] "%{WORD:method} %{URIPATHPARAM:request} HTTP/%{NUMBER:http_version}" %{INT:status} %{INT:body_bytes_sent} "%{DATA:http_referer}" "%{DATA:http_user_agent}" %{NUMBER:request_time:float} %{NUMBER:upstream_response_time:float}
+
+# Nginx error log with more details
+NGINXERROR_DETAILED %{TIMESTAMP_ISO8601:timestamp} \[%{LOGLEVEL:level}\] %{POSINT:pid}#%{NUMBER:tid}: (\*%{NUMBER:connection_id} )?%{DATA:error_context}: %{GREEDYDATA:error_message}
+
+# ============================= DOCKER PATTERNS =============================
+
+# Docker container log with metadata
+DOCKER_LOG %{TIMESTAMP_ISO8601:timestamp} %{DATA:container_name}\[%{DATA:container_id}\]: %{GREEDYDATA:log_message}
+
+# Docker health check log
+DOCKER_HEALTH %{TIMESTAMP_ISO8601:timestamp} %{DATA:container_name}\[%{DATA:container_id}\]: HEALTH CHECK - Status: %{WORD:health_status} - Details: %{GREEDYDATA:health_details}
+
+# ============================= SYSTEM PATTERNS =============================
+
+# System resource usage
+RESOURCE_USAGE %{TIMESTAMP_ISO8601:timestamp} - RESOURCE - CPU: %{NUMBER:cpu_percent:float}% - Memory: %{NUMBER:memory_percent:float}% - Disk: %{NUMBER:disk_percent:float}%
+
+# Process monitoring
+PROCESS_MONITOR %{TIMESTAMP_ISO8601:timestamp} - PROCESS - PID: %{POSINT:pid} - Name: %{DATA:process_name} - Status: %{WORD:process_status} - CPU: %{NUMBER:process_cpu:float}% - Memory: %{NUMBER:process_memory:int}KB
+
+# ============================= BUSINESS PATTERNS =============================
+
+# User session activity
+USER_SESSION %{TIMESTAMP_ISO8601:timestamp} - SESSION - User: %{USERNAME:username} - Session: %{DATA:session_id} - Action: %{DATA:user_action} - Duration: %{NUMBER:action_duration:float}ms
+
+# Evaluation activity
+EVALUATION_ACTIVITY %{TIMESTAMP_ISO8601:timestamp} - EVAL - User: %{USERNAME:username} - Evaluation: %{DATA:evaluation_id} - Action: %{WORD:eval_action} - Progress: %{NUMBER:progress:int}%
+
+# Admin activity
+ADMIN_ACTIVITY %{TIMESTAMP_ISO8601:timestamp} - ADMIN - Admin: %{USERNAME:admin_username} - Target: %{USERNAME:target_user} - Action: %{DATA:admin_action} - Result: %{WORD:action_result}
+
+# ============================= PERFORMANCE PATTERNS =============================
+
+# API response time tracking
+API_PERFORMANCE %{TIMESTAMP_ISO8601:timestamp} - PERF - Endpoint: %{URIPATH:endpoint} - Method: %{WORD:method} - Response Time: %{NUMBER:response_time:float}ms - Status: %{INT:status_code}
+
+# Database query performance
+DB_PERFORMANCE %{TIMESTAMP_ISO8601:timestamp} - DB_PERF - Query: %{DATA:query_type} - Collection: %{WORD:collection} - Duration: %{NUMBER:query_duration:float}ms - Rows: %{INT:rows_affected}
+
+# Cache operations
+CACHE_OPERATION %{TIMESTAMP_ISO8601:timestamp} - CACHE - Operation: %{WORD:cache_operation} - Key: %{DATA:cache_key} - Hit: %{WORD:cache_hit} - Duration: %{NUMBER:cache_duration:float}ms
+
+# ============================= ERROR PATTERNS =============================
+
+# Python exception with traceback
+PYTHON_EXCEPTION %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{DATA:logger} - %{DATA:exception_type}: %{DATA:exception_message}(\n(?<traceback>(?:.|\n)*?))?
+
+# HTTP error with details
+HTTP_ERROR %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - HTTP_ERROR - Method: %{WORD:method} - URL: %{URIPATH:url} - Status: %{INT:status_code} - Error: %{GREEDYDATA:error_message}
+
+# Database connection error
+DB_CONNECTION_ERROR %{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - DB_ERROR - Connection: %{DATA:db_connection} - Error: %{DATA:db_error_type} - Message: %{GREEDYDATA:db_error_message}
+
+# ============================= HELPER PATTERNS =============================
+
+# Extended username pattern (allows email format)
+USERNAME_EXT (?:[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+|[a-zA-Z0-9._-]+)
+
+# File path pattern
+FILEPATH (?:[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*|/(?:[^/\0\r\n]*/?)*[^/\0\r\n]*)
+
+# UUID pattern
+UUID [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}
+
+# JSON log pattern
+JSON_LOG ^\s*\{.*\}\s*$
+
+# Multi-line stack trace
+STACK_TRACE (?m)^\s+at\s+.+$
+
+# ============================= SECURITY PATTERNS =============================
+
+# SQL injection attempt
+SQL_INJECTION_ATTEMPT %{TIMESTAMP_ISO8601:timestamp} - SECURITY - SQL_INJECTION - IP: %{IPORHOST:remote_addr} - Query: %{DATA:suspicious_query} - Blocked: %{WORD:blocked}
+
+# Brute force attack pattern
+BRUTE_FORCE %{TIMESTAMP_ISO8601:timestamp} - SECURITY - BRUTE_FORCE - IP: %{IPORHOST:remote_addr} - Username: %{USERNAME:target_username} - Attempts: %{INT:attempt_count}
+
+# Suspicious file access
+SUSPICIOUS_ACCESS %{TIMESTAMP_ISO8601:timestamp} - SECURITY - FILE_ACCESS - User: %{USERNAME:username} - File: %{FILEPATH:accessed_file} - Permission: %{WORD:permission_level} - Denied: %{WORD:access_denied}

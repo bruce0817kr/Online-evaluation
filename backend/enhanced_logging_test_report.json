@@ -1,0 +1,77 @@
+{
+  "test_summary": {
+    "total_tests": 11,
+    "passed_tests": 11,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "Enhanced logging setup",
+      "success": true,
+      "message": "Logging system initialized successfully",
+      "timestamp": 1749624705.079778
+    },
+    {
+      "test_name": "Basic logging levels",
+      "success": true,
+      "message": "All log levels working",
+      "timestamp": 1749624705.0806425
+    },
+    {
+      "test_name": "Structured logging",
+      "success": true,
+      "message": "Custom fields added successfully",
+      "timestamp": 1749624705.0811586
+    },
+    {
+      "test_name": "Request context",
+      "success": true,
+      "message": "Context variables set and retrieved correctly",
+      "timestamp": 1749624705.0816758
+    },
+    {
+      "test_name": "Performance decorator",
+      "success": true,
+      "message": "Performance logging decorator working",
+      "timestamp": 1749624705.192024
+    },
+    {
+      "test_name": "Database decorator",
+      "success": true,
+      "message": "Database logging decorator working",
+      "timestamp": 1749624705.244847
+    },
+    {
+      "test_name": "Security decorator",
+      "success": true,
+      "message": "Security logging decorator working",
+      "timestamp": 1749624705.2718096
+    },
+    {
+      "test_name": "Error logging",
+      "success": true,
+      "message": "Error logging with context working",
+      "timestamp": 1749624705.274323
+    },
+    {
+      "test_name": "JSON formatting",
+      "success": true,
+      "message": "JSON formatting working correctly",
+      "timestamp": 1749624705.274323
+    },
+    {
+      "test_name": "Log file creation",
+      "success": true,
+      "message": "Log file created and written to: test_app.log",
+      "timestamp": 1749624705.275324
+    },
+    {
+      "test_name": "Startup/Shutdown Logging",
+      "success": true,
+      "message": "Startup and shutdown logging working",
+      "timestamp": 1749624705.275324
+    }
+  ],
+  "timestamp": 1749624705.2765493
+}

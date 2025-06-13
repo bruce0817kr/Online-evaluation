@@ -6,14 +6,13 @@ def test_health():
     try:
         r = requests.get(f"{BACKEND_URL}/health")
         print(f"Basic health: {r.status_code}")
-        
-        r2 = requests.get(f"{BACKEND_URL}/api/health/detailed")
+          r2 = requests.get(f"{BACKEND_URL}/health/detailed")
         print(f"Detailed health: {r2.status_code}")
         
-        r3 = requests.get(f"{BACKEND_URL}/api/health/liveness")
+        r3 = requests.get(f"{BACKEND_URL}/health/liveness")
         print(f"Liveness: {r3.status_code}")
         
-        r4 = requests.get(f"{BACKEND_URL}/api/health/readiness")
+        r4 = requests.get(f"{BACKEND_URL}/health/readiness")
         print(f"Readiness: {r4.status_code}")
         
         r5 = requests.get(f"{BACKEND_URL}/api/status")

@@ -1,0 +1,70 @@
+[
+  {
+    "test": "AuthContext 파일 확인 오류",
+    "success": false,
+    "message": "파일 읽기 실패: [Errno 2] No such file or directory: 'c:/Project/Online-evaluation/frontend/src/contexts/AuthContext.js'",
+    "timestamp": "2025-06-05T11:07:35.037033",
+    "details": {}
+  },
+  {
+    "test": "백엔드 헬스 체크",
+    "success": true,
+    "message": "백엔드 서버 정상 응답",
+    "timestamp": "2025-06-05T11:07:35.065080",
+    "details": {
+      "status": "healthy",
+      "database": null,
+      "timestamp": "2025-06-05T02:07:37.862180"
+    }
+  },
+  {
+    "test": "프론트엔드 접근",
+    "success": true,
+    "message": "프론트엔드 서버 정상 응답",
+    "timestamp": "2025-06-05T11:07:35.078160",
+    "details": {
+      "status_code": 200,
+      "content_length": 3268
+    }
+  },
+  {
+    "test": "로그인 성공",
+    "success": true,
+    "message": "관리자 로그인 성공",
+    "timestamp": "2025-06-05T11:07:35.238950",
+    "details": {
+      "token_received": true,
+      "user_data_received": true,
+      "user_name": "관리자",
+      "user_role": "admin"
+    }
+  },
+  {
+    "test": "/auth/me 응답 확인",
+    "success": true,
+    "message": "사용자 데이터 응답 확인",
+    "timestamp": "2025-06-05T11:07:35.243661",
+    "details": {
+      "user_id": "b57c1df2-209e-4d21-a7cb-6c84e52b0fd1",
+      "login_id": "admin",
+      "user_name": "관리자",
+      "role": "admin",
+      "email": "admin@example.com",
+      "missing_fields": [],
+      "last_login": "2025-06-05T02:07:38.020000"
+    }
+  },
+  {
+    "test": "데이터 일관성 확인",
+    "success": true,
+    "message": "로그인과 /auth/me 응답 데이터 일관성 확인",
+    "timestamp": "2025-06-05T11:07:35.244185",
+    "details": {
+      "user_id_match": true,
+      "user_name_match": true,
+      "role_match": true,
+      "login_user_id": "b57c1df2-209e-4d21-a7cb-6c84e52b0fd1",
+      "auth_me_user_id": "b57c1df2-209e-4d21-a7cb-6c84e52b0fd1"
+    }
+  }
+]

@@ -1,0 +1,69 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Online Evaluation - Business Metrics",
+    "tags": ["online-evaluation", "business"],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "평가 완료율 추이",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(completed_evaluations_total[1h])",
+            "legendFormat": "완료된 평가 (시간당)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "사용자 활동",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(user_activity_total[5m])",
+            "legendFormat": "{{activity_type}} - {{user_role}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "파일 업로드 현황",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(file_uploads_total[5m])",
+            "legendFormat": "{{file_type}} - {{status}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "PDF 내보내기 통계",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(pdf_exports_total[24h])",
+            "legendFormat": "{{export_type}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ]
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "index_patterns": ["app-logs-error-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.refresh_interval": "10s",
+      "index.max_result_window": 100000,
+      "index.lifecycle.name": "app-logs-error-policy",
+      "index.lifecycle.rollover_alias": "app-logs-error",
+      "index.codec": "best_compression",
+      "index.query.default_field": ["message", "http.request.body", "error.message"],
+      "index.mapping.total_fields.limit": 2000,
+      "index.mapping.depth.limit": 20
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "level": {
+          "type": "keyword",
+          "fields": {
+            "text": {
+              "type": "text",
+              "analyzer": "standard"
+            }
+          }
+        },
+        "logger": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "analyzer": "standard",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "module": {
+          "type": "keyword"
+        },
+        "function": {
+          "type": "keyword"
+        },
+        "line": {
+          "type": "integer"
+        },
+        "request_id": {
+          "type": "keyword"
+        },
+        "user_id": {
+          "type": "keyword"
+        },
+        "session_id": {
+          "type": "keyword"
+        },
+        "service": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "version": {
+              "type": "keyword"
+            },
+            "environment": {
+              "type": "keyword"
+            }
+          }
+        },
+        "error": {
+          "properties": {
+            "type": {
+              "type": "keyword"
+            },
+            "message": {
+              "type": "text",
+              "analyzer": "standard"
+            },
+            "stack_trace": {
+              "type": "text",
+              "analyzer": "keyword"
+            },
+            "code": {
+              "type": "keyword"
+            }
+          }
+        },
+        "http": {
+          "properties": {
+            "request": {
+              "properties": {
+                "method": {
+                  "type": "keyword"
+                },
+                "url": {
+                  "type": "keyword",
+                  "fields": {
+                    "text": {
+                      "type": "text",
+                      "analyzer": "standard"
+                    }
+                  }
+                },
+                "headers": {
+                  "type": "object",
+                  "enabled": false
+                },
+                "body": {
+                  "type": "text",
+                  "analyzer": "standard"
+                }
+              }
+            },
+            "response": {
+              "properties": {
+                "status_code": {
+                  "type": "integer"
+                },
+                "headers": {
+                  "type": "object",
+                  "enabled": false
+                }
+              }
+            }
+          }
+        },
+        "performance": {
+          "properties": {
+            "duration": {
+              "type": "double"
+            },
+            "unit": {
+              "type": "keyword"
+            },
+            "memory_usage": {
+              "type": "long"
+            }
+          }
+        },
+        "security": {
+          "properties": {
+            "event_type": {
+              "type": "keyword"
+            },
+            "severity": {
+              "type": "keyword"
+            },
+            "ip_address": {
+              "type": "ip"
+            },
+            "user_agent": {
+              "type": "text",
+              "analyzer": "standard"
+            }
+          }
+        },
+        "tags": {
+          "type": "keyword"
+        }
+      }
+    },
+    "aliases": {
+      "app-logs-error": {}
+    }
+  },
+  "priority": 300,
+  "version": 1,
+  "_meta": {
+    "description": "Template for ERROR level application logs with enhanced performance settings"
+  }
+}

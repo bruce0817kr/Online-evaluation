@@ -1,0 +1,71 @@
+{
+  "trigger": {
+    "schedule": {
+      "interval": "5m"
+    }
+  },
+  "input": {
+    "search": {
+      "request": {
+        "search_type": "query_then_fetch",
+        "indices": ["app-logs-*"],
+        "body": {
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "term": {
+                    "level": "ERROR"
+                  }
+                },
+                {
+                  "range": {
+                    "@timestamp": {
+                      "gte": "now-5m"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "aggs": {
+            "error_count": {
+              "cardinality": {
+                "field": "request_id"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "condition": {
+    "compare": {
+      "ctx.payload.aggregations.error_count.value": {
+        "gte": 10
+      }
+    }
+  },
+  "actions": {
+    "send_email": {
+      "email": {
+        "to": ["admin@online-evaluation.com"],
+        "subject": "🚨 High Error Rate Alert - Online Evaluation System",
+        "body": "High error rate detected in the Online Evaluation System.\n\nError count in last 5 minutes: {{ctx.payload.aggregations.error_count.value}}\nTime: {{ctx.execution_time}}\n\nPlease check the system logs for more details.",
+        "priority": "high"
+      }
+    },
+    "log_alert": {
+      "logging": {
+        "level": "warn",
+        "text": "High error rate alert triggered: {{ctx.payload.aggregations.error_count.value}} errors in 5 minutes"
+      }
+    }
+  },
+  "metadata": {
+    "name": "High Error Rate Alert",
+    "description": "Alert when error count exceeds 10 in 5 minutes",
+    "created_by": "online-evaluation-system",
+    "version": "1.0"
+  }
+}

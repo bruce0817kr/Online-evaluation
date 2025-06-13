@@ -1,0 +1,69 @@
+{
+  "index_patterns": ["nginx-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.refresh_interval": "30s",
+      "index.lifecycle.name": "nginx-logs-policy",
+      "index.lifecycle.rollover_alias": "nginx-logs"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "remote_addr": {
+          "type": "ip"
+        },
+        "remote_user": {
+          "type": "keyword"
+        },
+        "request": {
+          "type": "text"
+        },
+        "method": {
+          "type": "keyword"
+        },
+        "url": {
+          "type": "keyword"
+        },
+        "http_version": {
+          "type": "keyword"
+        },
+        "status": {
+          "type": "integer"
+        },
+        "body_bytes_sent": {
+          "type": "long"
+        },
+        "http_referer": {
+          "type": "keyword"
+        },
+        "http_user_agent": {
+          "type": "text"
+        },
+        "request_time": {
+          "type": "float"
+        },
+        "upstream_response_time": {
+          "type": "float"
+        },
+        "log_type": {
+          "type": "keyword"
+        },
+        "error_level": {
+          "type": "keyword"
+        },
+        "error_message": {
+          "type": "text"
+        }
+      }
+    }
+  },
+  "priority": 150,
+  "version": 1,
+  "_meta": {
+    "description": "Template for Nginx access and error logs"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "test_summary": {
+    "start_time": "2025-06-03 00:49:06",
+    "end_time": "2025-06-03 00:49:16",
+    "duration_seconds": 9.416928,
+    "total_tests": 15,
+    "passed": 15,
+    "failed": 0,
+    "warnings": 0,
+    "success_rate": "100.0%"
+  },
+  "test_results": [
+    {
+      "timestamp": "2025-06-03 00:49:07",
+      "test_name": "Docker 컨테이너 상태",
+      "status": "PASS",
+      "details": "4개 컨테이너 실행 중",
+      "data": {
+        "containers": [
+          "online-evaluation-frontend   Up 2 hours (healthy)",
+          "online-evaluation-backend    Up 2 hours (healthy)",
+          "online-evaluation-redis      Up 13 hours (healthy)",
+          "online-evaluation-mongodb    Up 13 hours (healthy)"
+        ]
+      }
+    },
+    {
+      "timestamp": "2025-06-03 00:49:08",
+      "test_name": "프론트엔드 접근성",
+      "status": "PASS",
+      "details": "로딩 시간: 0.01초, HTML 구조: 7/8",
+      "data": {
+        "load_time": 0.007483959197998047,
+        "html_checks": {
+          "DOCTYPE 선언": false,
+          "HTML 태그": true,
+          "HEAD 섹션": true,
+          "BODY 태그": true,
+          "타이틀 태그": true,
+          "메타 태그": true,
+          "CSS 링크": true,
+          "JavaScript": true
+        },
+        "mobile_score": "1/4",
+        "content_size": 3268
+      }
+    },
+    {
+      "timestamp": "2025-06-03 00:49:09",
+      "test_name": "API 엔드포인트: 헬스체크",
+      "status": "PASS",
+      "details": "HTTP 200",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:09",
+      "test_name": "API 엔드포인트: API 문서",
+      "status": "PASS",
+      "details": "HTTP 200",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:09",
+      "test_name": "API 엔드포인트: 루트 엔드포인트",
+      "status": "PASS",
+      "details": "HTTP 200",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:09",
+      "test_name": "API 엔드포인트 전체",
+      "status": "PASS",
+      "details": "3/3 엔드포인트 성공",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:10",
+      "test_name": "성능 지표",
+      "status": "PASS",
+      "details": "프론트엔드 평균: 0.00초, 백엔드 평균: 0.00초",
+      "data": {
+        "frontend_load_times": [
+          0.0015151500701904297,
+          0.000995635986328125,
+          0.0009598731994628906
+        ],
+        "backend_response_times": [
+          0.0030307769775390625,
+          0.001874685287475586,
+          0.0021533966064453125
+        ],
+        "resource_sizes": {
+          "frontend": 3268
+        }
+      }
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "워크플로우: 홈페이지 접근",
+      "status": "PASS",
+      "details": "로딩 시간: 0.00초",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "워크플로우: 로그인 페이지",
+      "status": "PASS",
+      "details": "로딩 시간: 0.00초",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "워크플로우: 회원가입 페이지",
+      "status": "PASS",
+      "details": "로딩 시간: 0.00초",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "워크플로우: 평가 목록",
+      "status": "PASS",
+      "details": "로딩 시간: 0.00초",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "워크플로우: 관리자 대시보드",
+      "status": "PASS",
+      "details": "로딩 시간: 0.00초",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:11",
+      "test_name": "사용자 워크플로우 전체",
+      "status": "PASS",
+      "details": "5/5 워크플로우 성공",
+      "data": null
+    },
+    {
+      "timestamp": "2025-06-03 00:49:12",
+      "test_name": "보안 헤더",
+      "status": "PASS",
+      "details": "3/5 보안 헤더 설정됨",
+      "data": {
+        "X-Content-Type-Options": true,
+        "X-Frame-Options": true,
+        "X-XSS-Protection": true,
+        "Strict-Transport-Security": false,
+        "Content-Security-Policy": false
+      }
+    },
+    {
+      "timestamp": "2025-06-03 00:49:13",
+      "test_name": "브라우저 시각적 테스트",
+      "status": "PASS",
+      "details": "브라우저에서 http://localhost:3000 열림",
+      "data": null
+    }
+  ],
+  "recommendations": []
+}

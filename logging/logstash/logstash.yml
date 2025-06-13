@@ -1,0 +1,144 @@
+# =================== Logstash Configuration ===================
+#
+# Main Logstash configuration file
+# This file contains node, path, and pipeline settings
+
+# ============================= NODE SETTINGS =============================
+
+# Node name for identification in cluster
+node.name: "logstash-online-evaluation"
+
+# ============================= PATH SETTINGS =============================
+
+# Path to logstash configuration files
+path.config: "/usr/share/logstash/pipeline"
+
+# Path to logstash data directory
+path.data: "/usr/share/logstash/data"
+
+# Path to logstash logs
+path.logs: "/usr/share/logstash/logs"
+
+# Path to plugin directory
+# path.plugins: "/usr/share/logstash/plugins"
+
+# ============================= PIPELINE SETTINGS =============================
+
+# Pipeline configuration
+pipeline.id: "main"
+pipeline.workers: 2
+pipeline.batch.size: 1000
+pipeline.batch.delay: 50
+
+# Pipeline output workers
+pipeline.output.workers: 1
+
+# Enable pipeline reloading
+config.reload.automatic: true
+config.reload.interval: "3s"
+
+# Enable configuration debug
+config.debug: false
+
+# Support escapes in configuration
+config.support_escapes: false
+
+# ============================= QUEUE SETTINGS =============================
+
+# Queue type: memory or persisted
+queue.type: "persisted"
+
+# Queue page capacity (for persisted queue)
+queue.page_capacity: "64mb"
+
+# Queue max bytes
+queue.max_bytes: "1gb"
+
+# Queue checkpoint writes (for persisted queue)
+queue.checkpoint.writes: 1024
+
+# ============================= DEAD LETTER QUEUE =============================
+
+# Enable dead letter queue
+dead_letter_queue.enable: true
+
+# DLQ path
+dead_letter_queue.max_bytes: "1gb"
+
+# ============================= HTTP API SETTINGS =============================
+
+# Enable HTTP API
+http.host: "0.0.0.0"
+http.port: 9600
+
+# Enable HTTP API endpoints
+api.enabled: true
+api.http.host: "0.0.0.0"
+api.http.port: 9600
+
+# API authentication (disabled for development)
+# api.auth.type: basic
+# api.auth.basic.username: "logstash"
+# api.auth.basic.password: "password"
+
+# ============================= MONITORING SETTINGS =============================
+
+# Enable monitoring
+monitoring.enabled: true
+
+# Monitoring cluster UUID (optional)
+# monitoring.cluster_uuid: "cluster-uuid"
+
+# Elasticsearch monitoring settings
+# monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+# monitoring.elasticsearch.username: "logstash_monitoring"
+# monitoring.elasticsearch.password: "password"
+
+# ============================= LOGGING SETTINGS =============================
+
+# Log level: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+log.level: "INFO"
+
+# Log format: plain or json
+log.format: "plain"
+
+# Slowlog settings
+slowlog.threshold.warn: "2s"
+slowlog.threshold.info: "1s"
+slowlog.threshold.debug: "500ms"
+slowlog.threshold.trace: "100ms"
+
+# ============================= PERFORMANCE SETTINGS =============================
+
+# JVM settings are defined in jvm.options file
+
+# Thread settings
+thread.count: 2
+
+# ============================= SECURITY SETTINGS =============================
+
+# Keystore settings (optional)
+# keystore.file: "/usr/share/logstash/config/logstash.keystore"
+
+# SSL settings (disabled for development)
+# ssl.enabled: false
+# ssl.verification_mode: certificate
+# ssl.certificate_authorities: ["/path/to/ca.crt"]
+# ssl.certificate: "/path/to/cert.crt"
+# ssl.key: "/path/to/cert.key"
+
+# ============================= DEVELOPMENT SETTINGS =============================
+
+# Allow environment variable substitution
+config.string: ""
+
+# Allow unsafe shutdown
+allow_unsafe_shutdown: false
+
+# ============================= CUSTOM SETTINGS =============================
+
+# Custom pattern paths
+pattern_definitions_path: "/usr/share/logstash/patterns"
+
+# Pipeline configuration path
+path.settings: "/usr/share/logstash/config"

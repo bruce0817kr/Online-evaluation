@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2025-06-03 00:44:00",
+    "test_name": "홈페이지 로딩",
+    "status": "PASS",
+    "details": "로딩 시간: 2.36초, 제목: Emergent | Fullstack App",
+    "screenshot": "screenshots\\homepage_20250603_004400.png"
+  },
+  {
+    "timestamp": "2025-06-03 00:44:07",
+    "test_name": "로그인 페이지",
+    "status": "PASS",
+    "details": "로그인 폼 요소: 비밀번호 입력 필드, 로그인 버튼",
+    "screenshot": "screenshots\\login_page_20250603_004407.png"
+  },
+  {
+    "timestamp": "2025-06-03 00:44:08",
+    "test_name": "네비게이션 메뉴",
+    "status": "SKIP",
+    "details": "네비게이션 요소를 찾을 수 없음",
+    "screenshot": "screenshots\\no_navigation_20250603_004408.png"
+  },
+  {
+    "timestamp": "2025-06-03 00:44:12",
+    "test_name": "반응형 디자인",
+    "status": "PASS",
+    "details": "테스트된 화면 크기: Desktop (1920x1080), Tablet (768x1024), Mobile (375x667)",
+    "screenshot": "screenshots\\responsive_mobile_20250603_004412.png"
+  },
+  {
+    "timestamp": "2025-06-03 00:44:13",
+    "test_name": "페이지 성능",
+    "status": "PASS",
+    "details": "성능 메트릭: {'domContentLoaded': 0, 'loadComplete': 0, 'firstPaint': 204, 'firstContentfulPaint': 204}",
+    "screenshot": ""
+  },
+  {
+    "timestamp": "2025-06-03 00:44:27",
+    "test_name": "다크 모드",
+    "status": "SKIP",
+    "details": "다크 모드 토글 버튼을 찾을 수 없음",
+    "screenshot": "screenshots\\no_dark_mode_20250603_004427.png"
+  }
+]

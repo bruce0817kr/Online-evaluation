@@ -1,0 +1,134 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "id": "security-events-dashboard",
+      "type": "dashboard",
+      "attributes": {
+        "title": "보안 이벤트 대시보드",
+        "description": "보안 관련 이벤트 및 의심스러운 활동 모니터링",
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":10,\"i\":\"1\"},\"panelIndex\":\"1\",\"embeddableConfig\":{},\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":24,\"y\":0,\"w\":24,\"h\":10,\"i\":\"2\"},\"panelIndex\":\"2\",\"embeddableConfig\":{},\"panelRefName\":\"panel_2\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":10,\"w\":16,\"h\":12,\"i\":\"3\"},\"panelIndex\":\"3\",\"embeddableConfig\":{},\"panelRefName\":\"panel_3\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":16,\"y\":10,\"w\":16,\"h\":12,\"i\":\"4\"},\"panelIndex\":\"4\",\"embeddableConfig\":{},\"panelRefName\":\"panel_4\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":32,\"y\":10,\"w\":16,\"h\":12,\"i\":\"5\"},\"panelIndex\":\"5\",\"embeddableConfig\":{},\"panelRefName\":\"panel_5\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":22,\"w\":48,\"h\":15,\"i\":\"6\"},\"panelIndex\":\"6\",\"embeddableConfig\":{},\"panelRefName\":\"panel_6\"}]",
+        "timeRestore": false,
+        "timeTo": "now", 
+        "timeFrom": "now-24h",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      },
+      "references": [
+        {
+          "name": "panel_1",
+          "type": "visualization",
+          "id": "security-events-timeline"
+        },
+        {
+          "name": "panel_2",
+          "type": "visualization",
+          "id": "threat-level-pie"
+        },
+        {
+          "name": "panel_3",
+          "type": "visualization",
+          "id": "failed-logins-count"
+        },
+        {
+          "name": "panel_4",
+          "type": "visualization",
+          "id": "suspicious-ips"
+        },
+        {
+          "name": "panel_5",
+          "type": "visualization",
+          "id": "error-4xx-count"
+        },
+        {
+          "name": "panel_6",
+          "type": "visualization",
+          "id": "security-events-table"
+        }
+      ]
+    },
+    {
+      "id": "security-events-timeline",
+      "type": "visualization",
+      "attributes": {
+        "title": "보안 이벤트 추이",
+        "visState": "{\"title\":\"보안 이벤트 추이\",\"type\":\"line\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}}]}",
+        "uiStateJSON": "{}",
+        "description": "시간별 보안 이벤트 발생 추이",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"should\":[{\"match\":{\"event.category\":\"security\"}},{\"match\":{\"event.type\":\"authentication\"}},{\"match\":{\"event.type\":\"access\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "threat-level-pie",
+      "type": "visualization",
+      "attributes": {
+        "title": "위협 수준 분포",
+        "visState": "{\"title\":\"위협 수준 분포\",\"type\":\"pie\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}},{\"id\":\"2\",\"type\":\"terms\",\"params\":{\"field\":\"event.severity.keyword\",\"size\":5}}]}",
+        "uiStateJSON": "{}",
+        "description": "보안 이벤트 심각도별 분포",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"must\":[{\"match\":{\"event.category\":\"security\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "failed-logins-count",
+      "type": "visualization",
+      "attributes": {
+        "title": "로그인 실패 횟수",
+        "visState": "{\"title\":\"로그인 실패 횟수\",\"type\":\"metric\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}}]}",
+        "uiStateJSON": "{}",
+        "description": "최근 1시간 로그인 실패 건수",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}},{\"match\":{\"event.type\":\"authentication\"}},{\"match\":{\"event.outcome\":\"failure\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "suspicious-ips",
+      "type": "visualization",
+      "attributes": {
+        "title": "의심스러운 IP",
+        "visState": "{\"title\":\"의심스러운 IP\",\"type\":\"table\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}},{\"id\":\"2\",\"type\":\"terms\",\"params\":{\"field\":\"source.ip.keyword\",\"size\":10}}]}",
+        "uiStateJSON": "{}",
+        "description": "다수의 실패 요청을 보낸 IP 주소",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"nginx-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"http.response.status_code\":{\"gte\":400,\"lt\":500}}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "error-4xx-count",
+      "type": "visualization",
+      "attributes": {
+        "title": "4xx 에러 건수",
+        "visState": "{\"title\":\"4xx 에러 건수\",\"type\":\"metric\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}}]}",
+        "uiStateJSON": "{}",
+        "description": "최근 1시간 클라이언트 에러 발생 건수",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"nginx-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1h\"}}},{\"range\":{\"http.response.status_code\":{\"gte\":400,\"lt\":500}}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "security-events-table",
+      "type": "visualization",
+      "attributes": {
+        "title": "최근 보안 이벤트",
+        "visState": "{\"title\":\"최근 보안 이벤트\",\"type\":\"table\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}}]}",
+        "uiStateJSON": "{}",
+        "description": "최근 발생한 보안 이벤트 상세 로그",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"should\":[{\"match\":{\"event.category\":\"security\"}},{\"match\":{\"event.type\":\"authentication\"}},{\"range\":{\"http.response.status_code\":{\"gte\":400,\"lt\":500}}}]}},\"filter\":[],\"sort\":[{\"@timestamp\":{\"order\":\"desc\"}}]}"
+        }
+      }
+    }
+  ]
+}

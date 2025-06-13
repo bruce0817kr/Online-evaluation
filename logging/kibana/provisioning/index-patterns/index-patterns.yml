@@ -1,0 +1,161 @@
+# Index Patterns Configuration for Auto-provisioning
+# This file defines index patterns that will be automatically created in Kibana
+
+index_patterns:
+  - id: "app-logs-pattern"
+    title: "app-logs-*"
+    timeFieldName: "@timestamp"
+    description: "Application logs from FastAPI backend"
+    fields:
+      - name: "@timestamp"
+        type: "date"
+        searchable: true
+        aggregatable: true
+      - name: "level"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "logger"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "message"
+        type: "text"
+        searchable: true
+        aggregatable: false
+      - name: "log_message"
+        type: "text"
+        searchable: true
+        aggregatable: false
+      - name: "request_id"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "user_id"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "session_id"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "http_method"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "http_url"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "http_status_code"
+        type: "number"
+        searchable: true
+        aggregatable: true
+      - name: "http_response_time"
+        type: "number"
+        searchable: true
+        aggregatable: true
+      - name: "remote_addr"
+        type: "ip"
+        searchable: true
+        aggregatable: true
+      - name: "error_type"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "error_message"
+        type: "text"
+        searchable: true
+        aggregatable: false
+      - name: "service_type"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+
+  - id: "nginx-logs-pattern"
+    title: "nginx-logs-*"
+    timeFieldName: "@timestamp"
+    description: "Nginx access and error logs"
+    fields:
+      - name: "@timestamp"
+        type: "date"
+        searchable: true
+        aggregatable: true
+      - name: "remote_addr"
+        type: "ip"
+        searchable: true
+        aggregatable: true
+      - name: "http_method"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "http_url"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "http_status_code"
+        type: "number"
+        searchable: true
+        aggregatable: true
+      - name: "body_bytes_sent"
+        type: "number"
+        searchable: true
+        aggregatable: true
+      - name: "request_time"
+        type: "number"
+        searchable: true
+        aggregatable: true
+      - name: "http_user_agent"
+        type: "text"
+        searchable: true
+        aggregatable: false
+      - name: "http_referer"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "log_type"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "error_level"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "error_message"
+        type: "text"
+        searchable: true
+        aggregatable: false
+
+  - id: "docker-logs-pattern"
+    title: "docker-logs-*"
+    timeFieldName: "@timestamp"
+    description: "Docker container logs"
+    fields:
+      - name: "@timestamp"
+        type: "date"
+        searchable: true
+        aggregatable: true
+      - name: "container_name"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "container_id"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "container_image"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "log_message"
+        type: "text"
+        searchable: true
+        aggregatable: false
+      - name: "level"
+        type: "keyword"
+        searchable: true
+        aggregatable: true
+      - name: "service_type"
+        type: "keyword"
+        searchable: true
+        aggregatable: true

@@ -1,0 +1,136 @@
+# =================== Elasticsearch Configuration ===================
+# Optimized configuration for Online Evaluation System logging
+# Version: 2.0 - Performance optimized for single node deployment
+#
+# ---------------------------------- Cluster -----------------------------------
+cluster.name: online-evaluation-logs
+cluster.initial_master_nodes: ["elasticsearch-node-1"]
+
+# ------------------------------------ Node ------------------------------------
+node.name: elasticsearch-node-1
+node.roles: ["master", "data", "ingest", "ml"]
+
+# ----------------------------------- Paths ------------------------------------
+path.data: /usr/share/elasticsearch/data
+path.logs: /usr/share/elasticsearch/logs
+
+# ---------------------------------- Memory -----------------------------------
+# Lock memory to prevent swapping
+bootstrap.memory_lock: true
+
+# ---------------------------------- Network -----------------------------------
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+# --------------------------------- Discovery ----------------------------------
+discovery.type: single-node
+discovery.seed_hosts: []
+
+# ---------------------------------- Gateway -----------------------------------
+gateway.recover_after_nodes: 1
+gateway.expected_nodes: 1
+
+# ---------------------------------- Various -----------------------------------
+# Performance optimizations
+action.destructive_requires_name: true
+indices.query.bool.max_clause_count: 10000
+
+# Index lifecycle management
+ilm.poll_interval: "10m"
+
+# Threading and Performance
+thread_pool.write.queue_size: 1000
+thread_pool.search.queue_size: 1000
+thread_pool.get.queue_size: 1000
+
+# Cache settings
+indices.cache.filter.size: "20%"
+indices.fielddata.cache.size: "40%"
+indices.requests.cache.size: "2%"
+
+# Query circuit breaker
+indices.breaker.total.limit: "70%"
+indices.breaker.fielddata.limit: "40%"
+indices.breaker.request.limit: "30%"
+
+# Refresh settings
+index.refresh_interval: "30s"
+index.translog.flush_threshold_size: "1gb"
+
+# ---------------------------------- Security ----------------------------------
+# Path to log files:
+path.logs: /usr/share/elasticsearch/logs
+#
+# ----------------------------------- Memory -----------------------------------
+#
+# Lock the memory on startup:
+bootstrap.memory_lock: false
+#
+# Make sure that the heap size is set to about half the memory available
+# on the system and that the owner of the process is allowed to use this
+# limit.
+#
+# Elasticsearch performs poorly when the system is swapping the memory.
+#
+# ---------------------------------- Network -----------------------------------
+#
+# By default Elasticsearch is only accessible on localhost. Set a different
+# address here to expose this node on the network:
+network.host: 0.0.0.0
+#
+# By default Elasticsearch listens for HTTP traffic on the first free port it
+# finds starting at 9200. Set a specific HTTP port here:
+http.port: 9200
+#
+# For more information, consult the network module documentation.
+#
+# --------------------------------- Discovery ----------------------------------
+#
+# Pass an initial list of hosts to perform discovery when this node is started:
+# The default list of hosts is ["127.0.0.1", "[::1]"]
+discovery.type: single-node
+#
+# Bootstrap the cluster using an initial set of master-eligible nodes:
+#cluster.initial_master_nodes: ["node-1", "node-2"]
+#
+# For more information, consult the discovery and cluster formation module documentation.
+#
+# ---------------------------------- Various -----------------------------------
+#
+# Allow wildcard deletion of indices:
+action.destructive_requires_name: false
+#
+# ---------------------------------- Security ----------------------------------
+#
+# Disable security features for development environment
+xpack.security.enabled: false
+xpack.security.enrollment.enabled: false
+xpack.security.http.ssl.enabled: false
+xpack.security.transport.ssl.enabled: false
+#
+# ---------------------------------- Performance ------------------------------
+#
+# Thread pool settings
+thread_pool.write.queue_size: 10000
+thread_pool.search.queue_size: 10000
+#
+# Index settings
+indices.memory.index_buffer_size: 20%
+indices.memory.min_index_buffer_size: 96mb
+#
+# Query cache
+indices.queries.cache.size: 20%
+#
+# Field data cache
+indices.fielddata.cache.size: 40%
+#
+# ---------------------------------- Logging ----------------------------------
+#
+# Set the log level
+logger.level: INFO
+#
+# ---------------------------------- Monitoring -------------------------------
+#
+# Disable monitoring collection for development
+xpack.monitoring.collection.enabled: false

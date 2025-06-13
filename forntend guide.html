@@ -1,0 +1,1338 @@
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>EvalFlow - Login</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #0c7ff2;
+        --secondary-color: #f0f2f5;
+        --text-primary: #111418;
+        --text-secondary: #60758a;
+        --accent-color: #0c7ff2;}
+      .form-input:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 2px var(--primary-color) !important;
+      }
+    </style>
+</head>
+<body class="bg-gray-50">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[var(--secondary-color)] px-6 sm:px-10 py-4 bg-white shadow-sm">
+<div class="flex items-center gap-3 text-[var(--text-primary)]">
+<div class="size-6 text-[var(--primary-color)]">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h1 class="text-[var(--text-primary)] text-xl font-bold tracking-tight">EvalFlow</h1>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+<div class="w-full max-w-md space-y-8 bg-white p-8 sm:p-10 rounded-xl shadow-2xl">
+<div>
+<h2 class="text-center text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
+                Welcome back
+              </h2>
+<p class="mt-2 text-center text-sm text-[var(--text-secondary)]">
+                Log in to manage your company and project evaluations.
+              </p>
+</div>
+<form action="#" class="mt-8 space-y-6" method="POST">
+<input name="remember" type="hidden" value="true"/>
+<div class="rounded-md shadow-sm -space-y-px">
+<div>
+<label class="sr-only" for="email-address">Email address</label>
+<input autocomplete="email" class="form-input appearance-none relative block w-full px-4 py-3.5 border border-gray-300 placeholder-gray-500 text-[var(--text-primary)] rounded-t-md focus:outline-none focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] focus:z-10 sm:text-sm" id="email-address" name="email" placeholder="Email address" required="" type="email"/>
+</div>
+<div>
+<label class="sr-only" for="password">Password</label>
+<input autocomplete="current-password" class="form-input appearance-none relative block w-full px-4 py-3.5 border border-gray-300 placeholder-gray-500 text-[var(--text-primary)] rounded-b-md focus:outline-none focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] focus:z-10 sm:text-sm" id="password" name="password" placeholder="Password" required="" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-end">
+<div class="text-sm">
+<a class="font-medium text-[var(--primary-color)] hover:text-opacity-80" href="#">
+                    Forgot your password?
+                  </a>
+</div>
+</div>
+<div>
+<button class="group relative flex w-full justify-center rounded-md border border-transparent bg-[var(--primary-color)] py-3 px-4 text-sm font-semibold text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2" type="submit">
+                  Log in
+                </button>
+</div>
+</form>
+<p class="mt-6 text-center text-sm text-[var(--text-secondary)]">
+              Don't have an account?
+              <a class="font-medium text-[var(--primary-color)] hover:text-opacity-80" href="#">
+                Sign up
+              </a>
+</p>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>
+
+
+<html><head>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #0c7ff2;
+        --secondary-color: #f0f2f5;
+        --text-primary: #111418;
+        --text-secondary: #60758a;
+        --border-color: #dbe0e6;
+      }
+      .status-badge {
+        @apply inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium;
+      }
+      .status-in-progress {
+        @apply bg-yellow-100 text-yellow-800;
+      }
+      .status-completed {
+        @apply bg-green-100 text-green-800;
+      }
+      .status-pending {
+        @apply bg-orange-100 text-orange-800;
+      }
+    </style>
+</head>
+<body class="bg-slate-50">
+<div class="relative flex size-full min-h-screen flex-col group/design-root" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="flex h-full grow">
+<aside class="flex flex-col w-64 bg-white border-r border-[var(--border-color)] p-6 space-y-6">
+<div class="flex items-center gap-2">
+<svg class="text-[var(--primary-color)] h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" stroke-linecap="round" stroke-linejoin="round"></path> </svg>
+<h1 class="text-[var(--text-primary)] text-xl font-semibold leading-normal">EvaluationPro</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[var(--secondary-color)] hover:bg-slate-200 transition-colors" href="#">
+<div class="text-[var(--primary-color)]" data-icon="House" data-size="24px" data-weight="fill">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
+</svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="PresentationChart" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"></path>
+</svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Evaluations</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="Buildings" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"></path>
+</svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Companies</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="Users" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"></path>
+</svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Evaluators</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="Presentation" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176Z"></path>
+</svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Reports</p>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="Gear" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg"><path d="M216.35,118.86l-27.23-15.72a8,8,0,0,0-10.12,2.88,61.08,61.08,0,0,0-6.46,12.7,8,8,0,0,1-14.72,1.58,75.86,75.86,0,0,1-.13-20.6l.06-.1a8,8,0,0,1,11.45-6.23l27.23,15.72a8,8,0,0,0,10.12-2.88,61.06,61.06,0,0,0,0-25.4,8,8,0,0,0-10.12-2.88l-27.23,15.72a8,8,0,0,1-11.45-6.23l-.06-.1a75.86,75.86,0,0,1,.13-20.6,8,8,0,0,1,14.72,1.58,61.08,61.08,0,0,0,6.46,12.7,8,8,0,0,0,10.12,2.88l27.23-15.72a8,8,0,0,0,4-7.14,76,76,0,1,0-110.54,68.22,8,8,0,0,1,14.4,4.49,60,60,0,1,1,1.25-32.9,8,8,0,0,0-10.12-2.88l-27.23,15.72a8,8,0,0,1-11.45-6.23l-.06-.1a75.94,75.94,0,0,1,0-20.5,8,8,0,0,1,11.45-6.23l27.23,15.72a8,8,0,0,0,10.12-2.88,61,61,0,0,0-18.19-36.82,8,8,0,0,0-10.12-2.88L99.65,71.14a8,8,0,0,1-11.45-6.23l-.06-.1A76.08,76.08,0,0,1,96.79,44a8,8,0,0,1,9.08,9.81A60,60,0,0,0,128,100a59.65,59.65,0,0,0,11.73-1.23,8,8,0,0,0,6.95-5.5l.06-.1a8,8,0,0,1,11.45-6.23l27.23,15.72a8,8,0,0,0,10.12-2.88A60.89,60.89,0,0,0,200,88a60,60,0,0,0-46.27-29,8,8,0,1,1,4.54-14.38A76,76,0,0,1,212.35,111.72,8,8,0,0,0,216.35,118.86Z"></path></svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Settings</p>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-[var(--secondary-color)] transition-colors" href="#">
+<div class="text-[var(--text-secondary)]" data-icon="SignOut" data-size="24px" data-weight="regular">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg"><path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-90.34L188,92a8,8,0,0,0-11.32,0l-5.65,5.66a8,8,0,0,0,0,11.31L192.34,128l-21.31,21.32a8,8,0,0,0,0,11.31l5.65,5.66a8,8,0,0,0,11.32,0l33.66-33.66A8,8,0,0,0,221.66,125.66ZM216,120H104a8,8,0,0,0,0,16h112a8,8,0,0,0,0-16Z"></path></svg>
+</div>
+<p class="text-[var(--text-primary)] text-sm font-medium leading-normal">Logout</p>
+</a>
+</div>
+</aside>
+<main class="flex-1 p-8 overflow-y-auto">
+<header class="mb-8">
+<div class="flex justify-between items-center">
+<div>
+<h1 class="text-[var(--text-primary)] text-3xl font-bold leading-tight">Dashboard</h1>
+<p class="text-[var(--text-secondary)] text-base font-normal leading-normal mt-1">Welcome back, Alex! Here's a summary of your activities and key information.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[var(--text-secondary)] hover:text-[var(--primary-color)]">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.25,62.38-13.8,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,104a64,64,0,1,1,128,0c0,42.42,15.74,81.78,21.31,96H26.69C32.26,185.78,48,146.42,48,104Z"></path></svg>
+</button>
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrkDdWjYyCi_TYgBzxi2MnPz7es6k3CZ4Uo66RnsF3cKUyQOPnsSb9ZIuca8c8Gnt187HnWBuwKsqGKTTvqBjggdzBJF7gYHxcRZSsV6HtQNdl_l0mdO2SvrS8vPPsZzxzrEx--3iur5O9JGYlOmTUSCG4q9pjP_4lQ_YSTYSr9Q9eyKBWux57gSYdUU8nskL64_pYor7ZaNBMi1i6RFmMZdAZIgLvws6KRwXtd7UXH9yzh9I7RFb8FhMLlZwH5hzkosjraRUbKP48"/>
+</div>
+</div>
+</header>
+<section class="mb-8">
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-4">Quick Actions</h2>
+<div class="flex gap-4">
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-[var(--primary-color)] text-white text-sm font-medium leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-sm">
+<svg class="mr-2" fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+<span>Start New Evaluation</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-white text-[var(--text-primary)] text-sm font-medium leading-normal tracking-[0.015em] border border-[var(--border-color)] hover:bg-[var(--secondary-color)] transition-colors shadow-sm">
+<span>View All Evaluations</span>
+</button>
+</div>
+</section>
+<section class="mb-8">
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-4">Recent Evaluations</h2>
+<div class="bg-white rounded-lg border border-[var(--border-color)] shadow-sm overflow-x-auto">
+<table class="w-full min-w-[800px]">
+<thead class="bg-[var(--secondary-color)]">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Evaluation ID</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Company</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Evaluator</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Due Date</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[var(--border-color)]">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">EVL-2024-001</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Tech Innovators Inc.</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Dr. Sarah Johnson</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="status-badge status-in-progress">In Progress</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">2024-08-15</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-[var(--primary-color)] hover:text-blue-700" href="#">View</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">EVL-2024-002</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Global Solutions Ltd.</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Dr. David Lee</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="status-badge status-completed">Completed</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">2024-07-20</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-[var(--primary-color)] hover:text-blue-700" href="#">View</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">EVL-2024-003</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Creative Minds Co.</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Dr. Emily Chen</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="status-badge status-pending">Pending</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">2024-09-05</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-[var(--primary-color)] hover:text-blue-700" href="#">View</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-4">Upcoming Deadlines</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white p-6 rounded-lg border border-[var(--border-color)] shadow-sm flex items-start space-x-4">
+<div class="flex-shrink-0 bg-[var(--primary-color)] text-white rounded-full p-3">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-96-88v64a8,8,0,0,1-16,0V132.94l-4.42,2.22a8,8,0,0,1-7.16-14.32l16-8A8,8,0,0,1,112,120Zm59.16,30.45L152,176h16a8,8,0,0,1,0,16H136a8,8,0,0,1-6.4-12.8l28.78-38.37A8,8,0,1,0,145.07,132a8,8,0,1,1-13.85-8A24,24,0,0,1,176,136,23.76,23.76,0,0,1,171.16,150.45Z"></path></svg>
+</div>
+<div>
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Evaluation Due: 2024-08-15</p>
+<p class="text-[var(--text-secondary)] text-sm font-normal leading-normal mt-1">Tech Innovators Inc.</p>
+<a class="mt-2 inline-block text-sm text-[var(--primary-color)] hover:text-blue-700 font-medium" href="#">View Details →</a>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-[var(--border-color)] shadow-sm flex items-start space-x-4">
+<div class="flex-shrink-0 bg-[var(--primary-color)] text-white rounded-full p-3">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-96-88v64a8,8,0,0,1-16,0V132.94l-4.42,2.22a8,8,0,0,1-7.16-14.32l16-8A8,8,0,0,1,112,120Zm59.16,30.45L152,176h16a8,8,0,0,1,0,16H136a8,8,0,0,1-6.4-12.8l28.78-38.37A8,8,0,1,0,145.07,132a8,8,0,1,1-13.85-8A24,24,0,0,1,176,136,23.76,23.76,0,0,1,171.16,150.45Z"></path></svg>
+</div>
+<div>
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Evaluation Due: 2024-09-05</p>
+<p class="text-[var(--text-secondary)] text-sm font-normal leading-normal mt-1">Creative Minds Co.</p>
+<a class="mt-2 inline-block text-sm text-[var(--primary-color)] hover:text-blue-700 font-medium" href="#">View Details →</a>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</div>
+
+</body></html>
+
+
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #0c7ff2;
+        --secondary-color: #60758a;
+        --background-color: #f0f2f5;
+        --text-primary: #111418;
+        --text-secondary: #60758a;
+        --border-color: #dbe0e6;
+      }
+      .nav-link.active {
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+      .slider-thumb::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .slider-thumb::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        cursor: pointer;
+        border: none; 
+      }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style="--select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(96,117,138)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e'); font-family: Inter, &quot;Noto Sans&quot;, sans-serif;">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[var(--border-color)] px-10 py-4 bg-white shadow-sm">
+<div class="flex items-center gap-3 text-[var(--text-primary)]">
+<div class="size-7 text-[var(--primary-color)]">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.5563 34.1455V13.8546C39.5563 15.708 36.8773 17.3437 32.7927 18.3189C30.2914 18.916 27.263 19.2655 24 19.2655C20.737 19.2655 17.7086 18.916 15.2073 18.3189C11.1227 17.3437 8.44365 15.708 8.44365 13.8546V34.1455C8.44365 35.9988 11.1227 37.6346 15.2073 38.6098C17.7086 39.2069 20.737 39.5564 24 39.5564C27.263 39.5564 30.2914 39.2069 32.7927 38.6098C36.8773 37.6346 39.5563 35.9988 39.5563 34.1455Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M10.4485 13.8519C10.4749 13.9271 10.6203 14.246 11.379 14.7361C12.298 15.3298 13.7492 15.9145 15.6717 16.3735C18.0007 16.9296 20.8712 17.2655 24 17.2655C27.1288 17.2655 29.9993 16.9296 32.3283 16.3735C34.2508 15.9145 35.702 15.3298 36.621 14.7361C37.3796 14.246 37.5251 13.9271 37.5515 13.8519C37.5287 13.7876 37.4333 13.5973 37.0635 13.2931C36.5266 12.8516 35.6288 12.3647 34.343 11.9175C31.79 11.0295 28.1333 10.4437 24 10.4437C19.8667 10.4437 16.2099 11.0295 13.657 11.9175C12.3712 12.3647 11.4734 12.8516 10.9365 13.2931C10.5667 13.5973 10.4713 13.7876 10.4485 13.8519ZM37.5563 18.7877C36.3176 19.3925 34.8502 19.8839 33.2571 20.2642C30.5836 20.9025 27.3973 21.2655 24 21.2655C20.6027 21.2655 17.4164 20.9025 14.7429 20.2642C13.1498 19.8839 11.6824 19.3925 10.4436 18.7877V34.1275C10.4515 34.1545 10.5427 34.4867 11.379 35.027C12.298 35.6207 13.7492 36.2054 15.6717 36.6644C18.0007 37.2205 20.8712 37.5564 24 37.5564C27.1288 37.5564 29.9993 37.2205 32.3283 36.6644C34.2508 36.2054 35.702 35.6207 36.621 35.027C37.4573 34.4867 37.5485 34.1546 37.5563 34.1275V18.7877ZM41.5563 13.8546V34.1455C41.5563 36.1078 40.158 37.5042 38.7915 38.3869C37.3498 39.3182 35.4192 40.0389 33.2571 40.5551C30.5836 41.1934 27.3973 41.5564 24 41.5564C20.6027 41.5564 17.4164 41.1934 14.7429 40.5551C12.5808 40.0389 10.6502 39.3182 9.20848 38.3869C7.84205 37.5042 6.44365 36.1078 6.44365 34.1455L6.44365 13.8546C6.44365 12.2684 7.37223 11.0454 8.39581 10.2036C9.43325 9.3505 10.8137 8.67141 12.343 8.13948C15.4203 7.06909 19.5418 6.44366 24 6.44366C28.4582 6.44366 32.5797 7.06909 35.657 8.13948C37.1863 8.67141 38.5667 9.3505 39.6042 10.2036C40.6278 11.0454 41.5563 12.2684 41.5563 13.8546Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[var(--text-primary)] text-xl font-bold leading-tight tracking-[-0.015em]">Evaluatify</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6">
+<nav class="flex items-center gap-6">
+<a class="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="nav-link active text-sm font-medium leading-normal transition-colors" href="#">Evaluations</a>
+<a class="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal transition-colors" href="#">Companies</a>
+<a class="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal transition-colors" href="#">Projects</a>
+<a class="nav-link text-[var(--text-secondary)] hover:text-[var(--primary-color)] text-sm font-medium leading-normal transition-colors" href="#">Reports</a>
+</nav>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white shadow-md" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdt_hwW4Jj6-PVk4K5u0fZVz435XCy8vs8BJ2qt9EhQZFycDpG_VDoJF5-ZWBrOCU1YHW0LJCPSkBA-dsMTx9Ti8fjLtM1Y6r4IfK6Mlwt1p0Sc_PAl8tF-U6_qhu9hkaBzDCbUBDizcu1vav332QgbZQTuIB9Au49io4xBrtpHx1r6ipKNRSISUb3gfLqEx5Dq8KfZFegm_VrmM_MyfFMu1m6s0wKKsmGego0EQPjpL2Ka_H8WAuflvGwpsOGRYThgoCrc4Lc1T4V");'></div>
+</div>
+</header>
+<main class="px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-8 bg-[var(--background-color)]">
+<div class="layout-content-container flex flex-col w-full max-w-4xl">
+<div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+<div class="mb-8">
+<h1 class="text-[var(--text-primary)] tracking-tight text-3xl font-bold leading-tight">Company Evaluation Form</h1>
+<p class="text-[var(--text-secondary)] text-base font-normal leading-normal mt-1">Please provide your assessment for the company based on the criteria below.</p>
+</div>
+<section class="mb-8">
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-4 pb-2 border-b border-[var(--border-color)]">Company Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+<div class="flex flex-col">
+<p class="text-[var(--text-secondary)] text-sm font-medium">Company Name</p>
+<p class="text-[var(--text-primary)] text-base font-normal">Tech Innovators Inc.</p>
+</div>
+<div class="flex flex-col">
+<p class="text-[var(--text-secondary)] text-sm font-medium">Industry</p>
+<p class="text-[var(--text-primary)] text-base font-normal">Technology</p>
+</div>
+<div class="flex flex-col col-span-1 md:col-span-2">
+<p class="text-[var(--text-secondary)] text-sm font-medium">Location</p>
+<p class="text-[var(--text-primary)] text-base font-normal">San Francisco, CA</p>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-[-0.015em] mb-6 pb-2 border-b border-[var(--border-color)]">Evaluation Criteria</h2>
+<div class="space-y-8">
+<div class="border border-[var(--border-color)] rounded-lg p-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 items-start">
+<label class="flex flex-col">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Criterion 1: Innovation</p>
+<select class="form-select w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white h-12 px-3 text-base font-normal appearance-none bg-[image:--select-button-svg] bg-right bg-no-repeat pr-8">
+<option disabled="" selected="" value="">Select innovation level...</option>
+<option value="market_leader">Market Leader</option>
+<option value="strong_innovator">Strong Innovator</option>
+<option value="average_innovator">Average Innovator</option>
+<option value="needs_improvement">Needs Improvement</option>
+</select>
+</label>
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Score (1-10)</p>
+<p class="text-[var(--primary-color)] text-lg font-semibold">7</p>
+</div>
+<input class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb accent-[var(--primary-color)]" max="10" min="1" type="range" value="7"/>
+</div>
+</div>
+<label class="flex flex-col mt-4">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Comments</p>
+<textarea class="form-textarea w-full resize-none rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white min-h-28 p-3 text-base font-normal placeholder:text-gray-400" placeholder="Enter your comments on innovation..."></textarea>
+</label>
+</div>
+<div class="border border-[var(--border-color)] rounded-lg p-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 items-start">
+<label class="flex flex-col">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Criterion 2: Financial Stability</p>
+<select class="form-select w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white h-12 px-3 text-base font-normal appearance-none bg-[image:--select-button-svg] bg-right bg-no-repeat pr-8">
+<option disabled="" selected="" value="">Select financial status...</option>
+<option value="very_stable">Very Stable</option>
+<option value="stable">Stable</option>
+<option value="moderate_risk">Moderate Risk</option>
+<option value="high_risk">High Risk</option>
+</select>
+</label>
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Score (1-10)</p>
+<p class="text-[var(--primary-color)] text-lg font-semibold">8</p>
+</div>
+<input class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb accent-[var(--primary-color)]" max="10" min="1" type="range" value="8"/>
+</div>
+</div>
+<label class="flex flex-col mt-4">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Comments</p>
+<textarea class="form-textarea w-full resize-none rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white min-h-28 p-3 text-base font-normal placeholder:text-gray-400" placeholder="Enter your comments on financial stability..."></textarea>
+</label>
+</div>
+<div class="border border-[var(--border-color)] rounded-lg p-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 items-start">
+<label class="flex flex-col">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Criterion 3: Market Position</p>
+<select class="form-select w-full rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white h-12 px-3 text-base font-normal appearance-none bg-[image:--select-button-svg] bg-right bg-no-repeat pr-8">
+<option disabled="" selected="" value="">Select market position...</option>
+<option value="leader">Leader</option>
+<option value="challenger">Challenger</option>
+<option value="niche_player">Niche Player</option>
+<option value="new_entrant">New Entrant</option>
+</select>
+</label>
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Score (1-10)</p>
+<p class="text-[var(--primary-color)] text-lg font-semibold">6</p>
+</div>
+<input class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb accent-[var(--primary-color)]" max="10" min="1" type="range" value="6"/>
+</div>
+</div>
+<label class="flex flex-col mt-4">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal pb-2">Comments</p>
+<textarea class="form-textarea w-full resize-none rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] border border-[var(--border-color)] bg-white min-h-28 p-3 text-base font-normal placeholder:text-gray-400" placeholder="Enter your comments on market position..."></textarea>
+</label>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="flex items-center gap-2 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-[var(--primary-color)] text-white text-sm font-semibold leading-normal tracking-[0.015em] hover:bg-blue-700 transition-colors">
+<span class="material-icons-outlined text-lg">send</span>
+<span class="truncate">Submit Evaluation</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<footer class="text-center py-6 border-t border-[var(--border-color)] bg-white">
+<p class="text-sm text-[var(--text-secondary)]">© 2024 Evaluatify. All rights reserved.</p>
+</footer>
+</div>
+</div>
+
+</body></html>
+
+
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B600%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #0c7ff2;
+        --secondary-color: #f0f7ff;
+        --accent-color: #078838;
+        --destructive-color: #e73908;
+        --text-primary: #111418;
+        --text-secondary: #60758a;
+        --border-color: #e5e7eb;
+        --background-light: #f9fafb;
+      }
+      .material-icons-outlined {
+        font-size: inherit;
+      }
+    </style>
+</head>
+<body class="bg-[var(--background-light)]" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] bg-white px-6 sm:px-10 py-4 shadow-sm">
+<div class="flex items-center gap-6 sm:gap-8">
+<div class="flex items-center gap-2 text-[var(--primary-color)]">
+<span class="material-icons-outlined !text-3xl">assessment</span>
+<h1 class="text-[var(--text-primary)] text-xl font-bold leading-tight tracking-tight">EvalFlow</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[var(--primary-color)] text-sm font-semibold leading-normal hover:text-[var(--primary-color)]/80 transition-colors" href="#">Dashboard</a>
+<a class="text-[var(--text-primary)] text-sm font-medium leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Evaluations</a>
+<a class="text-[var(--text-primary)] text-sm font-medium leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Projects</a>
+<a class="text-[var(--text-primary)] text-sm font-medium leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Companies</a>
+<a class="text-[var(--text-primary)] text-sm font-medium leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Users</a>
+</nav>
+</div>
+<div class="flex items-center gap-3 sm:gap-4">
+<label class="relative flex items-center min-w-32 max-w-xs">
+<div class="absolute left-3 text-[var(--text-secondary)]" data-icon="MagnifyingGlass">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+</svg>
+</div>
+<input class="form-input w-full rounded-lg border border-[var(--border-color)] bg-white text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]/50 h-10 placeholder:text-[var(--text-secondary)] pl-10 pr-3 text-sm font-normal leading-normal" placeholder="Search..." value=""/>
+</label>
+<button class="relative flex items-center justify-center rounded-lg h-10 w-10 bg-white text-[var(--text-secondary)] hover:bg-[var(--secondary-color)] hover:text-[var(--primary-color)] transition-colors border border-[var(--border-color)]">
+<span class="material-icons-outlined !text-2xl">notifications</span>
+<span class="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-[var(--destructive-color)] border-2 border-white"></span>
+</button>
+<div class="flex items-center gap-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[var(--primary-color)]/50" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA5R1V35iD9WjT56sMbQSaxjqxLydIGEh16uNXwNRoauwyLcUhvzejVYt9x7QTOTag4W4ETUACUT40YlHCixNapXM6WS3phquSWffOEMYQ0SdkaJ0szdwtyoahjmqbJvq-XKdGBEV1FNFK0Tsdt_lJDL5ejERZbVNiPoNwg3hxOuv_DDtc-hz5tJsXuhzduYCtvPLWjccJi2KFrQ10ROP0nsXLWmfEh8tt7fiTNlS_Qb1KqEgN4vNINDgd5HsjRX6g_joQvmH_wlZj4");'></div>
+<button class="md:hidden p-2 text-[var(--text-secondary)]">
+<span class="material-icons-outlined !text-2xl">menu</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-6 sm:py-10 px-4 sm:px-6 lg:px-8">
+<div class="layout-content-container flex flex-col w-full max-w-6xl">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 mb-6">
+<div class="flex flex-col gap-1">
+<h1 class="text-[var(--text-primary)] text-3xl font-bold leading-tight tracking-tight">Dashboard</h1>
+<p class="text-[var(--text-secondary)] text-sm font-normal leading-normal">Overview of project evaluations and performance metrics</p>
+</div>
+<button class="flex items-center gap-2 rounded-lg bg-[var(--primary-color)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--primary-color)]/90 transition-colors">
+<span class="material-icons-outlined">add_circle_outline</span>
+                New Evaluation
+              </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-4">
+<div class="flex flex-col gap-2 rounded-xl p-6 border border-[var(--border-color)] bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Total Evaluations</p>
+<span class="material-icons-outlined text-[var(--primary-color)]">inventory_2</span>
+</div>
+<p class="text-[var(--text-primary)] text-3xl font-bold leading-tight">120</p>
+<div class="flex items-center gap-1 text-sm">
+<span class="material-icons-outlined text-[var(--accent-color)] !text-base">trending_up</span>
+<p class="text-[var(--accent-color)] font-semibold leading-normal">+10%</p>
+<p class="text-[var(--text-secondary)]">vs last month</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 border border-[var(--border-color)] bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Average Score</p>
+<span class="material-icons-outlined text-[var(--primary-color)]">star_half</span>
+</div>
+<p class="text-[var(--text-primary)] text-3xl font-bold leading-tight">8.5/10</p>
+<div class="flex items-center gap-1 text-sm">
+<span class="material-icons-outlined text-[var(--destructive-color)] !text-base">trending_down</span>
+<p class="text-[var(--destructive-color)] font-semibold leading-normal">-5%</p>
+<p class="text-[var(--text-secondary)]">vs last month</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 border border-[var(--border-color)] bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
+<div class="flex items-center justify-between">
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Projects Evaluated</p>
+<span class="material-icons-outlined text-[var(--primary-color)]">assignment</span>
+</div>
+<p class="text-[var(--text-primary)] text-3xl font-bold leading-tight">30</p>
+<div class="flex items-center gap-1 text-sm">
+<span class="material-icons-outlined text-[var(--accent-color)] !text-base">trending_up</span>
+<p class="text-[var(--accent-color)] font-semibold leading-normal">+15%</p>
+<p class="text-[var(--text-secondary)]">vs last month</p>
+</div>
+</div>
+</div>
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-tight px-4 pb-3 pt-8">Evaluation Trends</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-4">
+<div class="flex flex-col gap-4 rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+<div>
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Evaluation Scores Over Time</p>
+<p class="text-[var(--text-secondary)] text-sm">Average Score: <strong class="text-[var(--text-primary)]">8.2</strong></p>
+</div>
+<div class="flex items-center gap-1 text-sm">
+<p class="text-[var(--text-secondary)]">Last 6 Months</p>
+<span class="material-icons-outlined text-[var(--accent-color)] !text-base">trending_up</span>
+<p class="text-[var(--accent-color)] font-semibold leading-normal">+5%</p>
+</div>
+<div class="flex min-h-[200px] flex-1 flex-col gap-4 py-2">
+<svg fill="none" height="100%" preserveAspectRatio="xMidYMid meet" viewBox="0 0 472 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="var(--primary-color)" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="var(--primary-color)" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V150H0V109Z" fill="url(#chartGradient)"></path>
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25" stroke="var(--primary-color)" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="flex justify-around">
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">Jan</p>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">Feb</p>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">Mar</p>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">Apr</p>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">May</p>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal">Jun</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
+<div>
+<p class="text-[var(--text-primary)] text-base font-medium leading-normal">Project Evaluation Distribution</p>
+<p class="text-[var(--text-secondary)] text-sm">Total Evaluations: <strong class="text-[var(--text-primary)]">120</strong></p>
+</div>
+<div class="flex items-center gap-1 text-sm">
+<p class="text-[var(--text-secondary)]">All Time</p>
+<span class="material-icons-outlined text-[var(--accent-color)] !text-base">trending_up</span>
+<p class="text-[var(--accent-color)] font-semibold leading-normal">+10%</p>
+</div>
+<div class="grid min-h-[200px] grid-flow-col gap-4 grid-rows-[1fr_auto] items-end justify-items-center px-2 pt-2">
+<div class="bg-[var(--primary-color)]/30 w-full rounded-t-md" style="height: 70%;"></div>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal text-center">Project A</p>
+<div class="bg-[var(--primary-color)]/30 w-full rounded-t-md" style="height: 40%;"></div>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal text-center">Project B</p>
+<div class="bg-[var(--primary-color)]/30 w-full rounded-t-md" style="height: 50%;"></div>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal text-center">Project C</p>
+<div class="bg-[var(--primary-color)]/30 w-full rounded-t-md" style="height: 60%;"></div>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal text-center">Project D</p>
+<div class="bg-[var(--primary-color)]/30 w-full rounded-t-md" style="height: 80%;"></div>
+<p class="text-[var(--text-secondary)] text-xs font-medium leading-normal text-center">Project E</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="w-full border-t border-[var(--border-color)] bg-white py-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<div class="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2">
+<a class="text-[var(--text-secondary)] text-sm font-normal leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">About Us</a>
+<a class="text-[var(--text-secondary)] text-sm font-normal leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Contact</a>
+<a class="text-[var(--text-secondary)] text-sm font-normal leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Privacy Policy</a>
+<a class="text-[var(--text-secondary)] text-sm font-normal leading-normal hover:text-[var(--primary-color)] transition-colors" href="#">Terms of Service</a>
+</div>
+<p class="text-[var(--text-secondary)] text-sm font-normal leading-normal">© 2024 EvalFlow. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</div>
+</div>
+
+</body></html>
+
+
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #dce8f3;
+        --secondary-color: #f1f2f4;
+        --text-primary: #121416;
+        --text-secondary: #6a7681;
+        --border-color: #dde1e3;
+      }
+      body {
+        font-family: Inter, "Noto Sans", sans-serif;
+      }
+      .progress-bar::-webkit-progress-bar {
+        background-color: var(--border-color);
+        border-radius: 0.25rem;}
+      .progress-bar::-webkit-progress-value {
+        background-color: var(--text-primary);
+        border-radius: 0.25rem;}
+      .progress-bar::-moz-progress-bar {
+        background-color: var(--text-primary);
+        border-radius: 0.25rem;}
+    </style>
+</head>
+<body class="bg-white text-[var(--text-primary)]">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] px-6 md:px-10 py-4">
+<div class="flex items-center gap-3 text-[var(--text-primary)]">
+<span class="material-icons-outlined text-3xl text-[var(--primary-color)]">assessment</span>
+<h1 class="text-xl font-bold tracking-tight">EvalFlow</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-[var(--primary-color)] transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium hover:text-[var(--primary-color)] transition-colors" href="#">Evaluations</a>
+<a class="text-sm font-medium hover:text-[var(--primary-color)] transition-colors" href="#">Projects</a>
+<a class="text-sm font-medium hover:text-[var(--primary-color)] transition-colors" href="#">Reports</a>
+</nav>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="relative flex cursor-pointer items-center justify-center rounded-full p-2 hover:bg-[var(--secondary-color)] transition-colors">
+<span class="material-icons-outlined text-2xl text-[var(--text-primary)]">notifications</span>
+<span class="absolute top-1 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
+</button>
+<div aria-label="User avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-[var(--border-color)]" role="img" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4vSA2t3SayzBDdsj1Lqdm2o-IKWPPW1CMtc4laTmFoXA8b6Sp-OCsY0ZWntvsWuDPz9pP9_tDMcpNdHxHdDevQqorIi78SIycX8EqifkkLwdd-_GCIdF__i--OJ-nILneLIG5u-bPxOq_gEWq_USET880OLjP7Od1CGvtIDbE_NZYlwfxsjXGCHHuz3dbGhp8VarRGF152wgzCs2NsfB_aP5NAWEr6lhEfS5W8w3EgsxmOEdy3d1vD0nzarcbTTkTBccwp9D8v4XQ");'></div>
+</div>
+</header>
+<main class="px-6 md:px-10 lg:px-20 xl:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-5xl">
+<div class="mb-8">
+<h1 class="text-[var(--text-primary)] text-3xl md:text-4xl font-bold leading-tight">Welcome back, Sarah!</h1>
+<p class="text-[var(--text-secondary)] mt-1 text-base">Here's an overview of your current evaluations.</p>
+</div>
+<section class="mb-10">
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-tight mb-4">Your Ongoing Evaluations</h2>
+<div class="overflow-x-auto rounded-lg border border-[var(--border-color)] bg-white shadow-sm">
+<table class="w-full min-w-[600px]">
+<thead class="bg-[var(--secondary-color)]">
+<tr>
+<th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Company</th>
+<th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Project</th>
+<th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Deadline</th>
+<th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Progress</th>
+<th class="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[var(--border-color)]">
+<tr>
+<td class="px-5 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">Tech Innovators Inc.</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Project Phoenix</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
+<span class="inline-flex items-center gap-1.5">
+<span class="material-icons-outlined text-base text-red-500">calendar_today</span>
+                          2024-08-15
+                        </span>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<div class="flex items-center gap-2">
+<progress class="progress-bar h-2 w-24 rounded-sm" max="100" value="75"></progress>
+<span class="text-xs font-medium text-[var(--text-primary)]">75%</span>
+</div>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<button class="text-[var(--primary-color)] hover:text-blue-700 font-medium py-1 px-2 rounded-md text-xs flex items-center gap-1 bg-[var(--primary-color)]/[0.1] hover:bg-[var(--primary-color)]/[0.2] transition-colors">
+<span class="material-icons-outlined text-sm">visibility</span>
+                          View
+                        </button>
+</td>
+</tr>
+<tr>
+<td class="px-5 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">Global Solutions Ltd.</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Project Aurora</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
+<span class="inline-flex items-center gap-1.5">
+<span class="material-icons-outlined text-base text-orange-500">calendar_today</span>
+                           2024-07-20
+                        </span>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<div class="flex items-center gap-2">
+<progress class="progress-bar h-2 w-24 rounded-sm" max="100" value="50"></progress>
+<span class="text-xs font-medium text-[var(--text-primary)]">50%</span>
+</div>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<button class="text-[var(--primary-color)] hover:text-blue-700 font-medium py-1 px-2 rounded-md text-xs flex items-center gap-1 bg-[var(--primary-color)]/[0.1] hover:bg-[var(--primary-color)]/[0.2] transition-colors">
+<span class="material-icons-outlined text-sm">visibility</span>
+                          View
+                        </button>
+</td>
+</tr>
+<tr>
+<td class="px-5 py-4 whitespace-nowrap text-sm font-medium text-[var(--text-primary)]">Creative Minds Co.</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">Project Nebula</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm text-[var(--text-secondary)]">
+<span class="inline-flex items-center gap-1.5">
+<span class="material-icons-outlined text-base text-green-500">calendar_today</span>
+                          2024-09-05
+                        </span>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<div class="flex items-center gap-2">
+<progress class="progress-bar h-2 w-24 rounded-sm" max="100" value="25"></progress>
+<span class="text-xs font-medium text-[var(--text-primary)]">25%</span>
+</div>
+</td>
+<td class="px-5 py-4 whitespace-nowrap text-sm">
+<button class="text-[var(--primary-color)] hover:text-blue-700 font-medium py-1 px-2 rounded-md text-xs flex items-center gap-1 bg-[var(--primary-color)]/[0.1] hover:bg-[var(--primary-color)]/[0.2] transition-colors">
+<span class="material-icons-outlined text-sm">visibility</span>
+                          View
+                        </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2 class="text-[var(--text-primary)] text-xl font-semibold leading-tight tracking-tight mb-4">Quick Actions</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-[var(--primary-color)] text-[var(--text-primary)] text-sm font-semibold hover:bg-blue-300 transition-colors shadow-sm">
+<span class="material-icons-outlined">add_circle_outline</span>
+<span>Start New Evaluation</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-12 px-5 bg-[var(--secondary-color)] text-[var(--text-primary)] text-sm font-semibold hover:bg-gray-200 transition-colors shadow-sm">
+<span class="material-icons-outlined">menu_book</span>
+<span>Evaluation Guide</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<footer class="text-center py-6 border-t border-[var(--border-color)] text-sm text-[var(--text-secondary)]">
+<p>© 2024 EvalFlow. All rights reserved.</p>
+</footer>
+</div>
+</div>
+
+</body></html>
+
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<title>EvalFlow - Evaluation Form</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #dce8f3;
+        --secondary-color: #1A202C;--accent-color: #2B6CB0;--neutral-bg: #F7FAFC;
+        --neutral-border: #E2E8F0;
+        --text-primary: #1A202C;
+        --text-secondary: #4A5568;
+        --text-muted: #718096;
+      }
+      body {
+        font-family: 'Inter', 'Noto Sans', sans-serif;
+      }
+      .form-input {
+        @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50;
+      }
+      .btn-primary {
+        @apply bg-[var(--accent-color)] hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out;
+      }
+      .btn-secondary {
+        @apply bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out;
+      }
+      .btn-outline {
+        @apply bg-transparent hover:bg-gray-100 text-[var(--accent-color)] font-semibold py-2 px-4 border border-[var(--accent-color)] rounded-lg shadow-sm transition duration-150 ease-in-out;
+      }
+    </style>
+</head>
+<body class="bg-[var(--neutral-bg)] text-[var(--text-primary)]">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style="--select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(106,118,129)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e');">
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 z-10 flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--neutral-border)] bg-white px-6 sm:px-10 py-3 shadow-sm">
+<div class="flex items-center gap-4 text-[var(--text-primary)]">
+<div class="size-7 text-[var(--accent-color)]">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4ZM22 14H14V22H22V14ZM14 26H22V34H14V26ZM26 14H34V22H26V14ZM26 26H34V34H26V26Z" fill="currentColor" fill-rule="evenodd"></path></svg>
+</div>
+<h1 class="text-xl font-bold leading-tight tracking-tight">EvalFlow</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[var(--text-secondary)] hover:text-[var(--accent-color)] text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-[var(--accent-color)] text-sm font-semibold leading-normal border-b-2 border-[var(--accent-color)] pb-1" href="#">Evaluations</a>
+<a class="text-[var(--text-secondary)] hover:text-[var(--accent-color)] text-sm font-medium leading-normal transition-colors" href="#">Templates</a>
+<a class="text-[var(--text-secondary)] hover:text-[var(--accent-color)] text-sm font-medium leading-normal transition-colors" href="#">Reports</a>
+</nav>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-gray-100 hover:bg-gray-200 text-[var(--text-secondary)] transition-colors">
+<span class="material-icons text-xl">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-gray-300 hover:border-[var(--accent-color)] transition-all" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCLDuJ6stzBTWezAAig_3An09Ikjxb4qJpST5qJ3-jPqEQaGv6QH1x2RhzD_r2GxEkXlmIuEC7LKeK0dThhypTsnCDav7Iz4A7-L-2ueN23Kk-kxTzFuO76Wqw7PhhpcYmFs8F47fn7zssfiiPliYDxm5UuPuYFlF86T_LfUuZ3I-eOeMen4FK9FyCcCbcaKoHghA1AeLzoc8B_UbjuMJBLh8hjytcO-3dgz92dwJX7VwZvcEGKBdJ3yl2xia2UzgS0HAGm7NplpwLh");' title="User Profile"></div>
+</div>
+</header>
+<main class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-4xl gap-6">
+<nav aria-label="Breadcrumb" class="px-4 py-2 bg-white rounded-lg shadow-sm border border-[var(--neutral-border)]">
+<ol class="flex items-center space-x-2 text-sm">
+<li><a class="text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors" href="#">Evaluations</a></li>
+<li><span class="text-[var(--text-muted)]">/</span></li>
+<li><a class="text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors" href="#">Project Alpha</a></li>
+<li><span class="text-[var(--text-muted)]">/</span></li>
+<li><span class="font-medium text-[var(--text-primary)]">Evaluation Form</span></li>
+</ol>
+</nav>
+<section class="bg-white p-6 rounded-lg shadow-lg border border-[var(--neutral-border)]">
+<div class="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+<div>
+<h2 class="text-3xl font-bold text-[var(--text-primary)]">Evaluation: InnovateX Platform</h2>
+<p class="text-[var(--text-secondary)] text-sm mt-1">
+<span class="font-medium">Company:</span> Future Solutions Ltd. | <span class="font-medium">Deadline:</span> <span class="text-red-600 font-semibold">2024-09-15</span> (10 days remaining)
+                  </p>
+</div>
+<div class="text-sm text-[var(--text-secondary)]">
+<p><span class="font-medium">Template:</span> Standard Tech Review v2.1</p>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex justify-between items-center mb-1">
+<p class="text-sm font-medium text-[var(--text-primary)]">Overall Progress</p>
+<p class="text-sm font-semibold text-[var(--accent-color)]">75%</p>
+</div>
+<div class="w-full bg-gray-200 rounded-full h-2.5">
+<div class="bg-[var(--accent-color)] h-2.5 rounded-full" style="width: 75%;"></div>
+</div>
+</div>
+</section>
+<form class="space-y-8">
+<section class="bg-white p-6 rounded-lg shadow-lg border border-[var(--neutral-border)]">
+<h3 class="text-xl font-semibold text-[var(--text-primary)] mb-2">Section 1: Technical Feasibility</h3>
+<p class="text-sm text-[var(--text-muted)] mb-6">Item 3 of 5</p>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-1" for="criteria-select">Evaluation Criteria: <span class="font-bold">Scalability</span></label>
+<p class="text-xs text-[var(--text-muted)] mb-2">Assess the project's ability to handle growth and increased load.</p>
+<select class="form-input h-12 p-[15px] bg-[image:--select-button-svg] bg-right bg-no-repeat appearance-none" id="criteria-select" name="criteria-select">
+<option value="">Select Score (1-5)</option>
+<option value="1">1 - Poor</option>
+<option value="2">2 - Fair</option>
+<option value="3">3 - Good</option>
+<option value="4">4 - Very Good</option>
+<option value="5">5 - Excellent</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-1" for="comments">Comments for Scalability</label>
+<textarea class="form-input p-[15px]" id="comments" name="comments" placeholder="Provide detailed feedback on scalability aspects..." rows="4"></textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-1" for="score-input">Specific Score (Optional Override)</label>
+<input class="form-input h-12 p-[15px]" id="score-input" max="5" min="1" name="score-input" placeholder="Enter score 1-5" type="number"/>
+</div>
+</div>
+</section>
+<section class="bg-white p-6 rounded-lg shadow-lg border border-[var(--neutral-border)]">
+<h3 class="text-xl font-semibold text-[var(--text-primary)] mb-2">Section 2: Innovation &amp; Impact</h3>
+<p class="text-sm text-[var(--text-muted)] mb-6">Item 1 of 3</p>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-1" for="innovation-criteria-select">Evaluation Criteria: <span class="font-bold">Originality</span></label>
+<p class="text-xs text-[var(--text-muted)] mb-2">Evaluate the uniqueness and novelty of the proposed solution.</p>
+<select class="form-input h-12 p-[15px] bg-[image:--select-button-svg] bg-right bg-no-repeat appearance-none" id="innovation-criteria-select" name="innovation-criteria-select">
+<option value="">Select Score (1-5)</option>
+<option value="1">1 - Not Original</option>
+<option value="2">2 - Slightly Original</option>
+<option value="3">3 - Moderately Original</option>
+<option value="4">4 - Highly Original</option>
+<option value="5">5 - Groundbreaking</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-1" for="innovation-comments">Comments for Originality</label>
+<textarea class="form-input p-[15px]" id="innovation-comments" name="innovation-comments" placeholder="Detail your assessment of the project's originality..." rows="4"></textarea>
+</div>
+</div>
+</section>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-gray-50 rounded-lg border border-[var(--neutral-border)]">
+<div class="flex gap-3">
+<button class="btn-secondary flex items-center gap-2" type="button">
+<span class="material-icons text-lg">arrow_back_ios</span>
+                    Previous Item
+                  </button>
+<button class="btn-secondary flex items-center gap-2" type="button">
+                    Next Item
+                    <span class="material-icons text-lg">arrow_forward_ios</span>
+</button>
+</div>
+<div class="flex gap-3">
+<button class="btn-outline flex items-center gap-2" type="button">
+<span class="material-icons text-lg">save</span>
+                    Save Draft
+                  </button>
+<button class="btn-primary flex items-center gap-2" type="submit">
+<span class="material-icons text-lg">check_circle</span>
+                    Submit Evaluation
+                  </button>
+</div>
+</div>
+</form>
+</div>
+</main>
+<footer class="text-center py-6 border-t border-[var(--neutral-border)] bg-white">
+<p class="text-sm text-[var(--text-muted)]">© 2024 EvalFlow. All rights reserved.</p>
+</footer>
+</div>
+</div>
+
+</body></html>
+
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B600%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #dce8f3;
+        --primary-text: #1a202c;--secondary-text: #4a5568;--accent-color: #3182ce;--background-light: #f7fafc;--border-color: #e2e8f0;--hover-bg: #edf2f7;}
+      body {
+        font-family: "Inter", "Noto Sans", sans-serif;
+      }
+      .btn-primary {
+        @apply bg-[var(--accent-color)] text-white hover:bg-blue-600 transition-colors;
+      }
+      .btn-secondary {
+        @apply bg-[var(--primary-color)] text-[var(--primary-text)] hover:bg-gray-300 transition-colors;
+      }
+      .table-header-cell {
+        @apply px-6 py-3 text-left text-xs font-semibold text-[var(--secondary-text)] uppercase tracking-wider bg-gray-50;
+      }
+      .table-body-cell {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-[var(--primary-text)];
+      }
+      .status-badge {
+        @apply px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full;
+      }
+      .status-in-progress {
+        @apply bg-yellow-100 text-yellow-800;
+      }
+      .status-completed {
+        @apply bg-green-100 text-green-800;
+      }
+      .status-pending {
+        @apply bg-red-100 text-red-800;
+      }
+      .progress-bar-bg {
+        @apply bg-gray-200 rounded-full h-2;
+      }
+      .progress-bar-fill {
+        @apply bg-[var(--accent-color)] h-2 rounded-full;
+      }
+    </style>
+</head>
+<body class="bg-[var(--background-light)]">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] px-8 py-4 bg-white">
+<div class="flex items-center gap-4 text-[var(--primary-text)]">
+<div class="size-6 text-[var(--accent-color)]">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path></svg>
+</div>
+<h1 class="text-[var(--primary-text)] text-xl font-bold leading-tight tracking-[-0.015em]">EvalFlow</h1>
+</div>
+<nav class="flex items-center gap-6">
+<a class="text-[var(--primary-text)] text-sm font-medium leading-normal hover:text-[var(--accent-color)] transition-colors" href="#">Dashboard</a>
+<a class="text-[var(--accent-color)] text-sm font-bold leading-normal" href="#">Evaluations</a>
+<a class="text-[var(--primary-text)] text-sm font-medium leading-normal hover:text-[var(--accent-color)] transition-colors" href="#">Templates</a>
+<a class="text-[var(--primary-text)] text-sm font-medium leading-normal hover:text-[var(--accent-color)] transition-colors" href="#">Projects</a>
+<a class="text-[var(--primary-text)] text-sm font-medium leading-normal hover:text-[var(--accent-color)] transition-colors" href="#">Companies</a>
+<a class="text-[var(--primary-text)] text-sm font-medium leading-normal hover:text-[var(--accent-color)] transition-colors" href="#">Users</a>
+</nav>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path>
+</svg>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[var(--accent-color)]" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD_TmpPulY0bhEkhR1fbZChQ7482rqyC2hs0YyPCexzDr4o3KJwConOEp2EGfHZg2hirjgcmYZuuPIm7rTdy_8uqU6fMwqWy3sWN5wKhieTrfl5OV-jRdihLuVgXAVcE4_PDxZ_NR8IdhCrFXVqLvNbaBSqEXg0coums29RPOZ--HGA6txP_U8n6ZyWMTbdQIbGPQgEzC2JtugG5DuBEPsM3UXmF2ETnSbYiEZn8-9310AZnK_6d6JOSstNbgeDZSnVljHZOKER45UG");'></div>
+</div>
+</header>
+<main class="px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-7xl">
+<div class="flex flex-wrap justify-between items-center gap-4 p-4 mb-6">
+<h2 class="text-[var(--primary-text)] text-3xl font-bold leading-tight">Evaluations</h2>
+<button class="btn-primary flex items-center gap-2 min-w-[84px] rounded-lg h-10 px-5 text-sm font-medium leading-normal">
+<svg fill="currentColor" height="18" viewBox="0 0 256 256" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+                New Evaluation
+              </button>
+</div>
+<div class="px-4 py-3 mb-4">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+</svg>
+</div>
+<input class="form-input block w-full pl-10 pr-3 py-3 text-sm border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent bg-white placeholder:text-gray-400 text-[var(--primary-text)]" placeholder="Search evaluations by ID, Company, Project..." type="search"/>
+</div>
+</div>
+<div class="px-4 py-3 @container">
+<div class="shadow-md overflow-hidden rounded-xl border border-[var(--border-color)] bg-white">
+<table class="min-w-full divide-y divide-[var(--border-color)]">
+<thead class="bg-gray-50">
+<tr>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120">Evaluation ID</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240">Company</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360">Project</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480">Template</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">Status</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">Progress</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840">Due Date</th>
+<th class="table-header-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">Actions</th>
+</tr>
+</thead>
+<tbody class="bg-white divide-y divide-[var(--border-color)]">
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-001</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Tech Innovators Inc.</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Phoenix</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Standard Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-in-progress">In Progress</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 60%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">60%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-08-15</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-primary text-xs px-3 py-1 rounded-md">Evaluate</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-002</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Global Solutions Ltd.</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Horizon</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Advanced Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-completed">Completed</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 100%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">100%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-07-20</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-secondary text-xs px-3 py-1 rounded-md">View</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-003</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Future Dynamics Corp.</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Nebula</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Custom Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-pending">Pending</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 0%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">0%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-09-01</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-primary text-xs px-3 py-1 rounded-md">Start</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-004</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Innovate Systems LLC</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Quantum</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Standard Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-in-progress">In Progress</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 45%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">45%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-08-22</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-primary text-xs px-3 py-1 rounded-md">Evaluate</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-005</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Strategic Ventures Co.</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Zenith</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Advanced Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-completed">Completed</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 100%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">100%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-07-10</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-secondary text-xs px-3 py-1 rounded-md">View</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-006</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Dynamic Innovations Group</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Aurora</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Custom Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-pending">Pending</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 0%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">0%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-09-15</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-primary text-xs px-3 py-1 rounded-md">Start</button>
+</td>
+</tr>
+<tr class="hover:bg-[var(--hover-bg)] transition-colors">
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120 font-medium">EVL-2024-007</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240 text-[var(--secondary-text)]">Tech Solutions Inc.</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360 text-[var(--secondary-text)]">Project Titan</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480 text-[var(--secondary-text)]">Standard Template</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600">
+<span class="status-badge status-in-progress">In Progress</span>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720">
+<div class="flex items-center gap-2">
+<div class="w-20 progress-bar-bg"><div class="progress-bar-fill" style="width: 75%;"></div></div>
+<span class="text-xs font-medium text-[var(--secondary-text)]">75%</span>
+</div>
+</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840 text-[var(--secondary-text)]">2024-08-05</td>
+<td class="table-body-cell table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960">
+<button class="btn-primary text-xs px-3 py-1 rounded-md">Evaluate</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<style>
+                          @container(max-width:120px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-120{display: none;}}
+                @container(max-width:240px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-240{display: none;}}
+                @container(max-width:360px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-360{display: none;}}
+                @container(max-width:480px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-480{display: none;}}
+                @container(max-width:600px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-600{display: none;}}
+                @container(max-width:720px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-720{display: none;}}
+                @container(max-width:840px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-840{display: none;}}
+                @container(max-width:960px){.table-1d9b736f-043d-44e3-b3f7-a61edd45680e-column-960{display: none;}}
+              </style>
+</div>
+<div class="flex justify-between items-center px-4 py-3 border-t border-[var(--border-color)] bg-white rounded-b-xl">
+<span class="text-sm text-[var(--secondary-text)]">Showing 1 to 7 of 25 evaluations</span>
+<div class="inline-flex items-center space-x-1">
+<button class="px-3 py-1 text-sm font-medium text-[var(--secondary-text)] rounded-md hover:bg-[var(--hover-bg)] disabled:opacity-50" disabled="">Previous</button>
+<button class="px-3 py-1 text-sm font-medium text-white bg-[var(--accent-color)] rounded-md">1</button>
+<button class="px-3 py-1 text-sm font-medium text-[var(--secondary-text)] rounded-md hover:bg-[var(--hover-bg)]">2</button>
+<button class="px-3 py-1 text-sm font-medium text-[var(--secondary-text)] rounded-md hover:bg-[var(--hover-bg)]">3</button>
+<button class="px-3 py-1 text-sm font-medium text-[var(--secondary-text)] rounded-md hover:bg-[var(--hover-bg)]">Next</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>
+
+<html><head>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700&amp;family=Noto+Sans%3Awght%40400%3B500%3B600%3B700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<meta charset="utf-8"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #dce8f3;
+        --primary-text-color: #1f2937;--secondary-text-color: #4b5563;--warning-text-color: #d97706;--background-color: #ffffff;
+        --card-background-color: #f9fafb;--border-color: #e5e7eb;--button-primary-bg: #3b82f6;--button-primary-text: #ffffff;
+        --button-secondary-bg: #e5e7eb;--button-secondary-text: #1f2937;
+      }
+      body {
+        font-family: 'Inter', 'Noto Sans', sans-serif;
+      }
+    </style>
+</head>
+<body>
+<div class="relative flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4 group/design-root" style="font-family: Inter, 'Noto Sans', sans-serif;">
+<div class="layout-container flex h-full grow flex-col items-center justify-center">
+<div class="bg-[var(--background-color)] rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+<div class="p-6 sm:p-8">
+<div class="flex flex-col items-center text-center">
+<div class="mb-4 flex size-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+<span class="material-icons-outlined text-3xl"> task_alt </span>
+</div>
+<h1 class="text-2xl font-semibold text-[var(--primary-text-color)] mb-2">Confirm Submission</h1>
+<p class="text-[var(--secondary-text-color)] text-sm mb-4">You are about to submit your evaluation for <strong class="font-medium text-gray-700">Acme Corporation</strong>.</p>
+<div class="w-full bg-[var(--card-background-color)] border border-[var(--border-color)] rounded-lg p-4 mb-6 text-left">
+<h2 class="text-lg font-medium text-[var(--primary-text-color)] mb-2">Evaluation Summary</h2>
+<div class="flex justify-between items-center">
+<span class="text-sm text-[var(--secondary-text-color)]">Company:</span>
+<span class="text-sm font-semibold text-gray-700">Acme Corporation</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<span class="text-sm text-[var(--secondary-text-color)]">Total Score:</span>
+<span class="text-sm font-semibold text-blue-600">85/100</span>
+</div>
+</div>
+<div class="flex items-start space-x-2.5 rounded-md border border-amber-200 bg-amber-50 p-3 mb-6">
+<span class="material-icons-outlined text-xl text-[var(--warning-text-color)] mt-0.5"> warning_amber </span>
+<p class="text-sm text-[var(--warning-text-color)] text-left">
+<strong class="font-medium">Important:</strong> Once submitted, you will <strong class="font-medium">not</strong> be able to make any further changes to this evaluation.
+                </p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-3">
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 text-sm font-medium transition-colors bg-[var(--button-secondary-bg)] text-[var(--button-secondary-text)] hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2">
+                Cancel
+              </button>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 text-sm font-medium transition-colors bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                Proceed &amp; Submit
+              </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

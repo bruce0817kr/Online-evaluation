@@ -1,0 +1,531 @@
+.template-management-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.toolbar {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolbar input[type='text'] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex-grow: 1;
+}
+
+.toolbar button {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  background-color: #0056b3;
+}
+
+.template-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.template-list li {
+  padding: 10px;
+  border: 1px solid #eee;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-list li:hover {
+  background-color: #f9f9f9;
+}
+
+.template-list li strong {
+  margin-right: 10px;
+}
+
+.template-list li button, .template-list li select {
+  margin-left: 5px;
+  padding: 5px 8px;
+  font-size: 0.9em;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.template-details {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fdfdfd;
+}
+
+.template-details h2 {
+  margin-top: 0;
+}
+
+.template-details button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.template-details button:hover {
+    background-color: #1e7e34;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-content div {
+  margin-bottom: 10px;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.modal-content input[type='text'],
+.modal-content textarea,
+.modal-content select {
+  width: calc(100% - 16px); /* padding 고려 */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.modal-content textarea {
+    min-height: 80px;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.modal-actions button {
+  padding: 8px 15px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-actions button[type='submit'], .modal-content button:not([type='button']) {
+  background-color: #007bff;
+  color: white;
+}
+
+.modal-actions button[type='button'] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.item-input-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.item-input-row input {
+    flex-grow: 1;
+    margin-right: 8px;
+}
+
+.item-input-row button {
+    padding: 5px 8px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Error Message - 클래스 기반으로 수정 */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* 성공/실패/로딩 상태 피드백 메시지 스타일 */
+.status-message {
+  margin: 15px 0;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 1em;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.status-message.success {
+  background: #e6f9e6;
+  color: #218838;
+  border: 1.5px solid #b7e4b7;
+}
+.status-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1.5px solid #f5c6cb;
+}
+.status-message.loading {
+  background: #e9ecef;
+  color: #495057;
+  border: 1.5px solid #bfc9d1;
+}
+
+/* 미리보기 모달 스타일 */
+.preview-modal .modal-content {
+  max-width: 600px;
+}
+.preview-items-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+.preview-items-list li {
+  padding: 8px 0;
+  border-bottom: 1px dashed #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+.preview-items-list li:last-child {
+  border-bottom: none;
+}
+.item-number {
+  font-weight: bold;
+  margin-right: 8px;
+}
+.preview-item-response {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.95em;
+}
+
+/* 수정 모달 스타일 */
+.edit-modal .modal-content {
+  max-width: 600px;
+}
+
+/* 템플릿 상세 버튼 그룹 개선 */
+.template-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+.template-actions button {
+  min-width: 90px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.template-actions button:nth-child(1) { background: #ffc107; color: #212529; }
+.template-actions button:nth-child(1):hover { background: #e0a800; }
+.template-actions button:nth-child(2) { background: #17a2b8; color: #fff; }
+.template-actions button:nth-child(2):hover { background: #117a8b; }
+.template-actions button:nth-child(3) { background: #20c997; color: #fff; }
+.template-actions button:nth-child(3):hover { background: #1baa80; }
+
+/* 버전 히스토리 및 공유 사용자 목록 스타일 */
+.version-history {
+  margin-top: 18px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+}
+.version-history h4 {
+  font-size: 1.08em;
+  margin-bottom: 6px;
+}
+.version-history ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+.version-history li {
+  font-size: 0.97em;
+  color: #555;
+  padding: 2px 0;
+}
+
+/* 접근성(ARIA) 및 키보드 내비게이션 개선 */
+.toolbar input[type='text'],
+.modal-content input[type='text'],
+.modal-content textarea,
+.modal-content select {
+  outline: none;
+}
+.toolbar input[type='text']:focus,
+.modal-content input[type='text']:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px #cce5ff;
+}
+
+button:focus, .template-list li:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* 시각적 피드백(로딩/성공/실패) 및 접근성 색상 대비 강화 */
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1.5px solid #f5c6cb;
+}
+
+/* 템플릿 목록 항목 키보드 포커스 표시 */
+.template-list li:focus {
+  background-color: #e9f5ff;
+  border-color: #007bff;
+}
+
+/* 모달 닫기 버튼 접근성 */
+.modal-actions button[type='button']:focus {
+  outline: 2px solid #007bff;
+}
+
+/* 스크롤바 스타일(접근성) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bdbdbd;
+}
+
+/* 필터/정렬/페이지네이션 바 스타일 */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  background: #f7fafd;
+  padding: 12px 18px 10px 18px;
+  border-radius: 6px;
+  border: 1px solid #e3e8ee;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-group label {
+  font-size: 0.98em;
+  color: #333;
+  margin-right: 4px;
+}
+.filter-group select,
+.filter-group input[type='text'] {
+  padding: 6px 10px;
+  border: 1px solid #bfc9d1;
+  border-radius: 4px;
+  font-size: 1em;
+  min-width: 90px;
+}
+.sort-select {
+  padding: 6px 10px;
+  border: 1px solid #bfc9d1;
+  border-radius: 4px;
+  font-size: 1em;
+  min-width: 110px;
+}
+.sort-select:focus, .filter-group select:focus, .filter-group input[type='text']:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px #cce5ff;
+}
+
+/* 페이지네이션 스타일 */
+.pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 18px 0 8px 0;
+}
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #bfc9d1;
+  background: #fff;
+  color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  min-width: 36px;
+  transition: background 0.15s, color 0.15s;
+}
+.pagination button.active, .pagination button:focus {
+  background: #007bff;
+  color: #fff;
+  outline: none;
+}
+.pagination button[disabled] {
+  background: #f1f3f5;
+  color: #bfc9d1;
+  cursor: not-allowed;
+}
+.pagination span {
+  font-size: 1em;
+  color: #555;
+  margin: 0 4px;
+}
+
+/* 카드뷰 스타일 */
+.card-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+.template-card {
+  background: #fff;
+  border: 1.5px solid #e3e8ee;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 18px 16px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: box-shadow 0.18s, border 0.18s;
+}
+.template-card:focus, .template-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 16px rgba(0,123,255,0.08);
+  outline: none;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.card-title {
+  font-size: 1.13em;
+  font-weight: 600;
+  color: #222;
+  flex: 1;
+  margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.92em;
+  font-weight: 500;
+  background: #f1f3f5;
+  color: #555;
+}
+.status-draft { background: #fff3cd; color: #856404; }
+.status-active { background: #d1ecf1; color: #0c5460; }
+.status-archived { background: #f8d7da; color: #721c24; }
+.card-meta {
+  font-size: 0.97em;
+  color: #888;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+}
+.card-desc {
+  font-size: 0.98em;
+  color: #444;
+  margin-bottom: 12px;
+  min-height: 36px;
+}
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+.card-actions button, .card-actions select {
+  padding: 5px 10px;
+  font-size: 0.97em;
+  border-radius: 4px;
+  border: 1px solid #bfc9d1;
+  background: #f7fafd;
+  color: #007bff;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.card-actions button:hover, .card-actions select:focus {
+  background: #007bff;
+  color: #fff;
+}
+
+/* 드래그앤드롭 시 스타일 개선 */
+.item-input-row.dragging {
+  background: #e9f5ff;
+  border: 1.5px dashed #007bff;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+}
+.item-input-row span[style*='cursor:grab'] {
+  font-size: 1.2em;
+  color: #007bff;
+  user-select: none;
+}
+
+@media (max-width: 600px) {
+  .filter-bar {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 8px 8px 8px;
+  }
+  .pagination {
+    justify-content: center;
+  }
+  .card-view {
+    grid-template-columns: 1fr;
+  }
+}

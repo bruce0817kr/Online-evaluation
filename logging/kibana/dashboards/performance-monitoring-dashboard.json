@@ -1,0 +1,134 @@
+{
+  "version": "8.15.0",
+  "objects": [
+    {
+      "id": "performance-monitoring-dashboard",
+      "type": "dashboard",
+      "attributes": {
+        "title": "성능 모니터링 대시보드",
+        "description": "애플리케이션 성능 지표 및 응답 시간 모니터링",
+        "panelsJSON": "[{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":10,\"i\":\"1\"},\"panelIndex\":\"1\",\"embeddableConfig\":{},\"panelRefName\":\"panel_1\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":24,\"y\":0,\"w\":24,\"h\":10,\"i\":\"2\"},\"panelIndex\":\"2\",\"embeddableConfig\":{},\"panelRefName\":\"panel_2\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":10,\"w\":16,\"h\":12,\"i\":\"3\"},\"panelIndex\":\"3\",\"embeddableConfig\":{},\"panelRefName\":\"panel_3\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":16,\"y\":10,\"w\":16,\"h\":12,\"i\":\"4\"},\"panelIndex\":\"4\",\"embeddableConfig\":{},\"panelRefName\":\"panel_4\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":32,\"y\":10,\"w\":16,\"h\":12,\"i\":\"5\"},\"panelIndex\":\"5\",\"embeddableConfig\":{},\"panelRefName\":\"panel_5\"},{\"version\":\"8.15.0\",\"gridData\":{\"x\":0,\"y\":22,\"w\":48,\"h\":15,\"i\":\"6\"},\"panelIndex\":\"6\",\"embeddableConfig\":{},\"panelRefName\":\"panel_6\"}]",
+        "timeRestore": false,
+        "timeTo": "now",
+        "timeFrom": "now-24h",
+        "refreshInterval": {
+          "pause": false,
+          "value": 30000
+        },
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      },
+      "references": [
+        {
+          "name": "panel_1",
+          "type": "visualization",
+          "id": "response-time-timeline"
+        },
+        {
+          "name": "panel_2",
+          "type": "visualization", 
+          "id": "request-volume-timeline"
+        },
+        {
+          "name": "panel_3",
+          "type": "visualization",
+          "id": "avg-response-time-gauge"
+        },
+        {
+          "name": "panel_4",
+          "type": "visualization",
+          "id": "throughput-gauge"
+        },
+        {
+          "name": "panel_5",
+          "type": "visualization",
+          "id": "success-rate-gauge"
+        },
+        {
+          "name": "panel_6",
+          "type": "visualization",
+          "id": "slow-requests-table"
+        }
+      ]
+    },
+    {
+      "id": "response-time-timeline",
+      "type": "visualization",
+      "attributes": {
+        "title": "응답 시간 추이",
+        "visState": "{\"title\":\"응답 시간 추이\",\"type\":\"line\",\"aggs\":[{\"id\":\"1\",\"type\":\"avg\",\"params\":{\"field\":\"http.response.duration\"}},{\"id\":\"2\",\"type\":\"date_histogram\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}}]}",
+        "uiStateJSON": "{}",
+        "description": "시간별 평균 응답 시간 추이",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"http.response.duration\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "request-volume-timeline",
+      "type": "visualization",
+      "attributes": {
+        "title": "요청 볼륨 추이",
+        "visState": "{\"title\":\"요청 볼륨 추이\",\"type\":\"line\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"min_doc_count\":1}}]}",
+        "uiStateJSON": "{}",
+        "description": "시간별 HTTP 요청 건수",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"nginx-logs-*\",\"query\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"http.request.method\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "avg-response-time-gauge",
+      "type": "visualization",
+      "attributes": {
+        "title": "평균 응답 시간",
+        "visState": "{\"title\":\"평균 응답 시간\",\"type\":\"gauge\",\"aggs\":[{\"id\":\"1\",\"type\":\"avg\",\"params\":{\"field\":\"http.response.duration\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "현재 평균 응답 시간 (ms)",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-15m\"}}},{\"exists\":{\"field\":\"http.response.duration\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "throughput-gauge",
+      "type": "visualization",
+      "attributes": {
+        "title": "처리량 (RPS)",
+        "visState": "{\"title\":\"처리량 (RPS)\",\"type\":\"gauge\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}}]}",
+        "uiStateJSON": "{}",
+        "description": "초당 요청 처리 건수",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"nginx-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-1m\"}}},{\"exists\":{\"field\":\"http.request.method\"}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "success-rate-gauge",
+      "type": "visualization",
+      "attributes": {
+        "title": "성공률 (%)",
+        "visState": "{\"title\":\"성공률 (%)\",\"type\":\"gauge\",\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"params\":{}}]}",
+        "uiStateJSON": "{}",
+        "description": "HTTP 2xx 응답 비율",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"nginx-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"@timestamp\":{\"gte\":\"now-15m\"}}},{\"range\":{\"http.response.status_code\":{\"gte\":200,\"lt\":300}}}]}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "slow-requests-table",
+      "type": "visualization",
+      "attributes": {
+        "title": "느린 요청 분석",
+        "visState": "{\"title\":\"느린 요청 분석\",\"type\":\"table\",\"aggs\":[{\"id\":\"1\",\"type\":\"avg\",\"params\":{\"field\":\"http.response.duration\"}},{\"id\":\"2\",\"type\":\"terms\",\"params\":{\"field\":\"http.request.uri.keyword\",\"size\":10}}]}",
+        "uiStateJSON": "{}",
+        "description": "응답 시간이 긴 API 엔드포인트",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"app-logs-*\",\"query\":{\"bool\":{\"must\":[{\"range\":{\"http.response.duration\":{\"gte\":1000}}}]}},\"filter\":[]}"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+# Docker 로그 전용 입력 설정
+# 파일: inputs.d/docker-inputs.yml
+
+# Docker 컨테이너 로그 수집
+- type: container
+  enabled: true
+  id: docker-container-logs
+  paths:
+    - /var/lib/docker/containers/*/*.log
+    
+  fields:
+    log_type: docker_container
+    environment: ${ENVIRONMENT:development}
+    datacenter: ${DATACENTER:local}
+  fields_under_root: false
+  
+  # JSON 로그 파싱
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.ignore_decoding_error: true
+  
+  # 특정 컨테이너 제외 (로그 노이즈 감소)
+  exclude_lines: [
+    '.*health.*check.*',
+    '.*ping.*pong.*',
+    '.*GET /health.*',
+    '.*200.*health.*'
+  ]
+  
+  # 파일 설정
+  scan_frequency: 10s
+  harvester_buffer_size: 16384
+  close_inactive: 5m
+  ignore_older: 24h
+  
+  # Docker 메타데이터 추가
+  processors:
+    # Docker 메타데이터 프로세서
+    - add_docker_metadata:
+        host: "unix:///var/run/docker.sock"
+        match_fields: ["container.id"]
+        match_pids: ["process.pid"]
+        match_source: true
+        match_source_index: 4
+        match_short_id: false
+        cleanup_timeout: 60
+        labels.dedot: false
+        
+    # 컨테이너 이름 정규화
+    - script:
+        lang: javascript
+        source: >
+          function process(event) {
+            var containerName = event.Get("container.name");
+            if (containerName) {
+              // 컨테이너 이름에서 서비스명 추출
+              var serviceName = containerName.replace(/^\//, '').split('_')[0];
+              event.Put("service.name", serviceName);
+              
+              // 컨테이너 타입 분류
+              if (containerName.includes("nginx")) {
+                event.Put("service.type", "web_server");
+              } else if (containerName.includes("redis")) {
+                event.Put("service.type", "cache");
+              } else if (containerName.includes("postgres") || containerName.includes("mysql")) {
+                event.Put("service.type", "database");
+              } else if (containerName.includes("elasticsearch")) {
+                event.Put("service.type", "search");
+              } else if (containerName.includes("logstash")) {
+                event.Put("service.type", "log_processing");
+              } else if (containerName.includes("kibana")) {
+                event.Put("service.type", "visualization");
+              } else {
+                event.Put("service.type", "application");
+              }
+            }
+          }
+    
+    # 로그 레벨 추출 (Docker 로그에서)
+    - dissect:
+        tokenizer: '%{} level=%{log.level} %{}'
+        field: "log"
+        ignore_failure: true
+    
+    - dissect:
+        tokenizer: '%{} "level":"%{log.level}" %{}'
+        field: "log"
+        ignore_failure: true
+    
+    # JSON 로그 내 타임스탬프 처리
+    - timestamp:
+        field: timestamp
+        target_field: "@timestamp"
+        layouts:
+          - '2006-01-02T15:04:05.000000000Z'
+          - '2006-01-02T15:04:05.000Z'
+          - '2006-01-02T15:04:05Z'
+        test:
+          - '2024-01-15T10:30:45.123456789Z'
+        ignore_failure: true
+    
+    # 불필요한 필드 제거
+    - drop_fields:
+        fields: [
+          "agent.ephemeral_id",
+          "agent.id", 
+          "agent.type",
+          "agent.version",
+          "ecs.version",
+          "host.architecture",
+          "host.os.build",
+          "host.os.codename",
+          "host.os.family",
+          "host.os.kernel",
+          "host.os.platform",
+          "host.os.version",
+          "input.type"
+        ]
+        ignore_missing: true
+
+# Docker 시스템 이벤트 (선택적)
+- type: docker
+  enabled: false  # 필요시 활성화
+  id: docker-system-events
+  containers.ids:
+    - "*"
+  containers.path: "/var/lib/docker/containers"
+  containers.stream: "all"
+  
+  fields:
+    log_type: docker_events
+    service: docker_daemon
+    environment: ${ENVIRONMENT:development}
+  fields_under_root: false
+  
+  processors:
+    # 이벤트 타입별 분류
+    - script:
+        lang: javascript
+        source: >
+          function process(event) {
+            var action = event.Get("docker.container.action");
+            if (action) {
+              switch(action) {
+                case "start":
+                case "restart":
+                  event.Put("event.category", "container_lifecycle");
+                  event.Put("event.type", "start");
+                  break;
+                case "stop":
+                case "kill":
+                case "die":
+                  event.Put("event.category", "container_lifecycle");
+                  event.Put("event.type", "end");
+                  break;
+                case "create":
+                case "destroy":
+                  event.Put("event.category", "container_management");
+                  event.Put("event.type", action);
+                  break;
+                default:
+                  event.Put("event.category", "docker_system");
+                  event.Put("event.type", action);
+              }
+            }
+          }

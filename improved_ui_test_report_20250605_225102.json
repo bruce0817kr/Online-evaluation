@@ -1,0 +1,42 @@
+{
+  "test_session": {
+    "start_time": "2025-06-05T22:50:24.719057",
+    "end_time": "2025-06-05T22:51:02.500394",
+    "duration": "0:00:37.781337",
+    "base_url": "http://localhost:3000"
+  },
+  "summary": {
+    "total_tests": 3,
+    "passed": 2,
+    "failed": 1,
+    "success_rate": "66.7%"
+  },
+  "test_results": [
+    {
+      "test_name": "종합 워크플로우",
+      "status": "FAIL",
+      "message": "예외 발생: Page.wait_for_selector: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"text=관리자 대시보드\") to be visible\n",
+      "duration": "31.87s",
+      "timestamp": "2025-06-05T22:50:58.450596"
+    },
+    {
+      "test_name": "반응형 디자인",
+      "status": "PASS",
+      "message": "3/3 뷰포트에서 정상 작동",
+      "duration": "2.52s",
+      "timestamp": "2025-06-05T22:51:00.971686"
+    },
+    {
+      "test_name": "성능 지표",
+      "status": "PASS",
+      "message": "로딩 시간: 0.73s, DOM 준비: 0.10ms",
+      "duration": "0.85s",
+      "timestamp": "2025-06-05T22:51:01.825836",
+      "metrics": {
+        "loadTime": 0,
+        "domContentLoaded": 0.10000000149011612,
+        "firstContentfulPaint": 40
+      }
+    }
+  ]
+}

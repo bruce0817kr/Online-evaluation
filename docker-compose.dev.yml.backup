@@ -1,0 +1,247 @@
+version: '3.8'
+
+services:
+  # Redis 캐시 서버 - 개발 환경
+  redis:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # MongoDB 데이터베이스 - 개발 환경
+  mongodb:
+    image: mongo:7
+    container_name: online-evaluation-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev123
+      MONGO_INITDB_DATABASE: online_evaluation_dev
+    volumes:
+      - mongodb_data_dev:/data/db
+      - ./scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 백엔드 API 서버 - 개발 환경
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: development  # 멀티스테이지 빌드의 development 단계
+    container_name: online-evaluation-backend-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database Configuration
+      MONGO_URL: "mongodb://admin:dev123@mongodb:27017/evaluation_db_dev?authSource=admin"
+      DB_NAME: "evaluation_db_dev"
+      
+      # Redis Configuration
+      REDIS_URL: "redis://redis:6379"
+      
+      # JWT Configuration - 개발용 설정
+      JWT_SECRET_KEY: "dev-jwt-secret-key-not-for-production"
+      JWT_ALGORITHM: "HS256"
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "120"  # 개발 시 더 긴 토큰 유효시간
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: "30"
+      
+      # CORS Configuration - 개발용 관대한 설정
+      CORS_ORIGINS: "*"
+      CORS_ALLOW_CREDENTIALS: "true"
+      
+      # Security Settings - 개발 환경 완화
+      SECURITY_HEADERS_ENABLED: "true"
+      RATE_LIMIT_REQUESTS_PER_MINUTE: "1000"  # 개발 시 높은 제한
+      RATE_LIMIT_BURST: "100"
+      
+      # File Upload
+      MAX_FILE_SIZE_MB: "100"
+      ALLOWED_FILE_TYPES: "pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,txt,json"
+      UPLOAD_PATH: "/app/uploads"
+      
+      # Development Environment
+      ENVIRONMENT: "development"
+      DEBUG: "true"
+      LOG_LEVEL: "DEBUG"
+      
+      # Hot Reload Support
+      RELOAD: "true"
+      
+      # API Configuration
+      API_TITLE: "Online Evaluation System API - Development"
+      API_DESCRIPTION: "Development environment for evaluation management platform"
+    volumes:
+      - ./backend:/app:rw  # 소스 코드 마운트 (개발 시 실시간 반영)
+      - uploads_data_dev:/app/uploads
+      - logs_data_dev:/app/logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # 개발 시 디버깅을 위한 추가 포트
+    expose:
+      - "5678"  # Python debugger port
+
+  # 프론트엔드 웹 서버 - 개발 환경
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development  # 멀티스테이지 빌드의 development 단계
+    container_name: online-evaluation-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # 개발 서버 포트
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:8080"
+      REACT_APP_WS_URL: "ws://localhost:8080"
+      REACT_APP_ENV: "development"
+      CHOKIDAR_USEPOLLING: "true"  # Hot reload 지원
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./frontend/src:/app/src:rw  # 소스 코드 마운트 (핫 리로드)
+      - ./frontend/public:/app/public:rw
+      - /app/node_modules  # node_modules 제외
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 개발 도구: MongoDB Express (선택사항)
+  mongo-express:
+    image: mongo-express:1.0.0-alpha
+    container_name: online-evaluation-mongo-express-dev
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: dev123
+      ME_CONFIG_MONGODB_URL: "mongodb://admin:dev123@mongodb:27017/"
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"
+      ME_CONFIG_BASICAUTH_PASSWORD: "admin"
+    depends_on:
+      - mongodb
+    networks:
+      - dev-network
+    profiles:
+      - debug  # 디버그 모드에서만 실행
+
+  # 개발 도구: Redis Commander (선택사항)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: online-evaluation-redis-commander-dev
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: "redis:redis:6379"
+    depends_on:
+      - redis
+    networks:
+      - dev-network
+    profiles:
+      - debug  # 디버그 모드에서만 실행
+
+  # =====================================================
+  # BASIC MONITORING STACK - DEVELOPMENT
+  # =====================================================
+  
+  # Prometheus - 개발 환경 (간소화된 설정)
+  prometheus-dev:
+    image: prom/prometheus:v2.47.0
+    container_name: online-evaluation-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'  # 개발 환경은 짧은 보존 기간
+      - '--web.enable-lifecycle'
+      - '--log.level=info'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_dev:/prometheus
+    networks:
+      - dev-network
+    depends_on:
+      - backend
+    profiles:
+      - monitoring  # 모니터링 프로필에서만 실행
+
+  # Grafana - 개발 환경
+  grafana-dev:
+    image: grafana/grafana:10.1.0
+    container_name: online-evaluation-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel"
+      GF_LOG_LEVEL: "info"
+    volumes:
+      - grafana_data_dev:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - dev-network
+    depends_on:
+      - prometheus-dev
+    profiles:
+      - monitoring  # 모니터링 프로필에서만 실행
+
+volumes:  mongodb_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  uploads_data_dev:
+    driver: local
+  logs_data_dev:
+    driver: local
+  # Development monitoring volumes
+  prometheus_data_dev:
+    driver: local
+  grafana_data_dev:
+    driver: local
+
+networks:
+  dev-network:
+    driver: bridge
+    name: online-evaluation-dev-network

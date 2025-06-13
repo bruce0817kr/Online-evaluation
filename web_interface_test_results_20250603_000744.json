@@ -1,0 +1,107 @@
+[
+  {
+    "timestamp": "2025-06-03 00:07:37",
+    "test_name": "프론트엔드 접근성",
+    "status": "PASS",
+    "details": "응답시간: 0.03초, HTML 구조: 6/7, React 요소: 2/3",
+    "data": {
+      "response_time": 0.02783060073852539,
+      "html_checks": {
+        "DOCTYPE": false,
+        "HTML tag": true,
+        "HEAD section": true,
+        "BODY section": true,
+        "Title tag": true,
+        "Meta charset": true,
+        "Viewport meta": true
+      },
+      "react_checks": {
+        "React root": true,
+        "React scripts": false,
+        "Bundle scripts": true
+      }
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:38",
+    "test_name": "백엔드 API 엔드포인트",
+    "status": "PASS",
+    "details": "테스트된 엔드포인트: 4개",
+    "data": {
+      "endpoints": [
+        "헬스 체크: 200 (접근 가능)",
+        "API 문서: 200 (접근 가능)",
+        "로그인 API: 422 (접근 가능)",
+        "상세 시스템 상태: 200 (접근 가능)"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:39",
+    "test_name": "CORS 설정",
+    "status": "PASS",
+    "details": "CORS 헤더 발견: True",
+    "data": {
+      "Access-Control-Allow-Origin": "http://localhost:3000",
+      "Access-Control-Allow-Methods": null,
+      "Access-Control-Allow-Headers": null
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:39",
+    "test_name": "정적 리소스",
+    "status": "PASS",
+    "details": "접근 가능한 리소스: 2/6개",
+    "data": {
+      "accessible": [
+        "/manifest.json",
+        "/robots.txt"
+      ]
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:40",
+    "test_name": "보안 헤더",
+    "status": "PASS",
+    "details": "보안 헤더: 3/5개 설정됨",
+    "data": {
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "SAMEORIGIN",
+      "X-XSS-Protection": "1; mode=block",
+      "Strict-Transport-Security": null,
+      "Content-Security-Policy": null
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:43",
+    "test_name": "페이지 성능",
+    "status": "PASS",
+    "details": "평균 응답시간: 0.00초, 콘텐츠 크기: 3.2KB",
+    "data": {
+      "average_response_time": 0.0013074398040771485,
+      "min_response_time": 0.0006165504455566406,
+      "max_response_time": 0.0020051002502441406,
+      "content_size_bytes": 3268,
+      "content_size_kb": 3.19140625
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:43",
+    "test_name": "모바일 호환성",
+    "status": "WARN",
+    "details": "모바일 기능: 1/4개 지원",
+    "data": {
+      "Viewport meta": true,
+      "Responsive CSS": false,
+      "Touch-friendly": false,
+      "Mobile-first": false
+    }
+  },
+  {
+    "timestamp": "2025-06-03 00:07:44",
+    "test_name": "브라우저 시각적 테스트",
+    "status": "PASS",
+    "details": "브라우저에서 http://localhost:3000 열림",
+    "data": null
+  }
+]

@@ -1,0 +1,194 @@
+# Nginx 로그 전용 입력 설정
+# 파일: inputs.d/nginx-inputs.yml
+
+# Nginx 액세스 로그
+- type: log
+  enabled: true
+  id: nginx-access-logs
+  paths:
+    - /var/log/nginx/access.log
+    - /var/log/nginx/online-evaluation_access.log
+    - /var/log/nginx/*_access.log
+    
+  fields:
+    log_type: nginx_access
+    service: nginx
+    component: reverse_proxy
+    environment: ${ENVIRONMENT:development}
+    datacenter: ${DATACENTER:local}
+  fields_under_root: false
+  
+  # 액세스 로그 필터링
+  exclude_lines: [
+    '.*\/health.*',
+    '.*\/metrics.*', 
+    '.*\/favicon\.ico.*',
+    '.*\/robots\.txt.*',
+    '.* 204 .*',
+    '.*ELB-HealthChecker.*',
+    '.*HealthCheck.*'
+  ]
+  
+  # 파일 설정
+  scan_frequency: 3s
+  harvester_buffer_size: 16384
+  max_bytes: 10485760  # 10MB
+  close_inactive: 5m
+  
+  # Nginx 액세스 로그 파싱 프로세서
+  processors:
+    # 공통 로그 포맷 파싱
+    - dissect:
+        tokenizer: '%{source.ip} - %{user.name} [%{timestamp}] "%{http.request.method} %{http.request.uri} %{http.version}" %{http.response.status_code} %{http.response.bytes} "%{http.request.referrer}" "%{user_agent.original}" %{response_time}'
+        field: "message"
+        ignore_failure: true
+    
+    # 타임스탬프 파싱
+    - timestamp:
+        field: timestamp
+        target_field: "@timestamp"
+        layouts:
+          - '02/Jan/2006:15:04:05 -0700'
+          - 'dd/MMM/yyyy:HH:mm:ss Z'
+        test:
+          - '15/Jan/2024:10:30:45 +0900'
+    
+    # 숫자 필드 변환
+    - convert:
+        fields:
+          - {from: "http.response.status_code", to: "http.response.status_code", type: "long"}
+          - {from: "http.response.bytes", to: "http.response.bytes", type: "long"}
+          - {from: "response_time", to: "http.response.duration", type: "float"}
+        ignore_missing: true
+    
+    # 응답 시간 단위 변환 (초 → 밀리초)
+    - script:
+        lang: javascript
+        source: >
+          function process(event) {
+            var duration = event.Get("http.response.duration");
+            if (duration && duration > 0 && duration < 100) {
+              event.Put("http.response.duration", duration * 1000);
+            }
+          }
+    
+    # 상태 코드별 분류
+    - if:
+        range:
+          http.response.status_code:
+            gte: 400
+            lt: 500
+      then:
+        - add_fields:
+            target: "http.response"
+            fields:
+              category: "client_error"
+    - if:
+        range:
+          http.response.status_code:
+            gte: 500
+      then:
+        - add_fields:
+            target: "http.response"
+            fields:
+              category: "server_error"
+    - if:
+        range:
+          http.response.status_code:
+            gte: 200
+            lt: 300
+      then:
+        - add_fields:
+            target: "http.response"
+            fields:
+              category: "success"
+
+# Nginx 에러 로그
+- type: log
+  enabled: true
+  id: nginx-error-logs
+  paths:
+    - /var/log/nginx/error.log
+    - /var/log/nginx/online-evaluation_error.log
+    - /var/log/nginx/*_error.log
+    
+  fields:
+    log_type: nginx_error
+    service: nginx
+    component: reverse_proxy
+    environment: ${ENVIRONMENT:development}
+    datacenter: ${DATACENTER:local}
+  fields_under_root: false
+  
+  # 에러 로그 멀티라인 처리
+  multiline.pattern: '^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}'
+  multiline.negate: true
+  multiline.match: after
+  multiline.max_lines: 100
+  multiline.timeout: 5s
+  
+  # 파일 설정
+  scan_frequency: 5s
+  harvester_buffer_size: 16384
+  close_inactive: 10m
+  
+  # Nginx 에러 로그 파싱 프로세서
+  processors:
+    # 에러 로그 포맷 파싱
+    - dissect:
+        tokenizer: '%{timestamp} [%{log.level}] %{process.pid}#%{process.thread}: %{message}'
+        field: "message"
+        ignore_failure: true
+    
+    # 타임스탬프 파싱
+    - timestamp:
+        field: timestamp
+        target_field: "@timestamp"
+        layouts:
+          - '2006/01/02 15:04:05'
+        test:
+          - '2024/01/15 10:30:45'
+    
+    # 에러 레벨 정규화
+    - script:
+        lang: javascript
+        source: >
+          function process(event) {
+            var level = event.Get("log.level");
+            if (level) {
+              switch(level.toLowerCase()) {
+                case "emerg":
+                case "emergency":
+                  event.Put("log.level", "FATAL");
+                  break;
+                case "alert":
+                case "crit":
+                  event.Put("log.level", "ERROR");
+                  break;
+                case "err":
+                  event.Put("log.level", "ERROR");
+                  break;
+                case "warn":
+                  event.Put("log.level", "WARN");
+                  break;
+                case "notice":
+                case "info":
+                  event.Put("log.level", "INFO");
+                  break;
+                default:
+                  event.Put("log.level", level.toUpperCase());
+              }
+            }
+          }
+    
+    # 클라이언트 IP 추출
+    - dissect:
+        tokenizer: '%{} client: %{source.ip}, %{}'
+        field: "message"
+        ignore_failure: true
+    
+    # 업스트림 정보 추출
+    - dissect:
+        tokenizer: '%{} upstream: "%{upstream.url}", %{}'
+        field: "message"
+        ignore_failure: true
