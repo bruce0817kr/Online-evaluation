@@ -444,3 +444,31 @@ class JWTBearer(HTTPBearer):
 
 # Global JWT bearer instance
 jwt_bearer = JWTBearer()
+
+def generate_evaluator_credentials(name: str, phone: str) -> tuple[str, str]:
+    """
+    Generate evaluator credentials (login_id and password) based on name and phone.
+    
+    Args:
+        name: Evaluator's name
+        phone: Evaluator's phone number
+        
+    Returns:
+        tuple: (login_id, password)
+    """
+    import re
+    
+    # Generate login ID: remove spaces and convert to lowercase
+    login_id = re.sub(r'\s+', '', name)
+    login_id = login_id.lower()
+    
+    # Extract digits from phone number for password
+    # Format: "010-1234-5678" -> "01012345678"
+    raw_phone = re.sub(r'\D', '', phone)
+    password = raw_phone if raw_phone else "password123"
+    
+    # Ensure minimum password length and add some complexity if needed
+    if len(password) < 8:
+        password = password + "abc123"
+    
+    return login_id, password

@@ -23,15 +23,21 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import time  # Added for enhanced logging middleware
 
-from .cache_service import cache_service # Added import
+import cache_service  # Fixed absolute import
 
 # Placeholder imports for missing models and functions
 # These should be adjusted based on actual project structure
+import models
 from models import (  # Assuming a models.py or schemas.py
     Token, User, UserResponse, UserCreate, 
     SecretarySignupRequest, SecretaryApproval,
-    UserInDB # Assuming UserInDB might be used internally or by CRUD
+    UserInDB, # Assuming UserInDB might be used internally or by CRUD
+    EvaluatorCreate, Project, ProjectCreate, Company, CompanyCreate,
+    FileMetadata, EvaluationTemplateCreate, EvaluationTemplate,  # Added missing models
+    AssignmentCreate, BatchAssignmentCreate, EvaluationScore, EvaluationSubmission,
+    EvaluationSheet  # Added additional models
 )
+import security
 from security import (
     create_access_token, 
     get_current_user, 
@@ -41,29 +47,65 @@ from security import (
     get_current_user_optional,
     oauth2_scheme as security_oauth2_scheme, # Import with an alias if server.py defines its own
     imported_pwd_context, # Use the correctly named imported context
-    security_config # If server.py still needs direct access to config values
+    security_config, # If server.py still needs direct access to config values
+    generate_evaluator_credentials  # Added the new function
 )
-from middleware import (
-    SecurityMiddleware, RequestValidationMiddleware, CORSSecurityMiddleware,
-    IPWhitelistMiddleware, FileUploadSecurityMiddleware
-)
+try:
+    import middleware
+    from middleware import (
+        SecurityMiddleware, RequestValidationMiddleware, CORSSecurityMiddleware,
+        IPWhitelistMiddleware, FileUploadSecurityMiddleware
+    )
+except ImportError:
+    middleware = None
+    print("Warning: Middleware module not found. Creating placeholder classes.")
 # Import new comprehensive security systems
-from security_monitoring import (
-    security_monitor, SecurityMiddleware as EnhancedSecurityMiddleware,
-    SecurityEvent, SecurityEventType, SecuritySeverity
-)
-from api_security import security_validator, ValidationConfig, SecurityLevel
+try:
+    import security_monitoring
+    from security_monitoring import (
+        security_monitor, SecurityMiddleware as EnhancedSecurityMiddleware,
+        SecurityEvent, SecurityEventType, SecuritySeverity
+    )
+except ImportError:
+    security_monitoring = None
+    print("Warning: Security monitoring module not found.")
+
+try:
+    import api_security
+    from api_security import security_validator, ValidationConfig, SecurityLevel
+except ImportError:
+    api_security = None
+    print("Warning: API security module not found.")
 
 # Import Prometheus metrics and enhanced health monitoring
-from prometheus_metrics import setup_prometheus_metrics, get_prometheus_metrics
-from enhanced_health_monitoring import setup_health_monitor, health_router
+try:
+    import prometheus_metrics
+    from prometheus_metrics import setup_prometheus_metrics, get_prometheus_metrics
+except ImportError:
+    prometheus_metrics = None
+    print("Warning: Prometheus metrics module not found.")
+
+try:
+    import enhanced_health_monitoring
+    from enhanced_health_monitoring import setup_health_monitor, health_router
+except ImportError:
+    enhanced_health_monitoring = None
+    print("Warning: Enhanced health monitoring module not found.")
 
 # Import enhanced logging system
-from enhanced_logging import (
-    setup_logging, get_logger, RequestContext, log_async_performance,
-    log_database_operation, log_security_event, log_startup_info, log_shutdown_info,
-    request_id_context, user_id_context, session_id_context
-)
+try:
+    import enhanced_logging
+    from enhanced_logging import (
+        setup_logging, get_logger, RequestContext, log_async_performance,
+        log_database_operation, log_security_event, log_startup_info, log_shutdown_info,
+        request_id_context, user_id_context, session_id_context
+    )
+except ImportError:
+    enhanced_logging = None
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+    print("Warning: Enhanced logging module not found. Using standard logging.")
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -1775,6 +1817,300 @@ async def initialize_system():
     await asyncio.gather(*tasks)
     
     return {"message": "시스템이 성공적으로 초기화되었습니다", "users": len(default_users)}
+
+# Background task functions
+async def update_project_statistics(project_id: str):
+    """
+    Update project statistics in the background.
+    
+    Args:
+        project_id: The ID of the project to update statistics for
+    """
+    try:
+        # Count total assigned evaluations for this project
+        total_assigned = await db.evaluation_sheets.count_documents({
+            "project_id": project_id
+        })
+        
+        # Count completed evaluations (submitted or completed status)
+        completed = await db.evaluation_sheets.count_documents({
+            "project_id": project_id, 
+            "status": {"$in": ["submitted", "completed"]}
+        })
+        
+        # Calculate average score for completed evaluations
+        average_score = None
+        if completed > 0:
+            try:
+                # Aggregate to calculate average score
+                pipeline = [
+                    {
+                        "$match": {
+                            "project_id": project_id, 
+                            "status": {"$in": ["submitted", "completed"]},
+                            "total_score": {"$exists": True, "$ne": None}
+                        }
+                    },
+                    {
+                        "$group": {
+                            "_id": None, 
+                            "avg_score": {"$avg": "$total_score"}
+                        }
+                    }
+                ]
+                
+                result = await db.evaluation_sheets.aggregate(pipeline).to_list(1)
+                if result and len(result) > 0:
+                    average_score = result[0].get("avg_score")
+            except Exception as e:
+                logger.warning(f"Error calculating average score for project {project_id}: {e}")
+        
+        # Prepare statistics document
+        stats = {
+            "project_id": project_id,
+            "total_assigned_evaluations": total_assigned,
+            "completed_evaluations": completed,
+            "average_score": average_score,
+            "completion_rate": (completed / total_assigned * 100) if total_assigned > 0 else 0,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Upsert statistics in project_statistics collection
+        await db.project_statistics.update_one(
+            {"project_id": project_id},
+            {"$set": stats},
+            upsert=True
+        )
+        
+        logger.info(f"Updated statistics for project {project_id}: {stats}")
+        
+    except Exception as e:
+        logger.error(f"Error updating project statistics for {project_id}: {e}")
+
+# Template Management API endpoints
+@api_router.get("/templates")
+async def get_templates(
+    project_id: Optional[str] = Query(None, description="Filter templates by project ID"),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all evaluation templates, optionally filtered by project"""
+    try:
+        # Build query filter
+        query_filter = {}
+        if project_id:
+            query_filter["project_id"] = project_id
+        
+        # Get templates from database
+        templates_cursor = db.evaluation_templates.find(query_filter)
+        templates_data = await templates_cursor.to_list(length=None)
+        
+        templates = [EvaluationTemplate(**template) for template in templates_data]
+        
+        return {
+            "templates": templates,
+            "total": len(templates),
+            "project_id": project_id
+        }
+    except Exception as e:
+        logger.error(f"Error fetching templates: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching templates: {str(e)}")
+
+@api_router.post("/templates", response_model=EvaluationTemplate)
+async def create_template(
+    template_data: EvaluationTemplateCreate,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Create a new evaluation template"""
+    try:
+        # Create new template
+        template = EvaluationTemplate(
+            name=template_data.name,
+            description=template_data.description,
+            project_id=template_data.project_id,
+            items=template_data.items,
+            created_by=current_user.id,
+            status="draft"
+        )
+        
+        # Insert into database
+        await db.evaluation_templates.insert_one(template.dict())
+        
+        # Update project statistics in background
+        background_tasks.add_task(update_project_statistics, template_data.project_id)
+        
+        logger.info(f"Template created: {template.id} by user {current_user.id}")
+        return template
+        
+    except Exception as e:
+        logger.error(f"Error creating template: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating template: {str(e)}")
+
+@api_router.get("/templates/{template_id}", response_model=EvaluationTemplate)
+async def get_template(
+    template_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a specific evaluation template by ID"""
+    try:
+        template_data = await db.evaluation_templates.find_one({"id": template_id})
+        
+        if not template_data:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        template = EvaluationTemplate(**template_data)
+        return template
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching template {template_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching template: {str(e)}")
+
+@api_router.put("/templates/{template_id}", response_model=EvaluationTemplate)
+async def update_template(
+    template_id: str,
+    template_data: EvaluationTemplateCreate,
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Update an existing evaluation template"""
+    try:
+        # Check if template exists
+        existing_template = await db.evaluation_templates.find_one({"id": template_id})
+        if not existing_template:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        # Update template data
+        update_data = {
+            "name": template_data.name,
+            "description": template_data.description,
+            "project_id": template_data.project_id,
+            "items": template_data.items,
+            "updated_at": datetime.utcnow()
+        }
+        
+        # Update in database
+        await db.evaluation_templates.update_one(
+            {"id": template_id},
+            {"$set": update_data}
+        )
+        
+        # Get updated template
+        updated_template_data = await db.evaluation_templates.find_one({"id": template_id})
+        updated_template = EvaluationTemplate(**updated_template_data)
+        
+        logger.info(f"Template updated: {template_id} by user {current_user.id}")
+        return updated_template
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating template {template_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error updating template: {str(e)}")
+
+@api_router.delete("/templates/{template_id}")
+async def delete_template(
+    template_id: str,
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Delete an evaluation template (soft delete by setting status to archived)"""
+    try:
+        # Check if template exists
+        existing_template = await db.evaluation_templates.find_one({"id": template_id})
+        if not existing_template:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        # Soft delete by updating status
+        await db.evaluation_templates.update_one(
+            {"id": template_id},
+            {"$set": {
+                "status": "archived",
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        logger.info(f"Template archived: {template_id} by user {current_user.id}")
+        return {"message": "Template successfully archived", "template_id": template_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting template {template_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error deleting template: {str(e)}")
+
+@api_router.post("/templates/{template_id}/clone", response_model=EvaluationTemplate)
+async def clone_template(
+    template_id: str,
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Clone an existing evaluation template"""
+    try:
+        # Get source template
+        source_template_data = await db.evaluation_templates.find_one({"id": template_id})
+        if not source_template_data:
+            raise HTTPException(status_code=404, detail="Source template not found")
+        
+        source_template = EvaluationTemplate(**source_template_data)
+        
+        # Create cloned template
+        cloned_template = EvaluationTemplate(
+            name=f"{source_template.name} (복사본)",
+            description=f"복사됨: {source_template.description or ''}",
+            project_id=source_template.project_id,
+            items=source_template.items.copy(),
+            created_by=current_user.id,
+            status="draft"
+        )
+        
+        # Insert cloned template
+        await db.evaluation_templates.insert_one(cloned_template.dict())
+        
+        logger.info(f"Template cloned: {template_id} -> {cloned_template.id} by user {current_user.id}")
+        return cloned_template
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error cloning template {template_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error cloning template: {str(e)}")
+
+@api_router.patch("/templates/{template_id}/status")
+async def update_template_status(
+    template_id: str,
+    status: str = Query(..., description="New status: draft, active, archived"),
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Update template status"""
+    try:
+        valid_statuses = ["draft", "active", "archived"]
+        if status not in valid_statuses:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
+            )
+        
+        # Check if template exists
+        existing_template = await db.evaluation_templates.find_one({"id": template_id})
+        if not existing_template:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        # Update status
+        await db.evaluation_templates.update_one(
+            {"id": template_id},
+            {"$set": {
+                "status": status,
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        
+        logger.info(f"Template status updated: {template_id} -> {status} by user {current_user.id}")
+        return {"message": f"Template status updated to {status}", "template_id": template_id, "status": status}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating template status {template_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error updating template status: {str(e)}")
 
 # Additional API endpoints for deployment verification
 @api_router.get("/status")

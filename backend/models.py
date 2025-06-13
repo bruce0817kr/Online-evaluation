@@ -1,7 +1,13 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
+
+# Temporary fix for missing email-validator - using str instead of EmailStr
+try:
+    from pydantic import EmailStr
+except ImportError:
+    EmailStr = str  # Fallback to str if email-validator is not installed
 
 class Token(BaseModel):
     access_token: str
@@ -10,7 +16,7 @@ class Token(BaseModel):
 
 class UserBase(BaseModel):
     login_id: str = Field(..., description="User's login ID")
-    email: EmailStr = Field(..., description="User's email address")
+    email: str = Field(..., description="User's email address")  # Changed from EmailStr to str
     user_name: str = Field(..., description="User's full name")
     phone: Optional[str] = Field(None, description="User's phone number")
     role: str = Field(..., description="User's role (admin, secretary, evaluator)")
@@ -44,14 +50,14 @@ class UserResponse(UserBase):
 class SecretarySignupRequest(BaseModel):
     name: str
     phone: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to str
     reason: Optional[str] = None
 
 class SecretaryApproval(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     name: str
     phone: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to str
     reason: Optional[str] = None
     status: str = Field("pending", description="Approval status: pending, approved, rejected")
     requested_at: datetime = Field(default_factory=datetime.utcnow)
@@ -65,7 +71,7 @@ class SecretaryApproval(BaseModel):
 class EvaluatorCreate(BaseModel):
     user_name: str
     phone: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to str
     # Add other fields as necessary based on usage in server.py
 
 class ProjectBase(BaseModel):
@@ -87,10 +93,12 @@ class Project(ProjectBase):
         allow_population_by_field_name = True
         json_encoders = {datetime: lambda dt: dt.isoformat()}
         
+# Update Company model to include project_id field
 class CompanyBase(BaseModel):
     name: str = Field(..., description="Company name")
     registration_number: Optional[str] = Field(None, description="Company registration number")
     address: Optional[str] = Field(None, description="Company address")
+    project_id: str = Field(..., description="Project ID this company belongs to")  # Added project_id field
 
 class CompanyCreate(CompanyBase):
     pass
@@ -98,6 +106,45 @@ class CompanyCreate(CompanyBase):
 class Company(CompanyBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+# Add FileMetadata model for file upload functionality
+class FileMetadata(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    filename: str = Field(..., description="Stored filename")
+    original_filename: str = Field(..., description="Original filename")
+    file_path: str = Field(..., description="File storage path")
+    file_size: int = Field(..., description="File size in bytes")
+    file_type: str = Field(..., description="File MIME type")
+    uploaded_by: str = Field(..., description="User ID who uploaded the file")
+    company_id: str = Field(..., description="Company ID this file belongs to")
+    uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+# Add EvaluationTemplateCreate model for template creation
+class EvaluationTemplateCreate(BaseModel):
+    name: str = Field(..., description="Template name")
+    description: Optional[str] = Field(None, description="Template description")
+    project_id: str = Field(..., description="Project ID this template belongs to")
+    items: List[Dict[str, Any]] = Field(default_factory=list, description="Evaluation criteria items")
+
+# Update ProjectCreate to include deadline field
+class ProjectCreate(ProjectBase):
+    deadline: Optional[datetime] = Field(None, description="Project deadline")
+
+# Update Project to include deadline field
+class Project(ProjectBase):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    deadline: Optional[datetime] = Field(None, description="Project deadline")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: Optional[str] = None # User ID
 
     class Config:
         allow_population_by_field_name = True
@@ -220,7 +267,7 @@ class AdvancedSearchResult(BaseModel):
 class BulkUserImportRow(BaseModel):
     login_id: str
     user_name: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to str
     phone: Optional[str] = None
     role: str
     password: Optional[str] = None # If provided, will be used. Otherwise, auto-generated.
@@ -238,7 +285,7 @@ class PasswordChangeRequest(BaseModel):
     new_password: str
 
 class PasswordResetRequest(BaseModel):
-    email: EmailStr
+    email: str  # Changed from EmailStr to str
 
 class TwoFactorAuthSetupResponse(BaseModel):
     qr_code_url: Optional[str] = None # For TOTP
@@ -277,14 +324,49 @@ class EvaluationCriteria(BaseModel):
     category: Optional[str] = None # e.g., "Technical", "Financial"
     is_active: bool = True
 
+# Update EvaluationTemplate model to include more fields
 class EvaluationTemplate(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
-    description: Optional[str] = None
-    criteria_ids: List[str] # List of EvaluationCriteria IDs
-    created_by: str # User ID
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    name: str = Field(..., description="Template name")
+    description: Optional[str] = Field(None, description="Template description")
+    project_id: str = Field(..., description="Project ID this template belongs to")
+    items: List[Dict[str, Any]] = Field(default_factory=list, description="Evaluation criteria items")
+    created_by: str = Field(..., description="User ID who created the template")
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    is_default: bool = False
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    is_default: bool = Field(False, description="Whether this is a default template")
+    status: str = Field("draft", description="Template status: draft, active, archived")
+
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+# Add Assignment models for evaluation assignment functionality
+class AssignmentCreate(BaseModel):
+    evaluator_ids: List[str] = Field(..., description="List of evaluator user IDs")
+    company_ids: List[str] = Field(..., description="List of company IDs")
+    template_id: str = Field(..., description="Evaluation template ID")
+    deadline: Optional[datetime] = Field(None, description="Assignment deadline")
+
+class BatchAssignmentCreate(BaseModel):
+    assignments: List[AssignmentCreate] = Field(..., description="List of assignments to create")
+
+class EvaluationScore(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    sheet_id: str = Field(..., description="Evaluation sheet ID")
+    item_id: str = Field(..., description="Evaluation item ID")
+    score: int = Field(..., description="Score value")
+    opinion: Optional[str] = Field(None, description="Evaluator's opinion/comment")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class EvaluationSubmission(BaseModel):
+    sheet_id: str = Field(..., description="Evaluation sheet ID")
+    scores: List[Dict[str, Any]] = Field(..., description="List of scores with item_id, score, and opinion")
+    overall_comment: Optional[str] = Field(None, description="Overall evaluation comment")
     
 class AssignedEvaluation(BaseModel): # Represents an evaluation assigned to an evaluator for a company in a project
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -356,7 +438,7 @@ class SystemStats(BaseModel):
 class Feedback(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: Optional[str] = None # Anonymous feedback possible
-    email: Optional[EmailStr] = None # If user provides it
+    email: Optional[str] = None # If user provides it  # Changed from EmailStr to str
     feedback_type: str # e.g., "bug_report", "feature_request", "general"
     subject: str
     message: str

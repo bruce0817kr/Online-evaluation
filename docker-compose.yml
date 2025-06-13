@@ -29,7 +29,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: online_evaluation
+      MONGO_INITDB_DATABASE: evaluation_db
     volumes:
       - mongodb_data:/data/db
     networks:
