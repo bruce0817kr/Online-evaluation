@@ -565,3 +565,70 @@ class PaginatedProjectResponse(PaginatedResponse):
     items: List[Project]
     
 # Add more specific paginated responses as needed
+
+# Evaluation related models for the new evaluation system
+
+class EvaluationCriterion(BaseModel):
+    """평가 항목 (기준) 모델"""
+    name: str = Field(..., description="평가 항목명")
+    max_score: int = Field(..., description="최대 점수")
+    bonus: bool = Field(False, description="가점 항목 여부")
+    description: Optional[str] = Field(None, description="항목 설명")
+
+class EvaluationBase(BaseModel):
+    """평가 프로젝트 기본 모델"""
+    title: str = Field(..., description="평가 제목")
+    description: Optional[str] = Field("", description="평가 설명")
+    companies: List[str] = Field(..., description="대상 기업 목록")
+    criteria: List[EvaluationCriterion] = Field(..., description="평가 항목 리스트")
+    status: str = Field("draft", description="평가 상태 (draft, active, completed)")
+
+class EvaluationCreate(EvaluationBase):
+    """평가 생성 요청 모델"""
+    pass
+
+class Evaluation(EvaluationBase):
+    """평가 프로젝트 모델"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    created_by: str = Field(..., description="생성자 사용자 ID")
+    assigned_evaluators: List[str] = Field(default_factory=list, description="배정된 평가위원 ID 목록")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        validate_by_name = True
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+        from_attributes = True
+
+    @classmethod
+    def from_mongo(cls, data: dict):
+        """MongoDB 문서를 Evaluation 객체로 변환"""
+        if data and "_id" in data:
+            data = data.copy()
+            data["id"] = str(data.pop("_id"))
+        return cls(**data) if data else None
+
+class ScoreSubmission(BaseModel):
+    """평가 점수 제출 모델"""
+    evaluation_id: str = Field(..., description="평가 ID")
+    company_id: str = Field(..., description="기업 ID (또는 기업명)")
+    evaluator_id: str = Field(..., description="평가위원 ID")
+    scores: Dict[str, int] = Field(..., description="항목별 점수 (항목명: 점수)")
+    comment: Optional[str] = Field("", description="평가 코멘트")
+    total_score: int = Field(0, description="총점")
+    submitted_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        validate_by_name = True
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class ScoreSubmissionCreate(BaseModel):
+    """점수 제출 요청 모델"""
+    companyId: str = Field(..., alias="company_id", description="기업 ID")
+    scores: Dict[str, int] = Field(..., description="항목별 점수")
+    comment: Optional[str] = Field("", description="평가 코멘트")
+
+    class Config:
+        allow_population_by_field_name = True

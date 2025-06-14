@@ -40,12 +40,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
   # 백엔드 API 서버
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
+      target: production
     container_name: online-evaluation-backend
     restart: unless-stopped
     ports:
@@ -63,7 +63,7 @@ services:
       # 서버 설정
       HOST: "0.0.0.0"
       PORT: "8080"
-      CORS_ORIGINS: "http://localhost:3000,http://frontend:3000"
+      CORS_ORIGINS: "http://localhost:3001,http://frontend:3000"
       
       # JWT 설정
       JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
@@ -89,17 +89,16 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
-
-  # 프론트엔드 웹 서버
+      retries: 3  # 프론트엔드 웹 서버
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      target: development
     container_name: online-evaluation-frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "3001:3000"
     environment:
       REACT_APP_BACKEND_URL: "http://localhost:8080"
       REACT_APP_WS_URL: "ws://localhost:8080"
@@ -109,7 +108,7 @@ services:
     networks:
       - online-evaluation-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3

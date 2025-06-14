@@ -256,6 +256,50 @@ async def check_admin_or_secretary(
         )
     return current_user
 
+async def check_evaluator_role(
+    current_user: models.User = Depends(get_current_user)
+) -> models.User:
+    """평가위원 권한 확인"""
+    if current_user.role != "evaluator":
+        logger.warning(f"User {current_user.login_id} with role {current_user.role} attempted evaluator action.")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Evaluator role required.",
+        )
+    return current_user
+
+async def check_evaluator_assignment(
+    evaluation_id: str,
+    current_user: models.User = Depends(get_current_user)
+) -> models.User:
+    """특정 평가에 배정된 평가위원인지 확인"""
+    if current_user.role != "evaluator":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Evaluator role required.",
+        )
+    
+    # 평가 존재 여부 및 배정 확인
+    if db is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    
+    try:
+        eval_doc = await db.evaluations.find_one({"_id": ObjectId(evaluation_id)})
+        if not eval_doc:
+            raise HTTPException(status_code=404, detail="Evaluation not found")
+        
+        assigned_evaluators = eval_doc.get("assigned_evaluators", [])
+        if current_user.id not in assigned_evaluators:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not assigned to this evaluation",
+            )
+    except Exception as e:
+        logger.error(f"Error checking evaluator assignment: {e}")
+        raise HTTPException(status_code=500, detail="Error verifying assignment")
+    
+    return current_user
+
 class PasswordValidator:
     """Password validation utility"""
     

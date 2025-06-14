@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
+import CreateEvaluationPage from "./CreateEvaluationPage.js";
 
 const EvaluationManagement = ({ user }) => {
   const [evaluations, setEvaluations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+  const [currentView, setCurrentView] = useState('list'); // 'list' or 'create'
 
   useEffect(() => {
     fetchEvaluations();
   }, []);
-
   const fetchEvaluations = async () => {
     setLoading(true);
     setError("");
@@ -31,6 +32,11 @@ const EvaluationManagement = ({ user }) => {
     }
   };
 
+  const handleEvaluationCreated = () => {
+    setCurrentView('list');
+    fetchEvaluations(); // Refresh the list
+  };
+
   if (user.role !== 'admin' && user.role !== 'secretary') {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -48,15 +54,33 @@ const EvaluationManagement = ({ user }) => {
       </div>
     );
   }
-
   if (error) {
     return <div className="text-red-500 p-4 bg-red-100 border border-red-400 rounded">오류: {error}</div>;
+  }
+
+  // Show CreateEvaluationPage when currentView is 'create'
+  if (currentView === 'create') {
+    return (
+      <CreateEvaluationPage 
+        user={user}
+        onEvaluationCreated={handleEvaluationCreated}
+        onCancel={() => setCurrentView('list')}
+      />
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold mb-6">평가 관리</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">평가 관리</h2>
+          <button
+            onClick={() => setCurrentView('create')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + 새 평가 개설
+          </button>
+        </div>
         {evaluations.length === 0 ? (
           <p className="text-gray-500 text-center py-8">등록된 평가가 없습니다.</p>
         ) : (

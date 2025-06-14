@@ -35,7 +35,7 @@ RUN apk add --no-cache \
 COPY frontend/package.json frontend/yarn.lock* ./
 
 # 의존성 설치 (개발 의존성 포함)
-RUN yarn install --frozen-lockfile --silent
+RUN yarn install --silent
 
 # 소스코드 복사 (개발 시에는 볼륨 마운트 사용)
 COPY frontend/ .

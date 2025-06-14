@@ -1,0 +1,345 @@
+{
+  "test_info": {
+    "type": "admin_dashboard_test",
+    "timestamp": "2025-06-15T00:34:37.947039",
+    "duration": 0.48938655853271484,
+    "success_rate": 66.66666666666666
+  },
+  "admin_info": {
+    "authenticated": true,
+    "user_data": {
+      "login_id": "admin",
+      "email": "admin@example.com",
+      "user_name": "관리자",
+      "phone": "010-1111-2222",
+      "role": "admin",
+      "is_active": true,
+      "id": "684d8c8f6f143b7c188ab537",
+      "created_at": "2025-06-13T02:57:08.935000",
+      "last_login": "2025-06-14T15:27:46.918000"
+    }
+  },
+  "summary": {
+    "total_tests": 27,
+    "passed_tests": 23,
+    "failed_tests": 4
+  },
+  "detailed_results": [
+    {
+      "name": "관리자 인증",
+      "passed": true,
+      "message": "로그인 성공 - 관리자",
+      "details": {
+        "role": "admin",
+        "email": "admin@example.com",
+        "token_type": "bearer"
+      },
+      "duration": 0.1613750457763672
+    },
+    {
+      "name": "대시보드 통계 API",
+      "passed": false,
+      "message": "HTTP 404",
+      "details": "{\"detail\":\"Not Found\"}",
+      "duration": 0.030666828155517578
+    },
+    {
+      "name": "사용자 목록 조회",
+      "passed": true,
+      "message": "HTTP 200 (예상됨)",
+      "details": {
+        "endpoint": "/users",
+        "method": "GET",
+        "expected_status": [
+          200,
+          401,
+          403
+        ],
+        "actual_status": 200
+      },
+      "duration": 0.02344512939453125
+    },
+    {
+      "name": "현재 사용자 정보",
+      "passed": true,
+      "message": "HTTP 200 (예상됨)",
+      "details": {
+        "endpoint": "/auth/me",
+        "method": "GET",
+        "expected_status": [
+          200
+        ],
+        "actual_status": 200
+      },
+      "duration": 0.026280879974365234
+    },
+    {
+      "name": "프로젝트 목록 조회",
+      "passed": true,
+      "message": "HTTP 200 (예상됨)",
+      "details": {
+        "endpoint": "/projects",
+        "method": "GET",
+        "expected_status": [
+          200,
+          401,
+          403
+        ]
+      },
+      "duration": 0.031294822692871094
+    },
+    {
+      "name": "프로젝트 생성 엔드포인트",
+      "passed": true,
+      "message": "HTTP 405 (예상됨)",
+      "details": {
+        "endpoint": "/projects",
+        "method": "OPTIONS",
+        "expected_status": [
+          200,
+          405,
+          401,
+          403
+        ]
+      },
+      "duration": 0.02854156494140625
+    },
+    {
+      "name": "평가 목록 조회",
+      "passed": false,
+      "message": "HTTP 500 (예상되지 않음)",
+      "details": {
+        "endpoint": "/evaluations",
+        "expected_status": [
+          200,
+          401,
+          403
+        ]
+      },
+      "duration": 0.035028696060180664
+    },
+    {
+      "name": "평가 템플릿 조회",
+      "passed": true,
+      "message": "HTTP 200 (예상됨)",
+      "details": {
+        "endpoint": "/templates",
+        "expected_status": [
+          200,
+          401,
+          403
+        ]
+      },
+      "duration": 0.028304338455200195
+    },
+    {
+      "name": "관리자 권한 - /admin/system-settings",
+      "passed": true,
+      "message": "HTTP 404 (권한 있음)",
+      "details": {
+        "endpoint": "/admin/system-settings",
+        "status_code": 404
+      },
+      "duration": 0.021603107452392578
+    },
+    {
+      "name": "관리자 권한 - /admin/users",
+      "passed": true,
+      "message": "HTTP 429 (권한 있음)",
+      "details": {
+        "endpoint": "/admin/users",
+        "status_code": 429
+      },
+      "duration": 0.013287544250488281
+    },
+    {
+      "name": "관리자 권한 - /admin/analytics",
+      "passed": true,
+      "message": "HTTP 429 (권한 있음)",
+      "details": {
+        "endpoint": "/admin/analytics",
+        "status_code": 429
+      },
+      "duration": 0.015297651290893555
+    },
+    {
+      "name": "관리자 권한 - /dashboard/admin",
+      "passed": true,
+      "message": "HTTP 429 (권한 있음)",
+      "details": {
+        "endpoint": "/dashboard/admin",
+        "status_code": 429
+      },
+      "duration": 0.015421152114868164
+    },
+    {
+      "name": "컴포넌트 - AdminDashboard",
+      "passed": true,
+      "message": "관리자 메인 대시보드",
+      "details": {
+        "component": "AdminDashboard",
+        "function": "관리자 메인 대시보드"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "컴포넌트 - ProjectManagement",
+      "passed": true,
+      "message": "프로젝트 관리",
+      "details": {
+        "component": "ProjectManagement",
+        "function": "프로젝트 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "컴포넌트 - AdminUserManagement",
+      "passed": true,
+      "message": "사용자 관리",
+      "details": {
+        "component": "AdminUserManagement",
+        "function": "사용자 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "컴포넌트 - EvaluationManagement",
+      "passed": true,
+      "message": "평가 관리",
+      "details": {
+        "component": "EvaluationManagement",
+        "function": "평가 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "컴포넌트 - TemplateManagement",
+      "passed": true,
+      "message": "템플릿 관리",
+      "details": {
+        "component": "TemplateManagement",
+        "function": "템플릿 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "컴포넌트 - AnalyticsManagement",
+      "passed": true,
+      "message": "결과 분석",
+      "details": {
+        "component": "AnalyticsManagement",
+        "function": "결과 분석"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - dashboard",
+      "passed": true,
+      "message": "대시보드 → AdminDashboard",
+      "details": {
+        "tab": "dashboard",
+        "component": "AdminDashboard",
+        "description": "대시보드"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - projects",
+      "passed": true,
+      "message": "프로젝트 관리 → ProjectManagement",
+      "details": {
+        "tab": "projects",
+        "component": "ProjectManagement",
+        "description": "프로젝트 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - secretary-requests",
+      "passed": true,
+      "message": "간사 신청 관리 → SecretaryRequestManagement",
+      "details": {
+        "tab": "secretary-requests",
+        "component": "SecretaryRequestManagement",
+        "description": "간사 신청 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - users",
+      "passed": true,
+      "message": "사용자 관리 → AdminUserManagement",
+      "details": {
+        "tab": "users",
+        "component": "AdminUserManagement",
+        "description": "사용자 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - evaluations",
+      "passed": true,
+      "message": "평가 관리 → EvaluationManagement",
+      "details": {
+        "tab": "evaluations",
+        "component": "EvaluationManagement",
+        "description": "평가 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - templates",
+      "passed": true,
+      "message": "템플릿 관리 → TemplateManagement",
+      "details": {
+        "tab": "templates",
+        "component": "TemplateManagement",
+        "description": "템플릿 관리"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "탭 매핑 - analytics",
+      "passed": true,
+      "message": "결과 분석 → AnalyticsManagement",
+      "details": {
+        "tab": "analytics",
+        "component": "AnalyticsManagement",
+        "description": "결과 분석"
+      },
+      "duration": 0.0
+    },
+    {
+      "name": "사용자 정보 흐름",
+      "passed": false,
+      "message": "데이터 흐름 오류: localStorage/token → /auth/me → Dashboard user prop",
+      "details": {
+        "flow": {
+          "name": "사용자 정보 흐름",
+          "source": "localStorage/token",
+          "api": "/auth/me",
+          "destination": "Dashboard user prop"
+        },
+        "api_status": 429,
+        "has_data": false
+      },
+      "duration": 0.018409013748168945
+    },
+    {
+      "name": "대시보드 통계 흐름",
+      "passed": false,
+      "message": "데이터 흐름 오류: AdminDashboard component → /dashboard/stats → dashboardStats state",
+      "details": {
+        "flow": {
+          "name": "대시보드 통계 흐름",
+          "source": "AdminDashboard component",
+          "api": "/dashboard/stats",
+          "destination": "dashboardStats state"
+        },
+        "api_status": 429,
+        "has_data": false
+      },
+      "duration": 0.03124403953552246
+    }
+  ]
+}
