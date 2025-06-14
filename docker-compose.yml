@@ -19,7 +19,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # MongoDB 데이터베이스 (초기화 스크립트 없이)
+  # MongoDB 데이터베이스
   mongodb:
     image: mongo:7
     container_name: online-evaluation-mongodb
@@ -29,66 +29,55 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: evaluation_db
+      MONGO_INITDB_DATABASE: online_evaluation
     volumes:
       - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - online-evaluation-network
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
       timeout: 10s
-      retries: 3  # 백엔드 API 서버
+      retries: 3
+
+  # 백엔드 API 서버
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
-      target: development
     container_name: online-evaluation-backend
-    # Revert to original command for starting the server
-    command: python -m uvicorn server:app --host 0.0.0.0 --port 8080 --reload --log-level debug
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      # Database Configuration with enhanced security
-      MONGO_URL: "mongodb://admin:password123@mongodb:27017/evaluation_db?authSource=admin"
-      DB_NAME: "evaluation_db"
+      # 데이터베이스 설정
+      MONGO_URL: "mongodb://admin:password123@mongodb:27017/online_evaluation?authSource=admin"
+      DB_NAME: "online_evaluation"
       
-      # Redis Configuration
+      # Redis 설정
       REDIS_URL: "redis://redis:6379"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
       
-      # JWT Security Configuration
-      JWT_SECRET_KEY: "production-jwt-secret-key-change-this-to-secure-random-256-bit-key"
+      # 서버 설정
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      CORS_ORIGINS: "http://localhost:3000,http://frontend:3000"
+      
+      # JWT 설정
+      JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
       JWT_ALGORITHM: "HS256"
-      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
-      JWT_REFRESH_TOKEN_EXPIRE_DAYS: "7"
       
-      # CORS Security Configuration
-      CORS_ORIGINS: "http://localhost:3001,http://localhost:3000"
-      CORS_ALLOW_CREDENTIALS: "true"
+      # 업로드 설정
+      UPLOAD_DIR: "/app/uploads"
+      MAX_FILE_SIZE: "50MB"
       
-      # Security Settings
-      SECURITY_HEADERS_ENABLED: "true"
-      RATE_LIMIT_REQUESTS_PER_MINUTE: "60"
-      RATE_LIMIT_BURST: "10"
-      
-      # File Upload Security
-      MAX_FILE_SIZE_MB: "50"
-      ALLOWED_FILE_TYPES: "pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif"
-      UPLOAD_PATH: "/app/uploads"
-      
-      # Application Environment
-      ENVIRONMENT: "production"
-      DEBUG: "false"
+      # 로그 설정
       LOG_LEVEL: "INFO"
-      
-      # API Configuration
-      API_TITLE: "Online Evaluation System API"
-      API_DESCRIPTION: "Secure evaluation management platform"
     volumes:
-      - uploads_data:/app/uploads
-      - logs_data:/app/logs
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
     depends_on:
       mongodb:
         condition: service_healthy
@@ -100,7 +89,9 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
-      retries: 3  # 프론트엔드 웹 서버
+      retries: 3
+
+  # 프론트엔드 웹 서버
   frontend:
     build:
       context: .
@@ -108,7 +99,7 @@ services:
     container_name: online-evaluation-frontend
     restart: unless-stopped
     ports:
-      - "3001:80"
+      - "3000:80"
     environment:
       REACT_APP_BACKEND_URL: "http://localhost:8080"
       REACT_APP_WS_URL: "ws://localhost:8080"
@@ -141,31 +132,10 @@ services:
     profiles:
       - production  # 프로덕션 환경에서만 실행
 
-  # 사용자 생성 스크립트 실행용 서비스 (주석 처리 또는 삭제)
-  # user_creator:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.backend
-  #     target: base
-  #   container_name: online-evaluation-user-creator
-  #   working_dir: /app
-  #   volumes:
-  #     - .:/app
-  #   command: python create_test_user.py
-  #   depends_on:
-  #     mongodb:
-  #       condition: service_healthy
-  #   networks:
-  #     - online-evaluation-network
-
 volumes:
   mongodb_data:
     driver: local
   redis_data:
-    driver: local
-  uploads_data:
-    driver: local
-  logs_data:
     driver: local
 
 networks:

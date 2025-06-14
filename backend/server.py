@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import time  # Added for enhanced logging middleware
 
-import cache_service  # Fixed absolute import
+from cache_service import cache_service  # Import the instance directly
 
 # Placeholder imports for missing models and functions
 # These should be adjusted based on actual project structure
@@ -280,6 +280,14 @@ async def startup_event():
             'custom_services': ['mongodb', 'redis', 'prometheus']
         })
         
+        # Initialize the database connection in security module
+        from security import set_database
+        set_database(db)
+        logger.info("Database connection initialized in security module", extra={
+            'custom_service': 'security_db_init',
+            'custom_status': 'completed'
+        })
+        
         # Log MongoDB connection details
         try:
             await client.admin.command('ping')
@@ -516,16 +524,24 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="아이디 또는 비밀번호가 잘못되었습니다",
             headers={"WWW-Authenticate": "Bearer"},
         )
-      # Update last login time
+    
+    # Convert MongoDB document to User object
+    user = User.from_mongo(user_data)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="사용자 데이터 처리 오류"
+        )
+    
+    # Update last login time using _id
     await db.users.update_one(
-        {"id": user_data["id"]},
+        {"_id": user_data["_id"]},
         {"$set": {"last_login": datetime.utcnow()}}
     )
     
     # Set user context for successful login
-    user_id_context.set(user_data["id"])
+    user_id_context.set(user.id)
     
-    user = User(**user_data)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.id}, expires_delta=access_token_expires

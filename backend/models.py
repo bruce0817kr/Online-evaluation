@@ -26,15 +26,31 @@ class UserCreate(UserBase):
     password: str = Field(..., description="User's password (plain text)")
 
 class User(UserBase):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id", description="User's unique ID")
+    id: Optional[str] = Field(default=None, alias="_id", description="User's unique ID")
     password_hash: str = Field(..., description="User's hashed password")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Timestamp of user creation")
     last_login: Optional[datetime] = Field(None, description="Timestamp of last login")
     
     class Config:
         validate_by_name = True # Pydantic V2 (renamed from allow_population_by_field_name)
+        allow_population_by_field_name = True  # For backward compatibility
         json_encoders = {datetime: lambda dt: dt.isoformat()}
         from_attributes = True # For Pydantic V2 (renamed from orm_mode)
+    
+    @classmethod
+    def from_mongo(cls, data: dict):
+        """MongoDB 문서를 User 객체로 변환"""
+        if data and "_id" in data:
+            data = data.copy()  # Create a copy to avoid modifying the original
+            data["id"] = str(data.pop("_id"))  # Convert ObjectId to string and remove _id
+        return cls(**data) if data else None
+    
+    def to_mongo(self) -> dict:
+        """User 객체를 MongoDB 문서로 변환"""
+        data = self.dict(by_alias=True, exclude_unset=True)
+        if "id" in data and data["id"]:
+            data["_id"] = data.pop("id")
+        return data
 
 # UserInDB can be an alias for User as it contains all necessary fields including password_hash
 UserInDB = User

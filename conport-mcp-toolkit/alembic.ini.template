@@ -1,0 +1,45 @@
+# Alembic 설정 템플릿
+# ConPort MCP용 Alembic 설정
+
+[alembic]
+# Alembic 스크립트 디렉토리 경로
+script_location = alembic
+
+# 데이터베이스 URL
+# 프로젝트에 맞게 수정하세요
+sqlalchemy.url = sqlite:///context_portal/context.db
+
+# 로깅 설정
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARN
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S

@@ -123,8 +123,24 @@ def get_password_hash(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verifies a plain password against a hashed password.
+    Supports both new and legacy password formats.
     """
-    return imported_pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Try with the new passlib context first
+        return imported_pwd_context.verify(plain_password, hashed_password)
+    except Exception as e:
+        logger.debug(f"Failed to verify with passlib: {e}")
+        # Fallback for legacy bcrypt hashes
+        try:
+            import bcrypt
+            if isinstance(plain_password, str):
+                plain_password = plain_password.encode('utf-8')
+            if isinstance(hashed_password, str):
+                hashed_password = hashed_password.encode('utf-8')
+            return bcrypt.checkpw(plain_password, hashed_password)
+        except Exception as e2:
+            logger.error(f"Password verification failed: {e2}")
+            return False
 
 # Placeholder for get_db dependency - replace with your actual implementation
 def get_db():
@@ -141,23 +157,47 @@ def get_db():
     pass
 
 # Placeholder for CRUD function - replace with your actual implementation
-# This would typically be in a crud.py file
-class PlaceholderCRUD:
-    @staticmethod
-    def get_user_by_login_id(db: Any, login_id: str) -> Optional[models.User]: # Changed Session to Any
-        # This is a placeholder. Replace with your actual database query.
-        # Example: return db.query(models.DBUser).filter(models.DBUser.login_id == login_id).first()
-        print(f"PlaceholderCRUD: Attempting to get user by login_id: {login_id}")
-        # Simulate finding a user for now for dependency structure
-        if login_id == "admin": # Or any other logic for testing
-             return models.User(id="fake-admin-id", login_id="admin", email="admin@example.com", role="admin", name="Admin User", is_active=True, hashed_password="hashed_password_admin")
-        return None
+# MongoDB 연결을 위한 import
+from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
-crud_user = PlaceholderCRUD() # Instantiate the placeholder
+# MongoDB database 인스턴스 (server.py에서 import)
+# 이는 server.py에서 설정한 db 인스턴스를 참조합니다
+db: Optional[AsyncIOMotorDatabase] = None
+
+def set_database(database: AsyncIOMotorDatabase):
+    """서버 시작 시 데이터베이스 인스턴스를 설정합니다."""
+    global db
+    db = database
+
+# Simple test function to verify module loading
+def test_function():
+    return "test_function_works"
+
+# 실제 MongoDB CRUD 함수들
+async def get_user_by_id(user_id: str) -> Optional[models.User]:
+    """사용자 ID로 사용자를 조회합니다."""
+    if db is None:
+        logger.error("Database not initialized")
+        return None
+    
+    try:
+        # ObjectId로 변환 시도
+        if ObjectId.is_valid(user_id):
+            user_data = await db.users.find_one({"_id": ObjectId(user_id)})
+        else:
+            # 문자열 ID로도 시도
+            user_data = await db.users.find_one({"_id": user_id})
+        
+        if user_data:
+            return models.User.from_mongo(user_data)
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching user by ID {user_id}: {e}")
+        return None
 
 async def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(oauth2_scheme), 
-    # db: Session = Depends(get_db) # Placeholder, to be replaced with Motor client
 ) -> models.User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -166,43 +206,42 @@ async def get_current_user(
     )
     try:
         payload = jwt_manager.verify_token(token.credentials, credentials_exception)
-        login_id: str = payload.get("sub")
-        if login_id is None:
-            logger.warning("Token payload missing 'sub' (login_id)")
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            logger.warning("Token payload missing 'sub' (user_id)")
             raise credentials_exception
-    except JWTError as e: # Catching JWTError from jwt_manager.verify_token if it raises it directly
+    except JWTError as e:
         logger.error(f"JWTError in get_current_user: {e}")
         raise credentials_exception
     
-    # user = crud.get_user_by_login_id(db=db, login_id=login_id) # Replace with actual CRUD
-    user = crud_user.get_user_by_login_id(db=None, login_id=login_id) # Using placeholder, db removed for now
+    # Use the real MongoDB user lookup function
+    user = await get_user_by_id(user_id)
     if user is None:
-        logger.warning(f"User not found for login_id: {login_id} from token")
+        logger.warning(f"User not found for user_id: {user_id} from token")
         raise credentials_exception
     if not user.is_active:
-        logger.warning(f"User {login_id} is inactive")
+        logger.warning(f"User {user_id} is inactive")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return user
 
 async def get_current_user_optional(
     token: Optional[HTTPAuthorizationCredentials] = Depends(oauth2_scheme), 
-    # db: Session = Depends(get_db) # Placeholder, to be replaced with Motor client
 ) -> Optional[models.User]:
-    if token is None or token.credentials is None: # Check if token was provided
+    if token is None or token.credentials is None:
         return None
     try:
-        payload = jwt_manager.verify_token(token.credentials, HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")) # Temp exception
-        login_id: str = payload.get("sub")
-        if login_id is None:
+        payload = jwt_manager.verify_token(token.credentials, HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"))
+        user_id: str = payload.get("sub")
+        if user_id is None:
             return None
-        # user = crud.get_user_by_login_id(db=db, login_id=login_id) # Replace with actual CRUD
-        user = crud_user.get_user_by_login_id(db=None, login_id=login_id) # Using placeholder, db removed for now
+        # Use the real MongoDB user lookup function
+        user = await get_user_by_id(user_id)
         if user is None or not user.is_active:
             return None
         return user
-    except JWTError: # If token is invalid
+    except JWTError:
         return None
-    except HTTPException: # If token is invalid (from verify_token)
+    except HTTPException:
         return None
 
 
