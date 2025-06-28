@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: online-evaluation-frontend-prod
+    ports:
+      - "3019:3000"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_BACKEND_URL=http://localhost:8019
+      - REACT_APP_ENVIRONMENT=production
+    depends_on:
+      - backend-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: online-evaluation-backend-prod
+    ports:
+      - "8019:8080"
+    environment:
+      - ENVIRONMENT=production
+      - MONGO_URL=mongodb://admin:password123@mongodb-prod:27017/online_evaluation_prod?authSource=admin
+      - DB_NAME=online_evaluation_prod
+      - JWT_SECRET=${JWT_SECRET:-your-super-secure-jwt-secret-key-for-production}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=240
+      - UPLOAD_DIR=/app/uploads
+      - CORS_ORIGINS=http://localhost:3019
+      - BACKEND_PORT=8080
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - mongodb-prod
+      - redis-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb-prod:
+    image: mongo:7
+    container_name: online-evaluation-mongodb-prod
+    ports:
+      - "27036:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=online_evaluation_prod
+    volumes:
+      - mongodb_prod_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./config/mongod.conf:/etc/mongod.conf:ro
+    command: mongod --auth
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-prod:
+    image: redis:7-alpine
+    container_name: online-evaluation-redis-prod
+    ports:
+      - "6398:6379"
+    volumes:
+      - redis_prod_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_prod_data:
+    name: online_evaluation_mongodb_prod_data
+  redis_prod_data:
+    name: online_evaluation_redis_prod_data
+
+networks:
+  default:
+    name: online_evaluation_prod_network

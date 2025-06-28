@@ -188,6 +188,94 @@ async def readiness_probe():
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Service not ready: {str(e)}")
 
+@health_router.get("/deployment")
+async def deployment_status():
+    """Public deployment status endpoint for monitoring tools (no auth required)"""
+    import subprocess
+    import os
+    
+    async def get_container_status_simple(container_name: str) -> Dict[str, Any]:
+        """Simple container status check without authentication"""
+        try:
+            result = subprocess.run(
+                ['docker', 'inspect', container_name, '--format', '{{.State.Running}}:{{.State.Status}}'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                output = result.stdout.strip()
+                parts = output.split(':')
+                running = parts[0].lower() == 'true'
+                status = parts[1] if len(parts) > 1 else 'unknown'
+                
+                return {
+                    'running': running,
+                    'healthy': running,  # Simple check - if running, consider healthy
+                    'status': status
+                }
+            else:
+                return {
+                    'running': False,
+                    'healthy': False,
+                    'status': 'not_found'
+                }
+        except Exception:
+            return {
+                'running': False,
+                'healthy': False,
+                'status': 'error'
+            }
+    
+    try:
+        # Get environment-based port configuration
+        backend_port = os.getenv('BACKEND_PORT', '8002')
+        frontend_port = os.getenv('FRONTEND_PORT', '3002')
+        
+        # Check core services
+        containers = {
+            'backend': 'online-evaluation-backend',
+            'frontend': 'online-evaluation-frontend',
+            'mongodb': 'online-evaluation-mongodb',
+            'redis': 'online-evaluation-redis'
+        }
+        
+        service_status = {}
+        
+        for service_name, container_name in containers.items():
+            status = await get_container_status_simple(container_name)
+            service_status[service_name] = {
+                'name': service_name.title(),
+                'running': status['running'],
+                'healthy': status['healthy'],
+                'status': status['status']
+            }
+        
+        # Overall health calculation
+        all_healthy = all(s['healthy'] for s in service_status.values())
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "deployment_status": "healthy" if all_healthy else "degraded",
+            "services": service_status,
+            "configuration": {
+                "backend_port": backend_port,
+                "frontend_port": frontend_port
+            },
+            "overall_healthy": all_healthy,
+            "monitoring": "public_endpoint"
+        }
+        
+    except Exception as e:
+        logger.error(f"Deployment status check failed: {e}")
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "deployment_status": "error",
+            "error": str(e),
+            "monitoring": "public_endpoint"
+        }
+
 # Example usage in main FastAPI app:
 """
 from health_monitoring import health_router

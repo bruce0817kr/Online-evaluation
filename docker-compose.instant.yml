@@ -1,0 +1,104 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: instant-mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: online_evaluation
+    volumes:
+      - instant_mongodb:/data/db
+    networks:
+      - instant-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: instant-redis
+    restart: unless-stopped
+    ports:
+      - "6382:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - instant_redis:/data
+    networks:
+      - instant-net
+
+  backend:
+    image: python:3.11-slim
+    container_name: instant-backend
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      MONGO_URL: "mongodb://admin:password123@mongodb:27017/online_evaluation?authSource=admin"
+      JWT_SECRET: "instant-secret-1750814014"
+      CORS_ORIGINS: "http://localhost:3002"
+      REDIS_URL: "redis://redis:6379"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    working_dir: /app
+    command: >
+      bash -c "
+        pip install --no-cache-dir --quiet fastapi uvicorn motor pymongo pydantic 'python-jose[cryptography]' 'passlib[bcrypt]' python-multipart &&
+        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+      "
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - instant-net
+
+  frontend:
+    image: node:18-alpine
+    container_name: instant-frontend
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:8002"
+      NODE_ENV: development
+      PORT: "3000"
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - instant_nodemodules:/app/node_modules
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Frontend 시작...' &&
+        apk add --no-cache git &&
+        if [ ! -f package.json ]; then
+          echo 'package.json 없음 - 기본 React 앱 생성'
+          npx create-react-app . --template typescript
+        fi &&
+        echo 'Dependencies 설치...' &&
+        npm install --legacy-peer-deps --no-audit --no-fund &&
+        echo 'React 앱 시작...' &&
+        npm start
+      "
+    depends_on:
+      - backend
+    networks:
+      - instant-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  instant-net:
+    driver: bridge
+
+volumes:
+  instant_mongodb:
+    driver: local
+  instant_redis:
+    driver: local
+  instant_nodemodules:
+    driver: local

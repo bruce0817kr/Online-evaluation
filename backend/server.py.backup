@@ -1,0 +1,2049 @@
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks, Query, WebSocket, WebSocketDisconnect
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import FileResponse, StreamingResponse
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import logging  # Keep for compatibility with existing modules
+from pathlib import Path
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+import uuid
+from datetime import datetime, timedelta
+from passlib.context import CryptContext
+from jose import JWTError, jwt
+import re
+import asyncio
+import aiofiles
+import io
+import base64
+from concurrent.futures import ThreadPoolExecutor
+import json
+import time  # Added for enhanced logging middleware
+from contextvars import ContextVar
+
+from cache_service import cache_service  # Import the instance directly
+
+# Context variable for user ID tracking
+user_id_context: ContextVar[str] = ContextVar('user_id', default='anonymous')
+
+# Placeholder imports for missing models and functions
+# These should be adjusted based on actual project structure
+import models
+from models import (  # Assuming a models.py or schemas.py
+    Token, User, UserResponse, UserCreate, 
+    SecretarySignupRequest, SecretaryApproval,
+    UserInDB, # Assuming UserInDB might be used internally or by CRUD
+    EvaluatorCreate, Project, ProjectCreate, Company, CompanyCreate,
+    FileMetadata, EvaluationTemplateCreate, EvaluationTemplate,  # Added missing models
+    AssignmentCreate, BatchAssignmentCreate, EvaluationScore, EvaluationSubmission,
+    EvaluationSheet  # Added additional models
+)
+import security
+from security import (
+    create_access_token, 
+    get_current_user, 
+    get_password_hash, 
+    verify_password, 
+    check_admin_or_secretary, 
+    get_current_user_optional,
+    oauth2_scheme as security_oauth2_scheme, # Import with an alias if server.py defines its own
+    imported_pwd_context, # Use the correctly named imported context
+    security_config, # If server.py still needs direct access to config values
+    generate_evaluator_credentials  # Added the new function
+)
+try:
+    import middleware
+    from middleware import (
+        SecurityMiddleware, RequestValidationMiddleware, CORSSecurityMiddleware,
+        IPWhitelistMiddleware, FileUploadSecurityMiddleware
+    )
+except ImportError:
+    middleware = None
+    print("Warning: Middleware module not found. Creating placeholder classes.")
+# Import new comprehensive security systems
+try:
+    import security_monitoring
+    from security_monitoring import (
+        security_monitor, SecurityMiddleware as EnhancedSecurityMiddleware,
+        SecurityEvent, SecurityEventType, SecuritySeverity
+    )
+except ImportError:
+    security_monitoring = None
+    print("Warning: Security monitoring module not found.")
+
+try:
+    import api_security
+    from api_security import security_validator, ValidationConfig, SecurityLevel
+except ImportError:
+    api_security = None
+    print("Warning: API security module not found.")
+
+# Import Prometheus metrics and enhanced health monitoring
+try:
+    import prometheus_metrics
+    from prometheus_metrics import setup_prometheus_metrics, get_prometheus_metrics
+except ImportError:
+    prometheus_metrics = None
+    print("Warning: Prometheus metrics module not found.")
+
+try:
+    import enhanced_health_monitoring
+    from enhanced_health_monitoring import setup_health_monitor, health_router
+except ImportError:
+    enhanced_health_monitoring = None
+    print("Warning: Enhanced health monitoring module not found.")
+
+# Import enhanced logging system
+try:
+    import enhanced_loggingion_id_context
+    from enhanced_logging import (
+        setup_logging, get_logger, RequestContext, log_async_performance,
+        log_database_operation, log_security_event, log_startup_info, log_shutdown_info,
+        logger_middleware, performance_middleware
+    )    def get_logger(name):
+except ImportError:
+    enhanced_logging = Noned. Using standard logging.")
+    print("Warning: Enhanced logging module not found.")
+ROOT_DIR = Path(__file__).parent
+# =============================================================================
+# STUB IMPLEMENTATIONS FOR MISSING FUNCTIONS/MODULES
+# =============================================================================alize enhanced logging system
+
+# Stub implementation for calculate_evaluation_scores
+async def calculate_evaluation_scores(sheet_id: str, scores: Dict[str, Any]) -> tuple[float, float]:
+    """
+    Temporary stub for calculate_evaluation_scores function
+    TODO: Implement proper evaluation scoring logic
+    """
+    try: get_logger(__name__)
+        # Simple scoring logic - calculate average
+        if not scores:ing
+            return 0.0, 0.0
+        
+        score_values = []
+        for key, value in scores.items():
+            if isinstance(value, (int, float)):oolSize=10,   # Minimum connections in pool
+                score_values.append(float(value))Close connections after 30 seconds of inactivity
+            elif isinstance(value, dict) and 'score' in value:  # 20 second connection timeout
+                score_values.append(float(value['score']))lectionTimeoutMS=20000  # 20 second server selection timeout
+        
+        if not score_values:
+            return 0.0, 0.0
+            
+        total_score = sum(score_values)tor(max_workers=4)
+        weighted_score = total_score / len(score_values)  # Simple average for now
+        itor
+        return total_score, weighted_score# health_monitor = HealthMonitor(client) # This line is causing the NameError
+    except Exception as e: is missing.
+        print(f"Error in calculate_evaluation_scores: {e}")s out to allow the server to start.
+        return 0.0, 0.0ould be properly defined or imported from enhanced_health_monitoring.py later.
+
+# Stub implementation for notification_service
+class NotificationServiceStub:KEY = security_config.JWT_SECRET_KEY
+    """RITHM = security_config.JWT_ALGORITHM
+    Temporary stub for notification service
+    TODO: Implement proper notification system
+    """
+    gn the imported instance
+    async def send_evaluation_complete_notification(self, user_id: str, evaluation_data: Dict[str, Any]):eme = OAuth2PasswordBearer(tokenUrl="/api/auth/login") # This can be removed if security_oauth2_scheme from security.py is used
+        """Send evaluation completion notification"""
+        print(f"[NOTIFICATION] Evaluation completed for user {user_id}")
+        # TODO: Implement actual notification logicbugging
+        pass
+    rity_config, 'API_TITLE') else "Online Evaluation System",
+    async def send_project_update_notification(self, project_id: str, notification_data: Dict[str, Any]):"2.0.0", # Or "1.0.0" if that was the intended version from the previous edit
+        """Send project update notification"""    description="Secure Online Evaluation System with comprehensive authentication and authorization",
+        print(f"[NOTIFICATION] Project {project_id} updated: {notification_data.get('title', 'Update')}")
+        # TODO: Implement actual notification logic
+        pass)
+
+# Create notification service instanceiddleware for context tracking
+notification_service = NotificationServiceStub()ddleware("http")
+st, call_next):
+# Stub implementation for exporterHTTP requests"""
+class ExporterStub:ort uuid
+    """from urllib.parse import urlparse
+    Temporary stub for export functionality
+    TODO: Implement proper export/report generation
+    """
+    
+    def generate_filename(self, base_name: str, file_type: str = "pdf") -> str:# Extract user information from request if available
+        """Generate filename for export"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return f"{base_name}_{timestamp}.{file_type}"
+    on header
+    async def export_single_evaluation_pdf(self, evaluation_data: Dict[str, Any]) -> io.BytesIO:eaders.get("authorization")
+        """Export single evaluation as PDF"""h("Bearer "):
+        print(f"[EXPORT] Generating PDF for evaluation")
+        # TODO: Implement actual PDF generationJWT to get user info (simplified)
+        buffer = io.BytesIO()        token = authorization.split(" ")[1]
+        buffer.write(b"PDF content placeholder")
+        buffer.seek(0)e user context
+        return buffer
+    
+    async def export_single_evaluation_excel(self, evaluation_data: Dict[str, Any]) -> io.BytesIO:
+        """Export single evaluation as Excel"""
+        print(f"[EXPORT] Generating Excel for evaluation")info from cookies if available
+        # TODO: Implement actual Excel generationest.cookies.get("session_id")
+        buffer = io.BytesIO()
+        buffer.write(b"Excel content placeholder")
+        buffer.seek(0)r_id=user_id, session_id=session_id):
+        return buffer
+    
+    async def export_bulk_evaluations_excel(self, evaluation_data_list: List[Dict[str, Any]]) -> io.BytesIO:t
+        """Export multiple evaluations as Excel"""} {request.url.path}", extra={
+        print(f"[EXPORT] Generating bulk Excel for {len(evaluation_data_list)} evaluations")tp_method': request.method,
+        # TODO: Implement actual bulk Excel generationttp_uri': str(request.url.path),
+        buffer = io.BytesIO()            'custom_http_user_agent': request.headers.get('user-agent', ''),
+        buffer.write(b"Bulk Excel content placeholder")emote_ip': request.client.host if request.client else 'unknown'
+        buffer.seek(0)
+        return buffer        
+
+# Create exporter instance
+exporter = ExporterStub()     response = await call_next(request)
+
+# Stub implementation for EvaluationItem
+class EvaluationItem(BaseModel):     duration = (time.time() - start_time) * 1000
+    """
+    Temporary stub for EvaluationItem model Log response
+    TODO: Move to proper models filepleted: {request.method} {request.url.path}", extra={
+    """_http_method': request.method,
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))_uri': str(request.url.path),
+    name: str
+    description: Optional[str] = None            'custom_http_duration': duration
+    weight: float = 1.0
+    max_score: float = 100.0
+    evaluation_type: str = "numeric"  # numeric, text, boolean, etc.            # Add request ID to response headers
+    
+    class Config:
+        allow_population_by_field_name = True
+            
+# =============================================================================
+# END OF STUB IMPLEMENTATIONSon for error case
+# =============================================================================            duration = (time.time() - start_time) * 1000
+
+ROOT_DIR = Path(__file__).parentLog error
+load_dotenv(ROOT_DIR / '.env')equest.method} {request.url.path}: {str(e)}", extra={
+.method,
+# Initialize enhanced logging system': str(request.url.path),
+setup_logging(               'custom_http_duration': duration,
+    service_name="online-evaluation-backend",                'custom_error_type': type(e).__name__
+    log_level=os.getenv("LOG_LEVEL", "INFO"),
+    log_file="/app/logs/app.log"
+)            raise
+
+# Get enhanced logger instancereplaced with enhanced logging system
+logger = get_logger(__name__)m is now initialized above with structured logging
+os.getenv("LOG_LEVEL", "INFO")
+# MongoDB connection with connection pooling
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(
+    mongo_url,
+    maxPoolSize=100,  # Maximum connections in pool
+    minPoolSize=10,   # Minimum connections in pool
+    maxIdleTimeMS=30000,  # Close connections after 30 seconds of inactivityEnhanced with comprehensive monitoring
+    connectTimeoutMS=20000,  # 20 second connection timeoutapp.add_middleware(EnhancedSecurityMiddleware, security_monitor)
+    serverSelectionTimeoutMS=20000  # 20 second server selection timeout, enable_rate_limiting=True, enable_security_headers=True)
+)re)
+db = client[os.environ['DB_NAME']]app.add_middleware(FileUploadSecurityMiddleware)
+istMiddleware, admin_paths=["/api/admin", "/api/init"])
+# Thread pool for CPU-intensive tasks
+executor = ThreadPoolExecutor(max_workers=4)
+
+# Initialize health monitor
+# health_monitor = HealthMonitor(client) # This line is causing the NameError    allow_origins=security_config.CORS_ORIGINS,
+# The HealthMonitor class definition or import is missing._ALLOW_CREDENTIALS,
+# For now, we will comment this out to allow the server to start.ELETE", "OPTIONS", "PATCH"],
+# It should be properly defined or imported from enhanced_health_monitoring.py later.ent-Type", "X-Requested-With"],
+
+# JWT settings - Now using security config    max_age=3600,
+SECRET_KEY = security_config.JWT_SECRET_KEY
+ALGORITHM = security_config.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = security_config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+prometheus_metrics = setup_prometheus_metrics(app, cache_service.redis_client, client)
+# Password context - Now using enhanced securityhe_service.redis_client)
+pwd_context = imported_pwd_context # Correctly assign the imported instance
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login") # This can be removed if security_oauth2_scheme from security.py is usedstartup and shutdown events for enhanced logging
+
+# Create the main app with enhanced security configuration
+# Always enable /docs and /redoc for easier debugging
+app = FastAPI(text
+    title=security_config.API_TITLE if hasattr(security_config, 'API_TITLE') else "Online Evaluation System",t(request_id="startup", user_id="system"):
+    version="2.0.0", # Or "1.0.0" if that was the intended version from the previous edit       log_startup_info()
+    description="Secure Online Evaluation System with comprehensive authentication and authorization",        logger.info("FastAPI application startup initiated", extra={
+    docs_url="/docs",,
+    redoc_url="/redoc"ironment': os.getenv("ENVIRONMENT", "development"),
+) if '@' in mongo_url else 'localhost',  # Hide credentials
+
+# Request logging middleware for context tracking
+@app.middleware("http")
+async def logging_middleware(request: Request, call_next):    # Initialize the database connection in security module
+    """Middleware to track request context and log HTTP requests"""ort set_database
+    import uuid
+    from urllib.parse import urlparse    logger.info("Database connection initialized in security module", extra={
+    
+    # Generate request IDm_status': 'completed'
+    request_id = str(uuid.uuid4())
+        
+    # Extract user information from request if available
+    user_id = None
+    session_id = None
+    logger.info("MongoDB connection established", extra={
+    # Try to extract user info from Authorization header
+    authorization = request.headers.get("authorization")
+    if authorization and authorization.startswith("Bearer "):
+        try:
+            # Decode JWT to get user info (simplified)er.error("MongoDB connection failed", extra={
+            token = authorization.split(" ")[1]ervice': 'mongodb',
+            # Note: In a real scenario, you'd decode the JWT here'custom_status': 'failed',
+            # For now, we'll set it when we have user context            'custom_error_type': type(e).__name__
+            pass
+        except Exception:
+            pass    # Initialize cache service
+    
+    # Extract session info from cookies if available
+    session_id = request.cookies.get("session_id")ervice initialized", extra={
+            'custom_service': 'redis',
+    # Set up request context': 'connected'
+    with RequestContext(request_id=request_id, user_id=user_id, session_id=session_id):
+        start_time = time.time()
+        n failed", extra={
+        # Log incoming request
+        logger.info(f"Incoming request: {request.method} {request.url.path}", extra={
+            'custom_http_method': request.method,      'custom_error_type': type(e).__name__
+            'custom_http_uri': str(request.url.path),    })
+            'custom_http_user_agent': request.headers.get('user-agent', ''),
+            'custom_http_remote_ip': request.client.host if request.client else 'unknown'trics background collection
+        })
+        try:
+        try:_metrics.start_background_collection()
+            # Process requeston started", extra={
+            response = await call_next(request)        'custom_service': 'prometheus',
+            m_status': 'active'
+            # Calculate duration
+            duration = (time.time() - start_time) * 1000
+            zation failed", extra={
+            # Log response
+            logger.info(f"Request completed: {request.method} {request.url.path}", extra={
+                'custom_http_method': request.method,      'custom_error_type': type(e).__name__
+                'custom_http_uri': str(request.url.path),    })
+                'custom_http_status_code': response.status_code,
+                'custom_http_duration': duration
+            })er.info("Security systems initialized", extra={
+            y_systems': ['rate_limiting', 'input_validation', 'threat_detection'],
+            # Add request ID to response headers'custom_security_status': 'active'
+            response.headers["X-Request-ID"] = request_id
+            
+            return response
+            nfo("FastAPI application startup completed", extra={
+        except Exception as e: 'application_startup',
+            # Calculate duration for error case
+            duration = (time.time() - start_time) * 1000] if '@' in mongo_url else 'localhost'  # Hide credentials
+            
+            # Log error
+            logger.error(f"Request failed: {request.method} {request.url.path}: {str(e)}", extra={
+                'custom_http_method': request.method,down_event():
+                'custom_http_uri': str(request.url.path),cation shutdown event"""
+                'custom_http_duration': duration,FastAPI application shutdown initiated", extra={
+                'custom_error_type': type(e).__name__        'custom_event': 'application_shutdown'
+            })
+            
+            raise
+r
+# Enhanced logging configuration - replaced with enhanced logging system
+# The enhanced logging system is now initialized above with structured logging
+# log_level = os.getenv("LOG_LEVEL", "INFO")mport evaluation API router
+# logging.basicConfig(valuation_router
+#     level=getattr(logging, log_level),
+#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# )
+# logger = logging.getLogger(__name__)
+
+# Add security middleware stack - Enhanced with comprehensive monitoring
+app.add_middleware(EnhancedSecurityMiddleware, security_monitor)
+app.add_middleware(SecurityMiddleware, enable_rate_limiting=True, enable_security_headers=True)async def health_check():
+app.add_middleware(RequestValidationMiddleware)
+app.add_middleware(FileUploadSecurityMiddleware)
+app.add_middleware(IPWhitelistMiddleware, admin_paths=["/api/admin", "/api/init"])onnection check
+
+# Enhanced CORS configuration using security config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=security_config.CORS_ORIGINS,
+    allow_credentials=security_config.CORS_ALLOW_CREDENTIALS, cache_service.ping()
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],       except Exception:
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],            redis_status = "unhealthy"
+    expose_headers=["X-Total-Count"],
+    max_age=3600,
+)
+            "timestamp": datetime.utcnow().isoformat(),
+# Initialize Prometheus metrics and enhanced health monitoring
+prometheus_metrics = setup_prometheus_metrics(app, cache_service.redis_client, client)": "healthy",
+health_monitor_instance = setup_health_monitor(client, cache_service.redis_client)edis_status,
+
+# Application startup and shutdown events for enhanced logging
+@app.on_event("startup")
+async def startup_event():
+    """Application startup event with enhanced logging"""
+    # Set startup contextl=f"Service unhealthy: {str(e)}")
+    with RequestContext(request_id="startup", user_id="system"):
+        log_startup_info()
+        logger.info("FastAPI application startup initiated", extra={
+            'custom_event': 'application_startup',database_status():
+            'custom_environment': os.getenv("ENVIRONMENT", "development"),atabase status check endpoint"""
+            'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost',  # Hide credentials
+            'custom_services': ['mongodb', 'redis', 'prometheus']
+        }) await client.admin.command('ping')
+        
+        # Initialize the database connection in security module
+        from security import set_database
+        set_database(db)dis_info = {}
+        logger.info("Database connection initialized in security module", extra={try:
+            'custom_service': 'security_db_init',
+            'custom_status': 'completed'redis_info = {"status": "connected", "ping": "pong"}
+        })
+        
+        # Log MongoDB connection detailsected", "error": str(e)}
+        try:
+            await client.admin.command('ping')base statistics
+            logger.info("MongoDB connection established", extra={mmand("dbStats")
+                'custom_service': 'mongodb',
+                'custom_status': 'connected'
+            })
+        except Exception as e:),
+            logger.error("MongoDB connection failed", extra={atabases": {
+                'custom_service': 'mongodb',        "mongodb": {
+                'custom_status': 'failed',lthy",
+                'custom_error_type': type(e).__name__        "ping": mongodb_status,
+            })
+        ions", 0),
+        # Initialize cache servicets.get("dataSize", 0),
+        try:ats.get("storageSize", 0)
+            await cache_service.connect()      }
+            logger.info("Cache service initialized", extra={
+                'custom_service': 'redis',
+                'custom_status': 'connected',
+            })
+        except Exception as e:
+            logger.error("Cache service initialization failed", extra={
+                'custom_service': 'redis',}
+                'custom_status': 'failed',
+                'custom_error_type': type(e).__name__atus_code=503, detail=f"Database unhealthy: {str(e)}")
+            })
+        
+        # Start Prometheus metrics background collection
+        if prometheus_metrics:
+            try:
+                await prometheus_metrics.start_background_collection()
+                logger.info("Prometheus metrics collection started", extra={ion System API",
+                    'custom_service': 'prometheus',
+                    'custom_status': 'active'
+                })at(),
+            except Exception as e:
+                logger.error("Prometheus metrics initialization failed", extra={"/health",
+                    'custom_service': 'prometheus',"db_status": "/db-status"
+                    'custom_status': 'failed',
+                    'custom_error_type': type(e).__name__
+                })
+        igurable
+        # Log enhanced security systems statustenv("ENVIRONMENT") == "development":
+        logger.info("Security systems initialized", extra={gger.info("Running in development mode, enabling docs and redoc.")
+            'custom_security_systems': ['rate_limiting', 'input_validation', 'threat_detection'],
+            'custom_security_status': 'active'
+        })
+         submissions.",
+        log_startup_info()
+    logger.info("FastAPI application startup completed", extra={    redoc_url="/redoc"
+        'custom_event': 'application_startup',#     )
+        'custom_environment': os.getenv("ENVIRONMENT", "development"),
+        'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost'  # Hide credentialsin non-development mode, disabling docs and redoc.")
+    })
+
+@app.on_event("shutdown")
+async def shutdown_event():    description="API for managing online evaluations, users, and submissions.",
+    """Application shutdown event""", # Disable docs
+    logger.info("FastAPI application shutdown initiated", extra={#         redoc_url=None # Disable redoc
+        'custom_event': 'application_shutdown'
+    })
+    log_shutdown_info()# Enable /docs and /redoc for easier debugging, regardless of ENVIRONMENT
+ again later.
+# Include health router
+app.include_router(health_router)#     title="Online Evaluation System API",
+0.0",
+# Import evaluation API routerng online evaluations, users, and submissions.",
+from evaluation_api import router as evaluation_router
+#     redoc_url="/redoc"
+# Include routers
+app.include_router(health_router)
+app.include_router(evaluation_router)  # Add evaluation router
+
+# Health check endpoint (no prefix) = None # This is initialized globally earlier with AsyncIOMotorClient
+@app.get("/health", summary="Health Check", tags=["Health"])globally earlier
+async def health_check():
+    """Health check endpoint"""t to MongoDB
+    try:
+        # MongoDB connection checknd db are already global and initialized
+        await client.admin.command('ping')gic here re-initializes client and db, which might be redundant
+         carefully with the initial global setup.
+        # Redis connection check (via cache_service)he initial global setup is sufficient.
+        redis_status = "healthy" re-connection or specific setup, it needs review.
+        try:y:
+            await cache_service.ping()te MongoDB client
+        except Exception:lient(
+            redis_status = "unhealthy"
+        =100,
+        return {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),0000,
+            "services": {serverSelectionTimeoutMS=20000
+                "mongodb": "healthy",
+                "redis": redis_status, db = client[os.environ['DB_NAME']]
+                "api": "healthy"in.command('ping')
+            },
+            "version": "2.0.0"    # except Exception as e:
+        }rror connecting to MongoDB (via connect_to_mongo): {e}")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")lient/db are sufficient
+
+# Database status endpointy functions for background tasks
+@app.get("/db-status")stics(project_id: str):
+async def database_status():
+    """Database status check endpoint"""
+    try:ait db.companies.count_documents({"project_id": project_id})
+        # MongoDB status checkt db.evaluation_sheets.count_documents({"project_id": project_id})
+        mongodb_status = await client.admin.command('ping') = await db.evaluation_sheets.count_documents({
+        "project_id": project_id, 
+        # Redis status check
+        redis_status = "healthy"
+        redis_info = {}
+        try:
+            await cache_service.ping()
+            redis_info = {"status": "connected", "ping": "pong"}    {"$set": {
+        except Exception as e:ies": companies_count,
+            redis_status = "unhealthy"ns_count,
+            redis_info = {"status": "disconnected", "error": str(e)}        "completed_evaluations": completed_count
+        
+        # Database statistics
+        db_stats = await db.command("dbStats")oject {project_id}")
+        
+        return {d to update project statistics for {project_id}: {e}")
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),ath: str, file_id: str):
+            "databases": {e processing"""
+                "mongodb": {
+                    "status": "healthy",n, etc.)
+                    "ping": mongodb_status,
+                    "stats": {
+                        "collections": db_stats.get("collections", 0),e as processed
+                        "dataSize": db_stats.get("dataSize", 0),data.update_one(
+                        "storageSize": db_stats.get("storageSize", 0)
+                    }True}}
+                },
+                "redis": {
+                    "status": redis_status,ogger.info(f"File {file_id} processed successfully")
+                    "info": redis_info
+                }
+            }
+        }
+    except Exception as e:APIRouter(prefix="/api")
+        raise HTTPException(status_code=503, detail=f"Database unhealthy: {str(e)}")
+ng
+# API Root endpointget("/debug-test")
+@app.get("/")
+async def root():TEST ENDPOINT CALLED ===")
+    """API root endpoint"""g endpoint working", "timestamp": datetime.utcnow().isoformat()}
+    return {
+        "message": "Online Evaluation System API",ser routes
+        "version": "2.0.0",ther specific route modules are defined elsewhere
+        "status": "running",now, focusing on the auth route.
+        "timestamp": datetime.utcnow().isoformat(),
+        "docs": "/docs",# Authentication routes
+        "health": "/health",login", response_model=Token)
+        "db_status": "/db-status"wordRequestForm = Depends()):
+    }g
+
+# Initialize FastAPI appext.set(form_data.username)
+# TODO: Consider making title and version configurable
+# if os.getenv("ENVIRONMENT") == "development":
+#     logger.info("Running in development mode, enabling docs and redoc.")
+#     app = FastAPI(ers.find_one({"login_id": form_data.username})
+#         title="Online Evaluation System API",verify_password(form_data.password, user_data["password_hash"]):
+#         version="1.0.0", raise HTTPException(
+#         description="API for managing online evaluations, users, and submissions.",     status_code=status.HTTP_401_UNAUTHORIZED,
+#         docs_url="/docs",
+#         redoc_url="/redoc"{"WWW-Authenticate": "Bearer"},
+#     )
+# else:
+#     logger.info("Running in non-development mode, disabling docs and redoc.")
+#     app = FastAPI(
+#         title="Online Evaluation System API",
+#         version="1.0.0", raise HTTPException(
+#         description="API for managing online evaluations, users, and submissions.",            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#         docs_url=None, # Disable docs
+#         redoc_url=None # Disable redoc
+#     )
+
+# Enable /docs and /redoc for easier debugging, regardless of ENVIRONMENTate_one(
+# We can make this conditional again later.
+# app = FastAPI(_login": datetime.utcnow()}}
+#     title="Online Evaluation System API",
+#     version="1.0.0", 
+#     description="API for managing online evaluations, users, and submissions.",    # Set user context for successful login
+#     docs_url="/docs",    user_id_context.set(user.id)
+#     redoc_url="/redoc"
+# )
+
+        data={"sub": user.id}, expires_delta=access_token_expires
+# Database connection
+# client = None # This is initialized globally earlier with AsyncIOMotorClientnse(**user.dict())
+# db = None # This is initialized globally earlier: user_response}
+
+# Connect to MongoDB
+async def connect_to_mongo():
+    global client, db # client and db are already global and initialized
+    # The logic here re-initializes client and db, which might be redundantk for duplicate email or phone number
+    # or could conflict if not handled carefully with the initial global setup.s.find_one({
+    # For now, assuming the initial global setup is sufficient.
+    # If this function is critical for re-connection or specific setup, it needs review.quest.email},
+    # try:phone}
+    #     # Create MongoDB client
+    #     client = AsyncIOMotorClient(
+    #         mongo_url,
+    #         maxPoolSize=100,
+    #         minPoolSize=10,se HTTPException(
+    #         maxIdleTimeMS=30000,
+    #         connectTimeoutMS=20000,ready registered"
+    #         serverSelectionTimeoutMS=20000
+    #     )
+    #     db = client[os.environ['DB_NAME']]
+    #     await client.admin.command('ping')quest = await db.secretary_requests.find_one({
+    #     logger.info("Successfully connected to MongoDB (via connect_to_mongo).")
+    # except Exception as e:            {"email": request.email},
+    #     logger.error(f"Error connecting to MongoDB (via connect_to_mongo): {e}")
+    #     raise
+    pass # Assuming global client/db are sufficient
+
+# Utility functions for background tasks
+async def update_project_statistics(project_id: str):
+    """Update project statistics asynchronously"""
+    try:already exists. Please wait for admin approval."        )
+        companies_count = await db.companies.count_documents({"project_id": project_id})
+        evaluations_count = await db.evaluation_sheets.count_documents({"project_id": project_id})te secretary approval request
+        completed_count = await db.evaluation_sheets.count_documents({oval_request = SecretaryApproval(
+            "project_id": project_id, 
+            "status": "submitted"
+        })email,
+        
+        await db.projects.update_one(
+            {"id": project_id},est.dict())
+            {"$set": {
+                "total_companies": companies_count,message": "Secretary request submitted successfully. Please wait for admin approval.",
+                "total_evaluations": evaluations_count,
+                "completed_evaluations": completed_count
+            }}
+        )@api_router.get("/admin/secretary-requests")
+        logger.info(f"Project statistics updated for project {project_id}")urrent_user)):
+    except Exception as e:)"""
+        logger.error(f"Failed to update project statistics for {project_id}: {e}")urrent_user.role != "admin":
+ed")
+async def background_file_processing(file_path: str, file_id: str):
+    """Background task for file processing"""ests = await db.secretary_requests.find({"status": "pending"}).to_list(None)
+    try:
+        # Simulate file processing (virus scan, format validation, etc.)
+        await asyncio.sleep(1)retary-requests/{request_id}/approve")
+        
+        # Mark file as processedst_id: str, 
+        await db.file_metadata.update_one(ent_user: User = Depends(get_current_user)
+            {"id": file_id},
+            {"$set": {"is_processed": True}}equest (admin only)"""
+        )
+                raise HTTPException(status_code=403, detail="Admin access required")
+        logger.info(f"File {file_id} processed successfully")
+    except Exception as e:
+        logger.error(f"File processing failed for {file_id}: {e}")    request_data = await db.secretary_requests.find_one({"id": request_id})
+
+# API Router setupatus_code=404, detail="Secretary request not found")
+api_router = APIRouter(prefix="/api")
+
+# Test endpoint for debugging
+@api_router.get("/debug-test")      # Create user account
+async def debug_test():
+    logger.info("=== DEBUG TEST ENDPOINT CALLED ===")
+    return {"message": "Debug endpoint working", "timestamp": datetime.utcnow().isoformat()}ce("-", ""))  # Use phone number as password
+    
+# Include security and user routes
+# Assuming user_routes and other specific route modules are defined elsewhere
+# and imported if necessary. For now, focusing on the auth route.
+
+# Authentication routes"user_name": request_data["name"],
+@api_router.post("/auth/login", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):one": request_data["phone"],
+    # Set user context for failed login trackinge": "secretary",
+    try:    "created_at": datetime.utcnow(),
+        user_id_context.set(form_data.username)
+    except:
+        pass
+    
+    user_data = await db.users.find_one({"login_id": form_data.username})
+    if not user_data or not verify_password(form_data.password, user_data["password_hash"]):
+        raise HTTPException( db.secretary_requests.update_one(
+            status_code=status.HTTP_401_UNAUTHORIZED,    {"id": request_id},
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )"status": "approved",
+    ": datetime.utcnow(),
+    # Convert MongoDB document to User object
+    user = User.from_mongo(user_data)
+    if not user:
+        raise HTTPException()
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="User processing error"
+        )unt created successfully",
+    
+    # Update last login time using _id   "user_id": user_id
+    await db.users.update_one(}
+        {"_id": user_data["_id"]},
+        {"$set": {"last_login": datetime.utcnow()}}ry-requests/{request_id}/reject")
+    )c def reject_secretary_request(
+    
+    # Set user context for successful loginrrent_user)
+    user_id_context.set(user.id)
+    ""Reject secretary request (admin only)"""
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.id}, expires_delta=access_token_expires    
+    )
+    user_response = UserResponse(**user.dict())": request_id})
+    return {"access_token": access_token, "token_type": "bearer", "user": user_response}
+tail="Secretary request not found")
+@api_router.post("/auth/secretary-signup")
+async def secretary_signup(request: SecretarySignupRequest):ata["status"] != "pending":
+    """Secretary membership request"""de=400, detail="Request already processed")
+    # Check for duplicate email or phone number
+    existing_user = await db.users.find_one({ate request status
+        "$or": [ait db.secretary_requests.update_one(
+            {"email": request.email},    {"id": request_id},
+            {"phone": request.phone}
+        ]
+    })ejected",
+    
+    if existing_user:       "reviewed_by": current_user.id
+        raise HTTPException(        }
+            status_code=400,
+            detail="Email or phone number already registered"
+        )
+    uest rejected"}
+    # Check if secretary request already exists
+    existing_request = await db.secretary_requests.find_one({er.get("/auth/me", response_model=UserResponse)
+        "$or": [def read_users_me(current_user: User = Depends(get_current_user)):
+            {"email": request.email},return UserResponse(**current_user.dict())
+            {"phone": request.phone}
+        ]
+    })esponse_model=UserResponse)
+    
+    if existing_request:await check_admin_or_secretary(current_user)
+        raise HTTPException(
+            status_code=400,
+            detail="Secretary request already exists. Please wait for admin approval."        )db.users.find_one({"login_id": user_data.login_id})
+    
+    # Create secretary approval requeststatus_code=400, detail="User already exists")
+    approval_request = SecretaryApproval(
+        name=request.name,ashed_password = get_password_hash(user_data.password)
+        phone=request.phone,
+        email=request.email,n_id=user_data.login_id,
+        reason=request.reason
+    )
+    await db.secretary_requests.insert_one(approval_request.dict())   email=user_data.email,
+    return {        phone=user_data.phone,
+        "message": "Secretary request submitted successfully. Please wait for admin approval.",
+        "request_id": approval_request.id
+    }
+ict())
+@api_router.get("/admin/secretary-requests")
+async def get_secretary_requests(current_user: User = Depends(get_current_user)):
+    """Get secretary request list (admin only)"""
+    if current_user.role != "admin":sers")
+        raise HTTPException(status_code=403, detail="Admin access required")async def get_users(current_user: Optional[User] = Depends(get_current_user_optional)):
+    
+    requests = await db.secretary_requests.find({"status": "pending"}).to_list(None)n simple information
+    return requestser:
+ts({})
+@api_router.post("/admin/secretary-requests/{request_id}/approve")      sample_users = await db.users.find({}, {"login_id": 1, "user_name": 1, "role": 1}).limit(5).to_list(5)
+async def approve_secretary_request(
+    request_id: str, 
+    current_user: User = Depends(get_current_user)
+):        "sample_users": sample_users,
+    """Approve secretary request (admin only)"""etime.utcnow().isoformat()
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Find secretary requestawait check_admin_or_secretary(current_user)
+    request_data = await db.secretary_requests.find_one({"id": request_id})": True}).to_list(1000)
+    if not request_data:
+        raise HTTPException(status_code=404, detail="Secretary request not found")ents to UserResponse objects
+    
+    if request_data["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Request already processed")
+      # Create user account        if user_doc:
+    user_id = str(uuid.uuid4()) Use User.from_mongo to create User object (converts _id to id)
+    login_id = request_data["name"]  # Use name as login IDbj = User.from_mongo(user_doc)
+    password_hash = get_password_hash(request_data["phone"].replace("-", ""))  # Use phone number as password
+    nd(UserResponse(**user_obj.dict()))
+    user_data = {
+        "id": user_id,sing user {user_doc.get('login_id', 'unknown')}: {e}")
+        "login_id": login_id,
+        "password_hash": password_hash,
+        "user_name": request_data["name"],
+        "email": request_data["email"],
+        "phone": request_data["phone"], all tests/evaluations (basic list)
+        "role": "secretary",
+        "created_at": datetime.utcnow(),al[User] = Depends(get_current_user_optional)):
+        "is_active": True"""Get tests list (for validation or evaluation use)"""
+    }es, return simple information
+      # Create user account
+    await db.users.insert_one(user_data)ait db.projects.count_documents({})
+    ample_projects = await db.projects.find({}, {"name": 1, "description": 1, "created_at": 1}).limit(5).to_list(5)
+    # Update request status
+    await db.secretary_requests.update_one(
+        {"id": request_id},
+        {,
+            "$set": {timestamp": datetime.utcnow().isoformat()
+                "status": "approved",
+                "reviewed_at": datetime.utcnow(),
+                "reviewed_by": current_user.id# Get evaluation sheets based on user role
+            }nt_user.role == "evaluator":
+        }
+    )luation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)
+    
+    return {   # Admin and secretary can see all evaluations
+        "message": "Secretary account created successfully",        sheets = await db.evaluation_sheets.find({}).to_list(1000)
+        "login_id": login_id,
+        "user_id": user_idtion data
+    }
+
+@api_router.post("/admin/secretary-requests/{request_id}/reject")      tests.append({
+async def reject_secretary_request(
+    request_id: str,"company_id"),
+    current_user: User = Depends(get_current_user)
+):        "status": sheet.get("status", "assigned"),
+    """Reject secretary request (admin only)"""eet.get("created_at"),
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")": sheet.get("total_score", 0)
+    
+    # Find secretary request
+    request_data = await db.secretary_requests.find_one({"id": request_id})
+    if not request_data:
+        raise HTTPException(status_code=404, detail="Secretary request not found")ias for /tests endpoint - same functionality for evaluations
+    ns")
+    if request_data["status"] != "pending":ional[User] = Depends(get_current_user_optional)):
+        raise HTTPException(status_code=400, detail="Request already processed")- same function as /tests endpoint"""
+    n await get_tests(current_user)
+    # Update request status
+    await db.secretary_requests.update_one(
+        {"id": request_id},torCreate, current_user: User = Depends(get_current_user)):
+        {r)
+            "$set": {
+                "status": "rejected",erate credentials
+                "reviewed_at": datetime.utcnow(),ogin_id, password = generate_evaluator_credentials(evaluator_data.user_name, evaluator_data.phone)
+                "reviewed_by": current_user.id
+            }
+        }    existing_user = await db.users.find_one({"login_id": login_id})
+    )
+     (name/phone number duplicate)")
+    return {"message": "Secretary request rejected"}
+    hashed_password = get_password_hash(password)
+@api_router.get("/auth/me", response_model=UserResponse)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return UserResponse(**current_user.dict())
+
+# User management routes    email=evaluator_data.email,
+@api_router.post("/users", response_model=UserResponse),
+async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
+    await check_admin_or_secretary(current_user)
+    
+    # Check if user already existsawait db.users.insert_one(user.dict())
+    existing_user = await db.users.find_one({"login_id": user_data.login_id})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")als for display
+    
+    hashed_password = get_password_hash(user_data.password)
+    user = User(login_id, 
+        login_id=user_data.login_id,password,
+        password_hash=hashed_password,in_id}, : {password}"
+        user_name=user_data.user_name,
+        email=user_data.email,
+        phone=user_data.phone,del=List[UserResponse])
+        role=user_data.role User = Depends(get_current_user)):
+    )    await check_admin_or_secretary(current_user)
+    
+    await db.users.insert_one(user.dict()).users.find({"role": "evaluator", "is_active": True}).to_list(1000)
+    return UserResponse(**user.dict())
+
+# Get all users (for admin and verification)
+@api_router.get("/users")
+async def get_users(current_user: Optional[User] = Depends(get_current_user_optional)):ect (converts _id to id)
+    """Get all users list (admin or validation)"""
+    # For validation purposes, return simple informationif user_obj:
+    if not current_user:d(UserResponse(**user_obj.dict()))
+        users_count = await db.users.count_documents({})
+        sample_users = await db.users.find({}, {"login_id": 1, "user_name": 1, "role": 1}).limit(5).to_list(5)essing evaluator {evaluator.get('login_id', 'unknown')}: {e}")
+        return {
+            "status": "success",n result
+            "total_users": users_count,
+            "sample_users": sample_users,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    evaluators_data: List[EvaluatorCreate], 
+    # For authenticated users, verify permissions
+    await check_admin_or_secretary(current_user)
+    users = await db.users.find({"is_active": True}).to_list(1000)ecretary(current_user)
+    
+    # Convert MongoDB documents to UserResponse objects []
+    user_responses = []
+    for user_doc in users:
+        try:ing asyncio.gather
+            if user_doc:
+                # Use User.from_mongo to create User object (converts _id to id)
+                user_obj = User.from_mongo(user_doc)luator_data.phone)
+                if user_obj:
+                    user_responses.append(UserResponse(**user_obj.dict()))        existing_user = await db.users.find_one({"login_id": login_id})
+        except Exception as e:ser:
+            logger.error(f"Error processing user {user_doc.get('login_id', 'unknown')}: {e}")                return {"error": f"  : {evaluator_data.user_name}"}
+            continue
+    rd = get_password_hash(password)
+    return user_responses
+
+# Get all tests/evaluations (basic list)
+@api_router.get("/tests")e=evaluator_data.user_name,
+async def get_tests(current_user: Optional[User] = Depends(get_current_user_optional)):
+    """Get tests list (for validation or evaluation use)"""
+    # For validation purposes, return simple informationrole="evaluator"
+    if not current_user:
+        projects_count = await db.projects.count_documents({})
+        sample_projects = await db.projects.find({}, {"name": 1, "description": 1, "created_at": 1}).limit(5).to_list(5)())
+        return {
+            "status": "success",       "user": UserResponse(**user.dict()).dict(),
+            "total_projects": projects_count,            "credentials": {"login_id": login_id, "password": password}
+            "sample_projects": sample_projects,
+            "timestamp": datetime.utcnow().isoformat()
+        }}): {str(e)}"}
+    
+    # Get evaluation sheets based on user rolecute all operations concurrently
+    if current_user.role == "evaluator":aluator(evaluator) for evaluator in evaluators_data])
+        # Evaluators can only see their assigned evaluations
+        sheets = await db.evaluation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)for result in results:
+    else:
+        # Admin and secretary can see all evaluationsrors.append(result["error"])
+        sheets = await db.evaluation_sheets.find({}).to_list(1000)
+    aluators.append(result)
+    # Return simplified test/evaluation data
+    tests = []
+    for sheet in sheets:
+        tests.append({
+            "id": sheet.get("id"),
+            "company_id": sheet.get("company_id"),
+            "template_id": sheet.get("template_id"),
+            "status": sheet.get("status", "assigned"),
+            "created_at": sheet.get("created_at"),oject routes
+            "submitted_at": sheet.get("submitted_at"),"/debug-projects-test")
+            "total_score": sheet.get("total_score", 0)async def debug_projects_test():
+        })
+    TS TEST ENDPOINT CALLED ")
+    return tests
+
+# Alias for /tests endpoint - same functionality for evaluationsily remove response_model
+@api_router.get("/evaluations")async def get_projects(current_user: User = Depends(get_current_user)):
+async def get_evaluations(current_user: Optional[User] = Depends(get_current_user_optional)):LLED - PYTHON PRINT ")
+    """Get evaluation list - same function as /tests endpoint"""
+    return await get_tests(current_user)D ===")
+projects = await db.projects.find({}).to_list(1000)
+@api_router.post("/evaluators")en(projects)} projects in database")
+async def create_evaluator(evaluator_data: EvaluatorCreate, current_user: User = Depends(get_current_user)):
+    await check_admin_or_secretary(current_user)# Return raw data for debugging
+    
+    # Generate credentials
+    login_id, password = generate_evaluator_credentials(evaluator_data.user_name, evaluator_data.phone)
+    
+    # Check if user already exists        if '_id' in project:
+    existing_user = await db.users.find_one({"login_id": login_id})'])
+    if existing_user:lt.append(project)
+        raise HTTPException(status_code=400, detail="User already exists (name/phone number duplicate)")
+    t)} raw projects")
+    hashed_password = get_password_hash(password)
+    user = User(
+        login_id=login_id, # Return first 2 for inspection
+        password_hash=hashed_password,
+        user_name=evaluator_data.user_name,
+        email=evaluator_data.email,_router.post("/projects", response_model=Project)
+        phone=evaluator_data.phone,
+        role="evaluator"
+    )c def create_project(
+    
+    await db.users.insert_one(user.dict())nd_tasks: BackgroundTasks,
+    response = UserResponse(**user.dict())pends(get_current_user)
+    
+    # Return with generated credentials for displayent_user)
+    return { otherwise use default
+        **response.dict(), eadline_dt = None
+        "generated_login_id": login_id,     if project_data.deadline:
+        "generated_password": password,
+        "message": f"  {login_id}, : {password}"place('Z', '+00:00'))
+    }
+        deadline_dt = project_data.deadline
+@api_router.get("/evaluators", response_model=List[UserResponse])
+async def get_evaluators(current_user: User = Depends(get_current_user)):lt deadline: 30 days from now
+    await check_admin_or_secretary(current_user)tcnow() + timedelta(days=30)
+    
+    evaluators = await db.users.find({"role": "evaluator", "is_active": True}).to_list(1000)oject(
+    result = []
+    for evaluator in evaluators:
+        if evaluator:,
+            try:
+                # Use User.from_mongo to create User object (converts _id to id)
+                user_obj = User.from_mongo(evaluator)
+                if user_obj:sert_one(project.dict())
+                    result.append(UserResponse(**user_obj.dict()))
+            except Exception as e:    return project
+                logger.error(f"Error processing evaluator {evaluator.get('login_id', 'unknown')}: {e}")
+                continueandling
+    return resultonse_model=List[Company])
+[str] = None, current_user: User = Depends(get_current_user)):
+# Batch operations
+@api_router.post("/evaluators/batch")  if project_id:
+async def create_evaluators_batch(
+    evaluators_data: List[EvaluatorCreate], 
+    current_user: User = Depends(get_current_user)mpanies.find(query).to_list(1000)
+):pany(**company) for company in companies]
+    await check_admin_or_secretary(current_user)
+    Company)
+    created_evaluators = []
+    errors = []e_operation("companies")
+    
+    # Process in parallel using asyncio.gatherdata: CompanyCreate, 
+    async def create_single_evaluator(evaluator_data):
+        try:nds(get_current_user)
+            login_id, password = generate_evaluator_credentials(evaluator_data.user_name, evaluator_data.phone)
+            eck_admin_or_secretary(current_user)
+            existing_user = await db.users.find_one({"login_id": login_id})
+            if existing_user:company_data.dict())
+                return {"error": f"  : {evaluator_data.user_name}"}company.dict())
+            
+            hashed_password = get_password_hash(password)
+            user = User(t_statistics, company.project_id)
+                login_id=login_id,
+                password_hash=hashed_password,
+                user_name=evaluator_data.user_name,
+                email=evaluator_data.email,ile upload with async processing
+                phone=evaluator_data.phone,
+                role="evaluator"ce("file_upload")
+            )
+            
+            await db.users.insert_one(user.dict())d_tasks: BackgroundTasks,
+            return {),
+                "user": UserResponse(**user.dict()).dict(),
+                "credentials": {"login_id": login_id, "password": password}current_user: User = Depends(get_current_user)
+            }
+        except Exception as e:
+            return {"error": f"   ({evaluator_data.user_name}): {str(e)}"}
+    tory if it doesn't exist
+    # Execute all operations concurrentlys")
+    results = await asyncio.gather(*[create_single_evaluator(evaluator) for evaluator in evaluators_data])enerate unique filename with proper encoding
+     str(uuid.uuid4())
+    for result in results:ix
+        if "error" in result:unique_filename = f"{company_id}_{file_id}{file_extension}"
+            errors.append(result["error"])h = upload_dir / unique_filename
+        else:
+            created_evaluators.append(result)
+    f:
+    return {file.read()
+        "created_count": len(created_evaluators),   await f.write(content)
+        "error_count": len(errors),    
+        "created_evaluators": created_evaluators,e metadata
+        "errors": errors
+    }
+
+# Project routes
+@api_router.get("/debug-projects-test")
+async def debug_projects_test():        file_size=len(content),
+    print(" DEBUG PROJECTS TEST ENDPOINT CALLED ")
+    logger.error(" DEBUG PROJECTS TEST ENDPOINT CALLED ")
+    return {"message": "debug projects test working", "count": 999}
+
+@api_router.get("/projects")  # Temporarily remove response_model
+async def get_projects(current_user: User = Depends(get_current_user)):
+    print(" PROJECT ENDPOINT CALLED - PYTHON PRINT ")
+    logger.error(" PROJECT ENDPOINT CALLED - LOGGER ERROR ")    "filename": unique_filename,
+    logger.info("=== PROJECT LIST ENDPOINT CALLED ===")ilename,
+    projects = await db.projects.find({}).to_list(1000)ath": str(file_path),
+    logger.info(f"Found {len(projects)} projects in database")tent),
+    : file.content_type,
+    # Return raw data for debugging
+    result = [],
+    for project in projects:
+        if project:
+            # Convert _id to string and clean dataawait db.file_metadata.insert_one(file_metadata_dict)
+            if '_id' in project:
+                project['_id'] = str(project['_id']).companies.update_one(
+            result.append(project)
+    
+    logger.info(f"Returning {len(result)} raw projects")
+    return {    
+        "count": len(result),
+        "raw_projects": result[:2]  # Return first 2 for inspection_file_processing, str(file_path), file_id)
+    }
+
+@api_router.post("/projects", response_model=Project)
+@log_async_performance("create_project")
+@log_database_operation("projects")
+async def create_project(  }
+    project_data: ProjectCreate, 
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user)
+):nds(get_current_user),
+    await check_admin_or_secretary(current_user)ption="Filter by project ID"),
+      # Handle deadline - if provided, parse it; otherwise use default
+    deadline_dt = None: Optional[str] = Query(None, description="Filter by file type"),
+    if project_data.deadline:m number of files to return"),
+        if isinstance(project_data.deadline, str): int = Query(0, description="Number of files to skip")
+            deadline_dt = datetime.fromisoformat(project_data.deadline.replace('Z', '+00:00'))
+        else:
+            deadline_dt = project_data.deadlinetry:
+    else: query
+        # Default deadline: 30 days from now
+        deadline_dt = datetime.utcnow() + timedelta(days=30)
+    
+    project = Project(id"] = project_id
+        name=project_data.name,       
+        description=project_data.description,    if company_id:
+        deadline=deadline_dt,_id
+        created_by=current_user.id        
+    )pe:
+                filter_query["file_type"] = file_type
+    await db.projects.insert_one(project.dict())
+    
+    return project
+
+# Company routes with enhanced file handlinggination
+@api_router.get("/companies", response_model=List[Company])(limit)
+async def get_companies(project_id: Optional[str] = None, current_user: User = Depends(get_current_user)):    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id        async for file_doc in cursor:
+    
+    companies = await db.companies.find(query).to_list(1000),
+    return [Company(**company) for company in companies].get("filename"),
+e": file_doc.get("file_type"),
+@api_router.post("/companies", response_model=Company)_doc.get("file_size"),
+@log_async_performance("create_company")c.get("upload_date"),
+@log_database_operation("companies")t_id"),
+async def create_company(              "company_id": file_doc.get("company_id"),
+    company_data: CompanyCreate, oaded_by"),
+    background_tasks: BackgroundTasks,            "download_url": f"/api/files/{file_doc.get('id')}",
+    current_user: User = Depends(get_current_user){file_doc.get('id')}/preview"
+):
+    await check_admin_or_secretary(current_user)        files.append(file_info)
+    
+    company = Company(**company_data.dict())
+    await db.companies.insert_one(company.dict())    total_count = await db.file_metadata.count_documents(filter_query)
+    
+    # Update project statistics in background        return {
+    background_tasks.add_task(update_project_statistics, company.project_id)
+    total_count,
+    return company
+
+# Enhanced file upload with async processing: skip,
+@api_router.post("/upload")n(files)) < total_count
+@log_async_performance("file_upload")
+@log_database_operation("file_metadata")
+async def upload_file(
+    background_tasks: BackgroundTasks,  except Exception as e:
+    company_id: str = Form(...),
+    file: UploadFile = File(...),        status_code=500,
+    current_user: User = Depends(get_current_user)r(e)}"
+):
+    await check_admin_or_secretary(current_user)
+    d}")
+    # Create uploads directory if it doesn't existUser = Depends(get_current_user)):
+    upload_dir = Path("uploads")
+    upload_dir.mkdir(exist_ok=True)    # Generate unique filename with proper encodingind_one({"id": file_id})
+    file_id = str(uuid.uuid4())if not file_metadata:
+    file_extension = Path(file.filename).suffixatus_code=404, detail=" ")
+    unique_filename = f"{company_id}_{file_id}{file_extension}"
+    file_path = upload_dir / unique_filename"file_path"])
+    
+    # Save file asynchronously    raise HTTPException(status_code=404, detail=" ")
+    async with aiofiles.open(file_path, 'wb') as f:
+        content = await file.read()
+        await f.write(content)ath,
+    riginal_filename"],
+    # Create file metadataype"]
+    file_metadata = FileMetadata(
+        id=file_id,
+        filename=unique_filename,eview")
+        original_filename=file.filename, current_user: User = Depends(get_current_user)):
+        file_path=str(file_path),nline preview"""
+        file_size=len(content),tadata.find_one({"id": file_id})
+        file_type=file.content_type,
+        uploaded_by=current_user.id,ail=" ")
+        company_id=company_id
+    )    # Save metadata to databasefile_path"])
+    file_metadata_dict = {
+        "_id": file_id,  # MongoDB _id를 명시적으로 설정ode=404, detail=" ")
+        "id": file_id,   # 조회용 id 필드도 설정
+        "filename": unique_filename,or PDF.js
+        "original_filename": file.filename,pplication/pdf":
+        "file_path": str(file_path),file_path, 'rb') as f:
+        "file_size": len(content),
+        "file_type": file.content_type,       base64_content = base64.b64encode(content).decode('utf-8')
+        "uploaded_by": current_user.id,
+        "company_id": company_id,ontent,
+        "uploaded_at": datetime.utcnow()
+    } file_metadata["original_filename"]
+    await db.file_metadata.insert_one(file_metadata_dict)
+      # Update company's files list
+    await db.companies.update_one(# For other files, return metadata
+        {"id": company_id},
+        {"$push": {"files": file_metadata_dict}}
+    )    "filename": file_metadata["original_filename"],
+    e": file_metadata["file_size"],
+    # Add background task for file processing: f"/api/files/{file_id}"
+    background_tasks.add_task(background_file_processing, str(file_path), file_id)
+    
+    return {anced assignment system
+        "message": "",@api_router.post("/assignments")
+        "file_id": file_id,nts(
+        "filename": file.filename AssignmentCreate, 
+    }
+
+@api_router.get("/files")
+async def get_files(
+    current_user: User = Depends(get_current_user),
+    project_id: Optional[str] = Query(None, description="Filter by project ID"),
+    company_id: Optional[str] = Query(None, description="Filter by company ID"),  if assignment_data.deadline:
+    file_type: Optional[str] = Query(None, description="Filter by file type"),t_data.deadline.replace('Z', '+00:00'))
+    limit: int = Query(100, description="Maximum number of files to return"),
+    skip: int = Query(0, description="Number of files to skip")
+):
+    """Get list of files with optional filtering"""eate evaluation sheets for each evaluator-company combination
+    try:
+        # Build filter queryds:
+        filter_query = {}company_id in assignment_data.company_ids:
+        nd(create_single_assignment(evaluator_id, company_id, assignment_data.template_id, deadline))
+        if project_id:
+            filter_query["project_id"] = project_id= await asyncio.gather(*tasks, return_exceptions=True)
+            
+        if company_id:
+            filter_query["company_id"] = company_idif isinstance(result, Exception):
+             failed: {result}", extra={
+        if file_type:tion',
+            filter_query["file_type"] = file_type        'custom_error_type': type(result).__name__
+        
+        # Query files from metadata collection
+        cursor = db.file_metadata.find(filter_query)    created_sheets.append(result)
+        
+        # Apply paginationct statistics in background
+        cursor = cursor.skip(skip).limit(limit)
+        ait db.companies.find_one({"id": assignment_data.company_ids[0]})
+        # Convert to list and process results
+        files = []statistics, company_data["project_id"])
+        async for file_doc in cursor:
+            file_info = {ons created", "count": len(created_sheets)}
+                "id": file_doc.get("id"),
+                "filename": file_doc.get("filename"),pany_id: str, template_id: str, deadline: datetime):
+                "file_type": file_doc.get("file_type"),
+                "file_size": file_doc.get("file_size"),
+                "upload_date": file_doc.get("upload_date"),
+                "project_id": file_doc.get("project_id"),
+                "company_id": file_doc.get("company_id"),t company_data:
+                "uploaded_by": file_doc.get("uploaded_by"),
+                "download_url": f"/api/files/{file_doc.get('id')}",    
+                "preview_url": f"/api/files/{file_doc.get('id')}/preview"
+            }
+            files.append(file_info)    "evaluator_id": evaluator_id,
+        pany_id": company_id,
+        # Get total count for pagination infotemplate_id
+        total_count = await db.file_metadata.count_documents(filter_query)
+        
+        return {
+            "files": files,nSheet(
+            "total_count": total_count,
+            "page_info": {   company_id=company_id,
+                "limit": limit,       project_id=company_data["project_id"],
+                "skip": skip,        template_id=template_id,
+                "has_more": (skip + len(files)) < total_countaft",
+            }dline            )
+        }
+        dict())
+    except Exception as e:   return sheet
+        raise HTTPException(    except Exception as e:
+            status_code=500,eate assignment: {e}", extra={
+            detail=f"Failed to retrieve files: {str(e)}"
+        ): evaluator_id,
+
+@api_router.get("/files/{file_id}")ate_id': template_id,
+async def get_file(file_id: str, current_user: User = Depends(get_current_user)):
+    """Serve files for preview"""    })
+    file_metadata = await db.file_metadata.find_one({"id": file_id})
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail=" ")
+    c def create_batch_assignments(
+    file_path = Path(file_metadata["file_path"])ignmentCreate,
+    if not file_path.exists():ackgroundTasks,
+        raise HTTPException(status_code=404, detail=" ")
+    
+    return FileResponse(wait check_admin_or_secretary(current_user)
+        path=file_path,    
+        filename=file_metadata["original_filename"],
+        media_type=file_metadata["file_type"]
+    )
+
+@api_router.get("/files/{file_id}/preview")ch_data.assignments:
+async def preview_file(file_id: str, current_user: User = Depends(get_current_user)):ground_tasks, current_user))
+    """Get file content for inline preview"""
+    file_metadata = await db.file_metadata.find_one({"id": file_id})n_exceptions=True)
+    if not file_metadata:
+        raise HTTPException(status_code=404, detail=" ")
+        if isinstance(result, Exception):
+    file_path = Path(file_metadata["file_path"])ed: {result}", extra={
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=" ")e__
+    
+    # For PDF files, return as base64 for PDF.js
+    if file_metadata["file_type"] == "application/pdf":eated += result.get("count", 0)
+        async with aiofiles.open(file_path, 'rb') as f:
+            content = await f.read()l_created} assignments created successfully", "total_count": total_created}
+            base64_content = base64.b64encode(content).decode('utf-8')
+            return {aluation system
+                "content": base64_content,_router.get("/evaluation/{sheet_id}")
+                "type": "pdf",d: str, current_user: User = Depends(get_current_user)):
+                "filename": file_metadata["original_filename"]ta = await db.evaluation_sheets.find_one({"id": sheet_id})
+            }
+    )
+    # For other files, return metadata
+    return {
+        "type": "other",
+        "filename": file_metadata["original_filename"],    # Check permissions
+        "size": file_metadata["file_size"],"evaluator" and sheet.evaluator_id != current_user.id:
+        "download_url": f"/api/files/{file_id}"us_code=403, detail=" ")
+    }
+
+# Enhanced assignment systemne({"id": sheet.company_id})
+@api_router.post("/assignments")et.project_id})
+async def create_assignments(  template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+    assignment_data: AssignmentCreate, eet_id": sheet_id}).to_list(1000)
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user)roject_data, template_data, scores = await asyncio.gather(
+):sk, template_task, scores_task
+    await check_admin_or_secretary(current_user)
+    
+    deadline = None
+    if assignment_data.deadline:    "sheet": sheet,
+        deadline = datetime.fromisoformat(assignment_data.deadline.replace('Z', '+00:00'))
+    ct": Project(**project_data) if project_data else None,
+    created_sheets = []) if template_data else None,
+    in scores]
+    # Create evaluation sheets for each evaluator-company combination
+    tasks = []
+    for evaluator_id in assignment_data.evaluator_ids:
+        for company_id in assignment_data.company_ids:_async_performance("submit_evaluation")
+            tasks.append(create_single_assignment(evaluator_id, company_id, assignment_data.template_id, deadline))valuation_sheets")
+      # Execute assignments concurrently
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for result in results:
+        if isinstance(result, Exception):
+            logger.error(f"Assignment creation failed: {result}", extra={it db.evaluation_sheets.find_one({"id": submission.sheet_id})
+                'custom_operation': 'assignment_creation',
+                'custom_error_type': type(result).__name__    raise HTTPException(status_code=404, detail=" ")
+            })
+        elif result:Sheet(**sheet_data)
+            created_sheets.append(result)
+    
+    # Update project statistics in background
+    if created_sheets:    raise HTTPException(status_code=403, detail=" ")
+        company_data = await db.companies.find_one({"id": assignment_data.company_ids[0]})
+        if company_data:    # Calculate scores
+            background_tasks.add_task(update_project_statistics, company_data["project_id"])
+    
+    return {"message": f"{len(created_sheets)} evaluations created", "count": len(created_sheets)}lete existing scores and save new ones concurrently
+elete_many({"sheet_id": submission.sheet_id})
+async def create_single_assignment(evaluator_id: str, company_id: str, template_id: str, deadline: datetime):
+    """Helper function to create a single assignment"""
+    try:
+        # Get company to find project_ide_data in submission.scores:
+        company_data = await db.companies.find_one({"id": company_id})
+        if not company_data:
+            return None,
+            ,
+        # Check if assignment already existsinion", "")
+        existing_sheet = await db.evaluation_sheets.find_one({
+            "evaluator_id": evaluator_id,new_scores.append(score.dict())
+            "company_id": company_id,
+            "template_id": template_id
+        })
+        
+        if not existing_sheet:res)    # Update sheet status
+            sheet = EvaluationSheet(e(
+                evaluator_id=evaluator_id,_id},
+                company_id=company_id,
+                project_id=company_data["project_id"],"status": "submitted",
+                template_id=template_id,
+                status="draft",ed": datetime.utcnow(),
+                deadline=deadline            ) total_score,
+            
+            await db.evaluation_sheets.insert_one(sheet.dict())
+            return sheet
+    except Exception as e:
+        logger.error(f"Failed to create assignment: {e}", extra={
+            'custom_operation': 'create_single_assignment',rent_user.id)
+            'custom_evaluator_id': evaluator_id,
+            'custom_company_id': company_id,e notification
+            'custom_template_id': template_id,    evaluation_data = {
+            'custom_error_type': type(e).__name__d,
+        })_id,
+        return None
+re,
+@api_router.post("/assignments/batch")
+async def create_batch_assignments(  }
+    batch_data: BatchAssignmentCreate,
+    background_tasks: BackgroundTasks,# Notify the evaluator
+    current_user: User = Depends(get_current_user)n_service.send_evaluation_complete_notification(
+):    current_user.id, 
+    await check_admin_or_secretary(current_user)
+    
+    total_created = 0
+    
+    # Process all assignments concurrentlyawait notification_service.send_project_update_notification(
+    tasks = []
+    for assignment in batch_data.assignments:    {
+        tasks.append(create_assignments(assignment, background_tasks, current_user))
+    er_name} ",
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for result in results:
+        if isinstance(result, Exception):
+            logger.error(f"Batch assignment failed: {result}", extra={
+                'custom_operation': 'batch_assignment',
+                'custom_error_type': type(result).__name__background_tasks.add_task(update_project_statistics, sheet.project_id)
+            })
+        else:    return {"message": "Evaluation submitted successfully", "total_score": total_score, "weighted_score": weighted_score}
+            total_created += result.get("count", 0)
+    
+    return {"message": f"{total_created} assignments created successfully", "total_count": total_created}urrent_user)):
+.sheet_id})
+# Enhanced evaluation system
+@api_router.get("/evaluation/{sheet_id}")
+async def get_evaluation_sheet(sheet_id: str, current_user: User = Depends(get_current_user)):
+    sheet_data = await db.evaluation_sheets.find_one({"id": sheet_id})
+    if not sheet_data:
+        raise HTTPException(status_code=404, detail=" ")
+    
+    sheet = EvaluationSheet(**sheet_data)
+    
+    # Check permissionsve new ones
+    if current_user.role == "evaluator" and sheet.evaluator_id != current_user.id:.sheet_id})
+        raise HTTPException(status_code=403, detail=" ")
+    
+    # Get related data concurrently
+    company_task = db.companies.find_one({"id": sheet.company_id})for score_data in submission.scores:
+    project_task = db.projects.find_one({"id": sheet.project_id})
+    template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+    scores_task = db.evaluation_scores.find({"sheet_id": sheet_id}).to_list(1000)       item_id=score_data["item_id"],
+            score=score_data["score"],
+    company_data, project_data, template_data, scores = await asyncio.gather(opinion=score_data.get("opinion", "")
+        company_task, project_task, template_task, scores_task
+    )
+    
+    return {
+        "sheet": sheet,
+        "company": Company(**company_data) if company_data else None,
+        "project": Project(**project_data) if project_data else None,    # Update last modified time
+        "template": EvaluationTemplate(**template_data) if template_data else None,one(
+        "scores": [EvaluationScore(**score) for score in scores]
+    }utcnow()}}
+
+@api_router.post("/evaluation/submit")
+@log_async_performance("submit_evaluation")
+@log_database_operation("evaluation_sheets")
+async def submit_evaluation(Enhanced dashboard routes
+    submission: EvaluationSubmission, 
+    background_tasks: BackgroundTasks,r_dashboard(current_user: User = Depends(get_current_user)):
+    current_user: User = Depends(get_current_user)
+):    raise HTTPException(status_code=403, detail="")
+    sheet_data = await db.evaluation_sheets.find_one({"id": submission.sheet_id})
+    if not sheet_data:# Try to get cached dashboard data
+        raise HTTPException(status_code=404, detail=" ") cache_service.get_cached_dashboard_data(current_user.id)
+    
+    sheet = EvaluationSheet(**sheet_data)or user {current_user.id}")
+        return cached_data
+    # Check permissions
+    if current_user.role == "evaluator" and sheet.evaluator_id != current_user.id:
+        raise HTTPException(status_code=403, detail=" ")sheets = await db.evaluation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)
+    
+    # Calculate scores
+    total_score, weighted_score = await calculate_evaluation_scores(submission.sheet_id, submission.scores)tasks = []
+    eets:
+    # Delete existing scores and save new ones concurrentlyluationSheet(**sheet_data)
+    delete_task = db.evaluation_scores.delete_many({"sheet_id": submission.sheet_id})_one({"id": sheet.company_id})
+    ts.find_one({"id": sheet.project_id})
+    # Prepare new scoresplates.find_one({"id": sheet.template_id})
+    new_scores = []t_task, template_task])
+    for score_data in submission.scores:
+        score = EvaluationScore(
+            sheet_id=submission.sheet_id,esults = await asyncio.gather(*tasks)
+            item_id=score_data["item_id"],s of 3 (company, project, template)
+            score=score_data["score"],    result_groups = [results[i:i+3] for i in range(0, len(results), 3)]
+            opinion=score_data.get("opinion", "")
+        ) = []
+        new_scores.append(score.dict())
+    
+    # Execute operations
+    await delete_taskheets):
+    if new_scores:aluationSheet(**sheet_data)
+        await db.evaluation_scores.insert_many(new_scores)    # Update sheet status
+    await db.evaluation_sheets.update_one(te_data = result_groups[i]
+        {"id": submission.sheet_id},d template_data:
+        {"$set": {
+            "status": "submitted",
+            "submitted_at": datetime.utcnow(),          "company": Company(**company_data),
+            "last_modified": datetime.utcnow(),               "project": Project(**project_data),
+            "total_score": total_score,                "template": EvaluationTemplate(**template_data)
+            "weighted_score": weighted_score
+        }}
+    )# Cache the dashboard data for 5 minutes
+    hboard_data(current_user.id, response, ttl=300)
+    # Invalidate cache for the evaluator
+    await cache_service.invalidate_user_cache(current_user.id)
+    
+    # Send real-time notification
+    evaluation_data = {r: User = Depends(get_current_user)):
+        "sheet_id": submission.sheet_id,tary"]:
+        "project_id": sheet.project_id,   raise HTTPException(status_code=403, detail="  ")
+        "total_score": total_score,
+        "weighted_score": weighted_score,oncurrently
+        "evaluator_name": current_user.user_name
+    }_documents({"is_active": True}),
+    unt_documents({}),
+    # Notify the evaluator   db.users.count_documents({"role": "evaluator", "is_active": True}),
+    await notification_service.send_evaluation_complete_notification(    db.evaluation_sheets.count_documents({}),
+        current_user.id,  "submitted"}),
+        evaluation_data -1).limit(5).to_list(5)
+    )
+    
+    # Notify project room members (admins, secretaries)nies_count, evaluators_count, total_sheets, completed_sheets, recent_projects = await asyncio.gather(*stats_tasks)
+    await notification_service.send_project_update_notification(
+        sheet.project_id,
+        {
+            "title": " ",   "projects": projects_count,
+            "message": f"{current_user.user_name} ",       "companies": companies_count,
+            "type": "evaluation_submitted",        "evaluators": evaluators_count,
+            "data": evaluation_data,
+        }
+    )        "completion_rate": round((completed_sheets / total_sheets * 100) if total_sheets > 0 else 0, 1)
+    
+    # Update project statistics in background        "recent_projects": [Project(**project) for project in recent_projects]
+    background_tasks.add_task(update_project_statistics, sheet.project_id)
+    
+    return {"message": "Evaluation submitted successfully", "total_score": total_score, "weighted_score": weighted_score}
+ytics/project/{project_id}")
+@api_router.post("/evaluation/save")_user: User = Depends(get_current_user)):
+async def save_evaluation(submission: EvaluationSubmission, current_user: User = Depends(get_current_user)):await check_admin_or_secretary(current_user)
+    sheet_data = await db.evaluation_sheets.find_one({"id": submission.sheet_id})
+    if not sheet_data:# Get project analytics concurrently
+        raise HTTPException(status_code=404, detail=" ")
+    }).to_list(1000),
+    sheet = EvaluationSheet(**sheet_data)_list(1000),
+        db.evaluation_templates.find({"project_id": project_id}).to_list(1000)
+    # Check permissions
+    if current_user.role == "evaluator" and sheet.evaluator_id != current_user.id:
+        raise HTTPException(status_code=403, detail=" ")sheets, companies, templates = await asyncio.gather(*tasks)
+    
+    # Delete existing scores and save new oneslytics
+    await db.evaluation_scores.delete_many({"sheet_id": submission.sheet_id})
+    t(sheet["company_id"] for sheet in sheets))
+    # Save new scores
+    new_scores = []
+    for score_data in submission.scores:
+        score = EvaluationScore(
+            sheet_id=submission.sheet_id,or sheet in sheets:
+            item_id=score_data["item_id"],:
+            score=score_data["score"],            template_name = next((t["name"] for t in templates if t["id"] == sheet["template_id"]), "Unknown")
+            opinion=score_data.get("opinion", "") template_name not in avg_scores:
+        )
+        new_scores.append(score.dict())            avg_scores[template_name].append(sheet["total_score"])
+    
+    if new_scores:
+        await db.evaluation_scores.insert_many(new_scores)_name]
+    
+    # Update last modified time       "average": sum(scores) / len(scores),
+    await db.evaluation_sheets.update_one(        "min": min(scores),
+        {"id": submission.sheet_id},es),
+        {"$set": {"last_modified": datetime.utcnow()}}            "count": len(scores)
+    )
+    
+    return {"message": " "}
+
+# Enhanced dashboard routes
+@api_router.get("/dashboard/evaluator")    "companies_evaluated": companies_evaluated,
+async def get_evaluator_dashboard(current_user: User = Depends(get_current_user)):luations,
+    if current_user.role != "evaluator": companies else 0, 1),        "score_analytics": avg_scores
+        raise HTTPException(status_code=403, detail="")
+    
+    # Try to get cached dashboard datahensive evaluation reports
+    cached_data = await cache_service.get_cached_dashboard_data(current_user.id)_router.get("/evaluations/{evaluation_id}/export")
+    if cached_data:
+        logger.info(f" Returning cached dashboard data for user {current_user.id}")
+        return cached_dataformat: str = Query(..., regex="^(pdf|excel)$", description="Export format: pdf or excel"),
+    
+    # Get assigned evaluation sheets
+    sheets = await db.evaluation_sheets.find({"evaluator_id": current_user.id}).to_list(1000)a to PDF or Excel for single evaluation"""
+    er)
+    # Get related data for all sheets concurrently
+    tasks = []
+    for sheet_data in sheets:
+        sheet = EvaluationSheet(**sheet_data)
+        company_task = db.companies.find_one({"id": sheet.company_id})        raise HTTPException(status_code=404, detail="Evaluation not found")
+        project_task = db.projects.find_one({"id": sheet.project_id})
+        template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+        tasks.extend([company_task, project_task, template_task])
+    
+    if tasks:f sheet.status != "submitted":
+        results = await asyncio.gather(*tasks)ption(status_code=400, detail="Evaluation not submitted yet")
+        # Reorganize results into groups of 3 (company, project, template)    
+        result_groups = [results[i:i+3] for i in range(0, len(results), 3)]d data concurrently
+    else:ask = db.companies.find_one({"id": sheet.company_id})
+        result_groups = []({"id": sheet.project_id})
+    es.find_one({"id": sheet.template_id})
+    # Build responsen_scores.find({"sheet_id": evaluation_id}).to_list(1000)
+    response = []
+    for i, sheet_data in enumerate(sheets):
+        sheet = EvaluationSheet(**sheet_data)a, template_data, scores, evaluator_data = await asyncio.gather(
+        if i < len(result_groups):ask, template_task, scores_task, evaluator_task
+            company_data, project_data, template_data = result_groups[i]
+            if company_data and project_data and template_data:
+                response.append({uator_data]):
+                    "sheet": sheet,HTTPException(status_code=404, detail="  ")
+                    "company": Company(**company_data),    
+                    "project": Project(**project_data),
+                    "template": EvaluationTemplate(**template_data)
+                })        "sheet": sheet.dict(),
+    y": company_data,
+    # Cache the dashboard data for 5 minutes            "project": project_data,
+    await cache_service.cache_dashboard_data(current_user.id, response, ttl=300)ta,
+    ": s["opinion"]} for s in scores],
+    return response
+
+@api_router.get("/dashboard/admin")    
+async def get_admin_dashboard(current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["admin", "secretary"]:ate = sheet.submitted_at or datetime.utcnow()
+        raise HTTPException(status_code=403, detail="  ")
+    
+    # Get all statistics concurrently
+    stats_tasks = [
+        db.projects.count_documents({"is_active": True}),
+        db.companies.count_documents({}),
+        db.users.count_documents({"role": "evaluator", "is_active": True}),   
+        db.evaluation_sheets.count_documents({}),    # Export based on format
+        db.evaluation_sheets.count_documents({"status": "submitted"}),
+        db.projects.find({"is_active": True}).sort("created_at", -1).limit(5).to_list(5)        buffer = await exporter.export_single_evaluation_pdf(evaluation_data)
+    ]media_type = "application/pdf"
+    xcel
+    projects_count, companies_count, evaluators_count, total_sheets, completed_sheets, recent_projects = await asyncio.gather(*stats_tasks)ort_single_evaluation_excel(evaluation_data)
+    .openxmlformats-officedocument.spreadsheetml.sheet"
+    return {
+        "stats": {
+            "projects": projects_count,
+            "companies": companies_count,
+            "evaluators": evaluators_count,  headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}
+            "total_evaluations": total_sheets,
+            "completed_evaluations": completed_sheets,   
+            "completion_rate": round((completed_sheets / total_sheets * 100) if total_sheets > 0 else 0, 1)    except HTTPException:
+        },
+        "recent_projects": [Project(**project) for project in recent_projects]
+    }
+uation',
+# Analytics and reporting            'custom_error_type': type(e).__name__
+@api_router.get("/analytics/project/{project_id}")
+async def get_project_analytics(project_id: str, current_user: User = Depends(get_current_user)): HTTPException(status_code=500, detail="   ")
+    await check_admin_or_secretary(current_user)
+    
+    # Get project analytics concurrently
+    tasks = [xport_request: dict,
+        db.evaluation_sheets.find({"project_id": project_id, "status": "submitted"}).to_list(1000),current_user: User = Depends(get_current_user)
+        db.companies.find({"project_id": project_id}).to_list(1000),
+        db.evaluation_templates.find({"project_id": project_id}).to_list(1000)"""Bulk export evaluation data for multiple evaluations"""
+    ]secretary(current_user)
+    
+    sheets, companies, templates = await asyncio.gather(*tasks)
+        project_id = export_request.get("project_id")
+    # Calculate analytics export_request.get("template_id")
+    total_evaluations = len(sheets) = export_request.get("format", "excel")
+    companies_evaluated = len(set(sheet["company_id"] for sheet in sheets))_type = export_request.get("export_type", "separate")  # separate, combined
+    
+    # Score analytics
+    avg_scores = {}
+    if sheets:
+        for sheet in sheets:
+            if sheet.get("total_score"):
+                template_name = next((t["name"] for t in templates if t["id"] == sheet["template_id"]), "Unknown")        "project_id": project_id,
+                if template_name not in avg_scores:
+                    avg_scores[template_name] = []
+                avg_scores[template_name].append(sheet["total_score"])
+    
+    for template_name in avg_scores:] = template_id
+        scores = avg_scores[template_name]
+        avg_scores[template_name] = {
+            "average": sum(scores) / len(scores),heets = await db.evaluation_sheets.find(query).to_list(1000)
+            "min": min(scores),    
+            "max": max(scores),ot sheets:
+            "count": len(scores)tatus_code=404, detail="  ")
+        }
+    
+    return {
+        "project_id": project_id,
+        "total_companies": len(companies),       sheet = EvaluationSheet(**sheet_data)
+        "companies_evaluated": companies_evaluated,            
+        "total_evaluations": total_evaluations,
+        "completion_rate": round((companies_evaluated / len(companies) * 100) if companies else 0, 1),        "score_analytics": avg_scores: sheet.company_id})
+    }cts.find_one({"id": sheet.project_id})
+sk = db.evaluation_templates.find_one({"id": sheet.template_id})
+# Export routes for comprehensive evaluation reports
+@api_router.get("/evaluations/{evaluation_id}/export")d": sheet.evaluator_id})
+async def export_single_evaluation(          
+    evaluation_id: str,r_data = await asyncio.gather(
+    format: str = Query(..., regex="^(pdf|excel)$", description="Export format: pdf or excel"),late_task, scores_task, evaluator_task
+    current_user: User = Depends(get_current_user)        )
+):
+    """Extract evaluation data to PDF or Excel for single evaluation""":
+    await check_admin_or_secretary(current_user)_data = {
+    
+    try:        # Get evaluation sheet data            "company": company_data,
+        sheet_data = await db.evaluation_sheets.find_one({"id": evaluation_id})
+        if not sheet_data:            "template": template_data,
+            raise HTTPException(status_code=404, detail="Evaluation not found")s["item_id"], "score": s["score"], "opinion": s["opinion"]} for s in scores],
+        tor_data
+        sheet = EvaluationSheet(**sheet_data)
+                evaluation_data_list.append(evaluation_data)
+        # Only export submitted evaluations
+        if sheet.status != "submitted":
+            raise HTTPException(status_code=400, detail="Evaluation not submitted yet")
+        
+        # Get related data concurrently
+        company_task = db.companies.find_one({"id": sheet.company_id})
+        project_task = db.projects.find_one({"id": sheet.project_id})    if format_type == "pdf":
+        template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+        scores_task = db.evaluation_scores.find({"sheet_id": evaluation_id}).to_list(1000)
+        evaluator_task = db.users.find_one({"id": sheet.evaluator_id})   buffer = await exporter.export_bulk_evaluations_excel(evaluation_data_list)
+            project_name = evaluation_data_list[0]["project"]["name"]
+        company_data, project_data, template_data, scores, evaluator_data = await asyncio.gather(
+            company_task, project_task, template_task, scores_task, evaluator_task
+        )    
+        nse(
+        if not all([company_data, project_data, template_data, evaluator_data]):buffer.read()),
+            raise HTTPException(status_code=404, detail="  ")ation/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        sposition": f"attachment; filename*=UTF-8''{filename}"}
+        # Prepare evaluation data
+        evaluation_data = {
+            "sheet": sheet.dict(),
+            "company": company_data,
+            "project": project_data,   
+            "template": template_data,    zip_buffer = io.BytesIO()
+            "scores": [{"item_id": s["item_id"], "score": s["score"], "opinion": s["opinion"]} for s in scores],
+            "evaluator": evaluator_dataFLATED) as zip_file:
+        }ta_list:
+        dividual file
+        # Generate filenamee = eval_data["sheet"]["submitted_at"] or datetime.utcnow()
+        submitted_date = sheet.submitted_at or datetime.utcnow()e = exporter.generate_filename(
+        filename = exporter.generate_filename(      eval_data["project"]["name"],
+            project_data["name"],               eval_data["company"]["name"],
+            company_data["name"],                submitted_date,
+            submitted_date,ype
+            format
+        )
+        ":
+        # Export based on format  file_buffer = await exporter.export_single_evaluation_pdf(eval_data)
+        if format == "pdf":
+            buffer = await exporter.export_single_evaluation_pdf(evaluation_data)a)
+            media_type = "application/pdf"            
+        else:  # excelestr(filename, file_buffer.read())
+            buffer = await exporter.export_single_evaluation_excel(evaluation_data)
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        
+        return StreamingResponse(   timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            io.BytesIO(buffer.read()),    zip_filename = f"{project_name}__{timestamp}.zip"
+            media_type=media_type,
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}eturn StreamingResponse(
+        ),
+        
+    except HTTPException:ment; filename*=UTF-8''{zip_filename}"}
+        raise
+    except Exception as e:
+        logger.error(f"Export error: {str(e)}", extra={
+                'custom_operation': 'export_evaluation',        raise
+                'custom_error_type': type(e).__name__
+            }) error: {str(e)}", extra={
+        raise HTTPException(status_code=500, detail="   ")peration': 'bulk_export',
+e__
+@api_router.post("/evaluations/bulk-export")          })
+async def export_bulk_evaluations(
+    export_request: dict,
+    current_user: User = Depends(get_current_user)_router.get("/evaluations/export-list")
+):f get_exportable_evaluations(
+    """Bulk export evaluation data for multiple evaluations"""
+    await check_admin_or_secretary(current_user)
+    
+    try:
+        project_id = export_request.get("project_id")et list of extractable evaluations (export management)"""
+        template_id = export_request.get("template_id")ecretary(current_user)
+        format_type = export_request.get("format", "excel")
+        export_type = export_request.get("export_type", "separate")  # separate, combined
+        
+        if not project_id:"status": "submitted"}
+            raise HTTPException(status_code=400, detail="Project ID is required")
+        
+        # Build query for submitted evaluations   query["project_id"] = project_id
+        query = {if template_id:
+            "project_id": project_id,late_id"] = template_id
+            "status": "submitted"
+        }# Get evaluation sheets
+        ation_sheets.find(query).to_list(1000)
+        if template_id:
+            query["template_id"] = template_id# Get related data for display
+        
+        # Get evaluation sheets
+        sheets = await db.evaluation_sheets.find(query).to_list(1000)    sheet = EvaluationSheet(**sheet_data)
+        
+        if not sheets:ncurrently
+            raise HTTPException(status_code=404, detail="  ")panies.find_one({"id": sheet.company_id})
+        "id": sheet.project_id})
+        # Get all related datatemplate_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+        evaluation_data_list = []one({"id": sheet.evaluator_id})
+        for sheet_data in sheets:
+            sheet = EvaluationSheet(**sheet_data)wait asyncio.gather(
+            
+            # Get related data concurrently
+            company_task = db.companies.find_one({"id": sheet.company_id})
+            project_task = db.projects.find_one({"id": sheet.project_id})if all([company_data, project_data, template_data, evaluator_data]):
+            template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+            scores_task = db.evaluation_scores.find({"sheet_id": sheet.id}).to_list(1000)
+            evaluator_task = db.users.find_one({"id": sheet.evaluator_id})       "project_name": project_data["name"],
+                    "company_name": company_data["name"],
+            company_data, project_data, template_data, scores, evaluator_data = await asyncio.gather(
+                company_task, project_task, template_task, scores_task, evaluator_task": evaluator_data["user_name"],
+            )submitted_at,
+            al_score,
+            if all([company_data, project_data, template_data, evaluator_data]):weighted_score
+                evaluation_data = {
+                    "sheet": sheet.dict(),
+                    "company": company_data,
+                    "project": project_data,
+                    "template": template_data,
+                    "scores": [{"item_id": s["item_id"], "score": s["score"], "opinion": s["opinion"]} for s in scores],logger.error(f"Get exportable evaluations error: {str(e)}", extra={
+                    "evaluator": evaluator_data'get_exportable_evaluations',
+                }
+                evaluation_data_list.append(evaluation_data)    })
+        de=500, detail="      ")
+        if not evaluation_data_list:
+            raise HTTPException(status_code=404, detail="  ")
+        )
+        if export_type == "combined":t_templates(project_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
+            # Excel 
+            if format_type == "pdf":
+                raise HTTPException(status_code=400, detail="PDF   ")
+            
+            buffer = await exporter.export_bulk_evaluations_excel(evaluation_data_list)s = await db.evaluation_templates.find(query).to_list(1000)
+            project_name = evaluation_data_list[0]["project"]["name"]late) for template in templates]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{project_name}_{timestamp}.xlsx"
+            
+            return StreamingResponse(data: EvaluationTemplateCreate, 
+                io.BytesIO(buffer.read()),d: str,
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",er = Depends(get_current_user)
+                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"}
+            )eck_admin_or_secretary(current_user)
+        else:
+            #   ZIP  evaluation items
+            import zipfile
+            
+            zip_buffer = io.BytesIO()
+            
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for eval_data in evaluation_data_list:
+                    # Generate individual file
+                    submitted_date = eval_data["sheet"]["submitted_at"] or datetime.utcnow()
+                    filename = exporter.generate_filename(
+                        eval_data["project"]["name"],_data.name,
+                        eval_data["company"]["name"],template_data.description,
+                        submitted_date,
+                        format_type
+                    )t_user.id
+                    
+                    if format_type == "pdf":
+                        file_buffer = await exporter.export_single_evaluation_pdf(eval_data)
+                    else:emplate
+                        file_buffer = await exporter.export_single_evaluation_excel(eval_data)
+                    
+                    zip_file.writestr(filename, file_buffer.read())
+            
+            zip_buffer.seek(0)c endpoint to check security system health"""
+            project_name = evaluation_data_list[0]["project"]["name"]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')ction
+            zip_filename = f"{project_name}__{timestamp}.zip"
+            
+            return StreamingResponse(f security_monitor.redis_client:
+                zip_buffer,    security_monitor.redis_client.ping()
+                media_type="application/zip",
+                headers={"Content-Disposition": f"attachment; filename*=UTF-8''{zip_filename}"}edis_status = "unavailable"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e: security_monitor.mongo_client:
+        logger.error(f"Bulk export error: {str(e)}", extra={d('ping')
+                'custom_operation': 'bulk_export',        except:
+                'custom_error_type': type(e).__name__
+            })
+        raise HTTPException(status_code=500, detail="   ")
+
+@api_router.get("/evaluations/export-list")
+async def get_exportable_evaluations(              "security_monitor": "active",
+    project_id: Optional[str] = None,
+    template_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)            "rate_limiting": "active",
+):        "threat_detection": "active"
+    """Get list of extractable evaluations (export management)"""
+    await check_admin_or_secretary(current_user)w()
+    }
+    try:
+        # Build query for submitted evaluations
+        query = {"status": "submitted"}
+        
+        if project_id:    "error": str(e),
+            query["project_id"] = project_idme.utcnow()
+        if template_id:
+            query["template_id"] = template_id
+        
+        # Get evaluation sheetsity_metrics(
+        sheets = await db.evaluation_sheets.find(query).to_list(1000)le=168),  # 1 hour to 1 week
+        )
+        # Get related data for display
+        result = []ed time period (admin only)"""
+        for sheet_data in sheets:
+            sheet = EvaluationSheet(**sheet_data)
+            
+            # Get related data concurrently
+            company_task = db.companies.find_one({"id": sheet.company_id})
+            project_task = db.projects.find_one({"id": sheet.project_id})
+            template_task = db.evaluation_templates.find_one({"id": sheet.template_id})
+            evaluator_task = db.users.find_one({"id": sheet.evaluator_id})metrics": metrics, "generated_at": datetime.utcnow()}
+            
+            company_data, project_data, template_data, evaluator_data = await asyncio.gather(
+                company_task, project_task, template_task, evaluator_taskce_report(current_user: User = Depends(get_current_user)):
+            )eport (admin only)"""
+            
+            if all([company_data, project_data, template_data, evaluator_data]):
+                result.append({
+                    "evaluation_id": sheet.id,
+                    "project_name": project_data["name"],
+                    "company_name": company_data["name"],
+                    "template_name": template_data["name"],e_report()
+                    "evaluator_name": evaluator_data["user_name"],t": report}
+                    "submitted_at": sheet.submitted_at,
+                    "total_score": sheet.total_score, endpoints for comprehensive monitoring
+                    "weighted_score": sheet.weighted_score("/api/security/events")
+                })nts(
+        
+        return result
+        
+    except Exception as e:er: User = Depends(get_current_user)
+        logger.error(f"Get exportable evaluations error: {str(e)}", extra={
+                'custom_operation': 'get_exportable_evaluations',    """Get recent security events (admin only)"""
+                'custom_error_type': type(e).__name__er.role != "admin":
+            })
+        raise HTTPException(status_code=500, detail="      ")
+s required"
+# Template routes
+@api_router.get("/templates", response_model=List[EvaluationTemplate])
+async def get_templates(project_id: Optional[str] = None, current_user: User = Depends(get_current_user)):try:
+    query = {"is_active": True}
+    if project_id:
+        query["project_id"] = project_id            event_type=event_type,
+    
+    templates = await db.evaluation_templates.find(query).to_list(1000)
+    return [EvaluationTemplate(**template) for template in templates]
+: events,
+@api_router.post("/templates", response_model=EvaluationTemplate)
+async def create_template(          "filters": {
+    template_data: EvaluationTemplateCreate, 
+    project_id: str,            "severity": severity,
+    current_user: User = Depends(get_current_user)t
+):
+    await check_admin_or_secretary(current_user))
+    
+    # Create evaluation items
+    items = []
+    for item_data in template_data.items:   status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        item = EvaluationItem(d to retrieve security events: {str(e)}"
+            **item_data.dict(),    )
+            project_id=project_id
+        )e")
+        items.append(item)
+    
+    template = EvaluationTemplate(
+        name=template_data.name,et_current_user)
+        description=template_data.description,
+        project_id=project_id,"""Validate input data against security policies"""
+        items=items,
+        created_by=current_user.idecurity validator to check the request
+    )        validation_results = security_validator.validate_api_request(request)
+    
+    await db.evaluation_templates.insert_one(template.dict())
+    return templateity_validator.validate_json_input(data)
+ed"
+# Security monitoring and management endpoints
+@app.get("/api/security/health")
+async def security_health_check():: validation_results,
+    """Public endpoint to check security system health""""timestamp": datetime.utcnow()
+    try:
+        # Check Redis connection
+        redis_status = "healthy"ption as e:
+        try:
+            if security_monitor.redis_client:    "validation_results": {"valid": False, "error": str(e)},
+                security_monitor.redis_client.ping()utcnow()
+        except:
+            redis_status = "unavailable"
+        ing
+        # Check MongoDB connectioner.routes]}")
+        mongo_status = "healthy"
+        try:lication
+            if security_monitor.mongo_client:ude_router(api_router)
+                security_monitor.mongo_client.admin.command('ping')
+        except:if running directly)
+            mongo_status = "unavailable"
+        
+        return {
+            "status": "healthy",ion
+            "components": {
+                "security_monitor": "active",
+                "redis": redis_status,: int(os.getenv("PORT", 8080)),
+                "mongodb": mongo_status,, "info").lower(),
+                "rate_limiting": "active",access_log": True,
+                "threat_detection": "active""use_colors": False,
+            },alse,  # Hide server information
+            "timestamp": datetime.utcnow()ader": False,    # Don't include date header
+        }
+        
+    except Exception as e:
+        return {.getenv("ENVIRONMENT") == "production":
+            "status": "degraded",        config.update({
+            "error": str(e),env("SSL_KEY_FILE"),
+            "timestamp": datetime.utcnow()getenv("SSL_CERT_FILE"),
+        }
+
+@app.get("/api/security/metrics")  
+async def get_security_metrics({config['port']}")
+    hours: int = Query(24, ge=1, le=168),  # 1 hour to 1 week
+    current_user: User = Depends(get_current_user)):    """Get security metrics for the specified time period (admin only)"""    if current_user.role != "admin":        raise HTTPException(            status_code=status.HTTP_403_FORBIDDEN,            detail="Admin access required"        )        metrics = await security_monitor.get_security_metrics(hours)    return {"metrics": metrics, "generated_at": datetime.utcnow()}@app.get("/api/security/threat-intelligence")async def get_threat_intelligence_report(current_user: User = Depends(get_current_user)):    """Get comprehensive threat intelligence report (admin only)"""    if current_user.role != "admin":        raise HTTPException(            status_code=status.HTTP_403_FORBIDDEN,            detail="Admin access required"        )    

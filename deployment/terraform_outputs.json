@@ -1,0 +1,30 @@
+{
+  "vpc_id": {
+    "value": "vpc-0123456789abcdef0",
+    "type": "string"
+  },
+  "alb_dns_name": {
+    "value": "ai-model-mgmt-staging-alb-1234567890.ap-northeast-2.elb.amazonaws.com",
+    "type": "string"
+  },
+  "docdb_endpoint": {
+    "value": "ai-model-mgmt-staging-docdb.cluster-xyz123.ap-northeast-2.docdb.amazonaws.com",
+    "type": "string"
+  },
+  "redis_endpoint": {
+    "value": "ai-model-mgmt-staging-redis.abc123.cache.amazonaws.com",
+    "type": "string"
+  },
+  "ecr_repository_url": {
+    "value": "123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/ai-model-mgmt/backend",
+    "type": "string"
+  },
+  "domain_name": {
+    "value": "staging.ai-model-mgmt.com",
+    "type": "string"
+  },
+  "api_domain_name": {
+    "value": "api-staging.ai-model-mgmt.com",
+    "type": "string"
+  }
+}

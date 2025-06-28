@@ -1,0 +1,152 @@
+# AI 모델 관리 시스템 - 보안 테스트 설정
+
+# 테스트 대상 정보
+target:
+  frontend_url: "http://localhost:3000"
+  backend_url: "http://localhost:8000"
+  database_url: "mongodb://localhost:27017/online_evaluation"
+
+# 테스트 모드 설정
+test_mode: "safe"  # safe, aggressive
+
+# 테스트 사용자 계정
+test_users:
+  admin:
+    email: "admin@test.com"
+    password: "testpass123"
+    role: "admin"
+  secretary:
+    email: "secretary@test.com"
+    password: "testpass123"
+    role: "secretary"
+  evaluator:
+    email: "evaluator@test.com"
+    password: "testpass123"
+    role: "evaluator"
+  malicious:
+    email: "hacker@test.com"
+    password: "hackpass123"
+    role: "evaluator"
+
+# 보안 테스트 카테고리별 설정
+authentication_tests:
+  enabled: true
+  brute_force_threshold: 5
+  weak_passwords:
+    - "123456"
+    - "password"
+    - "admin"
+    - "test"
+    - "qwerty"
+    - "12345678"
+  token_tests:
+    jwt_secret_tests: true
+    token_expiration_tests: true
+    algorithm_confusion_tests: true
+
+input_validation_tests:
+  enabled: true
+  nosql_injection:
+    enabled: true
+    payloads:
+      - '{"$ne": null}'
+      - '{"$gt": ""}'
+      - '{"$where": "this.username == this.password"}'
+      - '{"$regex": ".*"}'
+      - '{"$exists": true}'
+  xss_tests:
+    enabled: true
+    payloads:
+      - '<script>alert("XSS")</script>'
+      - '<img src=x onerror=alert("XSS")>'
+      - '<svg onload=alert("XSS")>'
+      - 'javascript:alert("XSS")'
+      - '<iframe src="javascript:alert(\'XSS\')"></iframe>'
+  file_upload_tests:
+    enabled: true
+    malicious_files:
+      - "test.php"
+      - "test.exe"
+      - "test.jsp"
+      - "test.txt\x00.php"
+
+api_security_tests:
+  enabled: true
+  endpoints:
+    - path: "/api/auth/login"
+      methods: ["POST"]
+      tests: ["brute_force", "nosql_injection", "weak_password"]
+    - path: "/api/auth/me"
+      methods: ["GET"]
+      tests: ["token_manipulation", "authorization_bypass"]
+    - path: "/api/ai-models/create"
+      methods: ["POST"]
+      tests: ["privilege_escalation", "input_validation", "idor"]
+    - path: "/api/ai-models/{id}"
+      methods: ["GET", "PUT", "DELETE"]
+      tests: ["idor", "path_traversal", "method_override"]
+    - path: "/api/files/upload"
+      methods: ["POST"]
+      tests: ["malicious_upload", "path_traversal", "size_limit"]
+
+session_security_tests:
+  enabled: true
+  session_fixation: true
+  session_hijacking: true
+  csrf_protection: true
+  concurrent_sessions: true
+
+data_security_tests:
+  enabled: true
+  sensitive_data_patterns:
+    api_keys: 'sk-[a-zA-Z0-9]{48}|sk-ant-[a-zA-Z0-9]{95}'
+    passwords: 'password\s*[:=]\s*["\']([^"\']+)["\']'
+    tokens: 'token\s*[:=]\s*["\']([^"\']+)["\']'
+    emails: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    private_keys: '-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----'
+  check_locations:
+    - "backend/"
+    - "frontend/src/"
+    - "logs/"
+    - ".env*"
+
+ssl_tls_tests:
+  enabled: true
+  check_certificate: true
+  check_ciphers: true
+  check_protocols: true
+  target_domains:
+    - "localhost"
+
+vulnerability_scanning:
+  enabled: true
+  tools:
+    bandit:
+      enabled: true
+      target: "backend/"
+    safety:
+      enabled: true
+      target: "requirements.txt"
+    custom_scanner:
+      enabled: true
+
+# 리포트 설정
+reporting:
+  output_format: ["json", "html", "txt"]
+  severity_levels: ["critical", "high", "medium", "low", "info"]
+  include_recommendations: true
+  include_evidence: true
+  max_findings: 100
+
+# 네트워크 설정
+network:
+  timeout: 30
+  max_retries: 3
+  concurrent_requests: 10
+  rate_limit: 0.1  # 초당 요청 제한
+
+# 로깅 설정
+logging:
+  level: "INFO"
+  file: "security_test.log"
+  include_payload: false  # 보안상 페이로드 로깅 제한

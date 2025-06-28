@@ -369,3 +369,263 @@ async def get_evaluation_progress(
     except Exception as e:
         logger.error(f"Error getting evaluation progress {evaluation_id}: {e}")
         raise HTTPException(status_code=500, detail="진행 상황 조회 중 오류가 발생했습니다.")
+
+# Excel 대량 업로드 관련 엔드포인트
+from fastapi import File, UploadFile
+import pandas as pd
+import io
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from fastapi.responses import StreamingResponse
+
+@router.post("/bulk-upload-excel")
+async def bulk_upload_evaluations_excel(
+    file: UploadFile = File(...),
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Excel 파일을 통한 평가 대량 생성"""
+    if db is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    
+    # 파일 타입 검증
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="Excel 파일만 지원됩니다 (.xlsx, .xls)")
+    
+    try:
+        # Excel 파일 읽기
+        content = await file.read()
+        excel_data = pd.ExcelFile(io.BytesIO(content))
+        
+        # 필수 시트 확인
+        required_sheets = ['Evaluation_Info', 'Companies', 'Criteria']
+        missing_sheets = [sheet for sheet in required_sheets if sheet not in excel_data.sheet_names]
+        if missing_sheets:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"필수 시트가 없습니다: {', '.join(missing_sheets)}"
+            )
+        
+        # 데이터 파싱
+        results = {
+            "success_count": 0,
+            "failed_count": 0,
+            "errors": [],
+            "created_evaluation_ids": []
+        }
+        
+        # 평가 정보 시트 파싱
+        eval_info_df = pd.read_excel(io.BytesIO(content), sheet_name='Evaluation_Info', header=None)
+        eval_info = dict(zip(eval_info_df.iloc[:, 0], eval_info_df.iloc[:, 1]))
+        
+        # 기업 목록 시트 파싱
+        companies_df = pd.read_excel(io.BytesIO(content), sheet_name='Companies')
+        companies = companies_df['company_name'].dropna().tolist()
+        
+        # 평가 기준 시트 파싱
+        criteria_df = pd.read_excel(io.BytesIO(content), sheet_name='Criteria')
+        criteria = []
+        
+        for index, row in criteria_df.iterrows():
+            try:
+                criterion = {
+                    "name": str(row['name']),
+                    "max_score": int(row['max_score']),
+                    "bonus": bool(row.get('bonus', False)),
+                    "description": str(row.get('description', ''))
+                }
+                criteria.append(criterion)
+            except Exception as e:
+                results["errors"].append({
+                    "row": index + 2,
+                    "sheet": "Criteria",
+                    "error": f"기준 파싱 오류: {str(e)}",
+                    "value": str(row.to_dict())
+                })
+                results["failed_count"] += 1
+        
+        # 데이터 유효성 검증
+        if not eval_info.get('title'):
+            raise HTTPException(status_code=400, detail="평가 제목이 필요합니다")
+        
+        if len(companies) == 0:
+            raise HTTPException(status_code=400, detail="최소 1개 이상의 기업이 필요합니다")
+        
+        if len(criteria) == 0:
+            raise HTTPException(status_code=400, detail="최소 1개 이상의 평가 기준이 필요합니다")
+        
+        # 평가 생성
+        try:
+            new_eval = {
+                "title": eval_info['title'],
+                "description": eval_info.get('description', ''),
+                "companies": companies,
+                "criteria": criteria,
+                "status": eval_info.get('status', 'draft'),
+                "created_by": current_user.id,
+                "assigned_evaluators": [],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            
+            result = await db.evaluations.insert_one(new_eval)
+            results["created_evaluation_ids"].append(str(result.inserted_id))
+            results["success_count"] = 1
+            
+            logger.info(f"Bulk evaluation created by {current_user.login_id}: {eval_info['title']}")
+            
+        except Exception as e:
+            results["errors"].append({
+                "sheet": "General",
+                "error": f"평가 생성 실패: {str(e)}"
+            })
+            results["failed_count"] += 1
+        
+        return results
+        
+    except pd.errors.ParserError as e:
+        raise HTTPException(status_code=400, detail=f"Excel 파일 파싱 오류: {str(e)}")
+    except Exception as e:
+        logger.error(f"Excel bulk upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Excel 업로드 중 오류가 발생했습니다: {str(e)}")
+
+@router.get("/download-template")
+async def download_excel_template():
+    """Excel 템플릿 파일 다운로드"""
+    try:
+        # 새 워크북 생성
+        wb = Workbook()
+        
+        # 평가 정보 시트
+        ws1 = wb.active
+        ws1.title = "Evaluation_Info"
+        ws1.append(["Field", "Value"])
+        ws1.append(["title", "2025년 상반기 혁신기업 평가"])
+        ws1.append(["description", "평가 설명을 입력하세요"])
+        ws1.append(["status", "draft"])
+        
+        # 기업 목록 시트
+        ws2 = wb.create_sheet("Companies")
+        ws2.append(["company_name"])
+        ws2.append(["삼성전자"])
+        ws2.append(["LG전자"])
+        ws2.append(["현대자동차"])
+        
+        # 평가 기준 시트
+        ws3 = wb.create_sheet("Criteria")
+        ws3.append(["name", "max_score", "bonus", "description"])
+        ws3.append(["기술성", 100, False, "기술 수준 및 혁신성"])
+        ws3.append(["사업성", 100, False, "사업 가능성 및 수익성"])
+        ws3.append(["가점항목", 20, True, "추가 가점 요소"])
+        
+        # 메모리에서 Excel 파일 생성
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # 응답 헤더 설정
+        headers = {
+            'Content-Disposition': 'attachment; filename="evaluation_template.xlsx"',
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue()), 
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers=headers
+        )
+        
+    except Exception as e:
+        logger.error(f"Template download error: {e}")
+        raise HTTPException(status_code=500, detail="템플릿 다운로드 중 오류가 발생했습니다")
+
+@router.post("/validate-excel")
+async def validate_excel(
+    file: UploadFile = File(...),
+    current_user: User = Depends(check_admin_or_secretary)
+):
+    """Excel 파일 유효성 검증 (업로드 전 미리보기)"""
+    
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="Excel 파일만 지원됩니다")
+    
+    try:
+        content = await file.read()
+        excel_data = pd.ExcelFile(io.BytesIO(content))
+        
+        # 시트 존재 여부 확인
+        required_sheets = ['Evaluation_Info', 'Companies', 'Criteria']
+        validation_result = {
+            "valid": True,
+            "errors": [],
+            "warnings": [],
+            "preview": {}
+        }
+        
+        # 필수 시트 확인
+        missing_sheets = [sheet for sheet in required_sheets if sheet not in excel_data.sheet_names]
+        if missing_sheets:
+            validation_result["valid"] = False
+            validation_result["errors"].append(f"필수 시트가 없습니다: {', '.join(missing_sheets)}")
+            return validation_result
+        
+        # 각 시트 데이터 미리보기
+        try:
+            # 평가 정보
+            eval_info_df = pd.read_excel(io.BytesIO(content), sheet_name='Evaluation_Info', header=None)
+            eval_info = dict(zip(eval_info_df.iloc[:, 0], eval_info_df.iloc[:, 1]))
+            validation_result["preview"]["evaluation_info"] = eval_info
+            
+            if not eval_info.get('title'):
+                validation_result["errors"].append("평가 제목이 필요합니다")
+                validation_result["valid"] = False
+            
+        except Exception as e:
+            validation_result["errors"].append(f"평가 정보 시트 오류: {str(e)}")
+            validation_result["valid"] = False
+        
+        try:
+            # 기업 목록
+            companies_df = pd.read_excel(io.BytesIO(content), sheet_name='Companies')
+            companies = companies_df['company_name'].dropna().tolist()
+            validation_result["preview"]["companies"] = companies[:10]  # 처음 10개만 미리보기
+            validation_result["preview"]["total_companies"] = len(companies)
+            
+            if len(companies) == 0:
+                validation_result["errors"].append("최소 1개 이상의 기업이 필요합니다")
+                validation_result["valid"] = False
+            
+        except Exception as e:
+            validation_result["errors"].append(f"기업 목록 시트 오류: {str(e)}")
+            validation_result["valid"] = False
+        
+        try:
+            # 평가 기준
+            criteria_df = pd.read_excel(io.BytesIO(content), sheet_name='Criteria')
+            criteria_preview = []
+            
+            for index, row in criteria_df.iterrows():
+                if index >= 5:  # 처음 5개만 미리보기
+                    break
+                criteria_preview.append({
+                    "name": str(row['name']),
+                    "max_score": int(row['max_score']),
+                    "bonus": bool(row.get('bonus', False)),
+                    "description": str(row.get('description', ''))
+                })
+            
+            validation_result["preview"]["criteria"] = criteria_preview
+            validation_result["preview"]["total_criteria"] = len(criteria_df)
+            
+            if len(criteria_df) == 0:
+                validation_result["errors"].append("최소 1개 이상의 평가 기준이 필요합니다")
+                validation_result["valid"] = False
+            
+        except Exception as e:
+            validation_result["errors"].append(f"평가 기준 시트 오류: {str(e)}")
+            validation_result["valid"] = False
+        
+        return validation_result
+        
+    except Exception as e:
+        logger.error(f"Excel validation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Excel 유효성 검증 중 오류가 발생했습니다: {str(e)}")

@@ -4,6 +4,18 @@ import axios from "axios";
 import { Document, Page, pdfjs } from 'react-pdf';
 import TemplateManagement from './components/TemplateManagement.js'; // 템플릿 관리 컴포넌트 추가
 import EvaluationManagement from './components/EvaluationManagement.js';
+import AIAssistant from './components/AIAssistant.js'; // AI 도우미 컴포넌트 추가
+import AIProviderManagement from './components/AIProviderManagement.js'; // AI 공급자 관리 컴포넌트 추가
+import FileSecureViewer from './components/FileSecureViewer.js'; // 보안 파일 뷰어 컴포넌트 추가
+import EvaluationPrintManager from './components/EvaluationPrintManager.js'; // 평가표 출력 관리 컴포넌트 추가
+import AIEvaluationController from './components/AIEvaluationController.js'; // AI 평가 제어 컴포넌트 추가
+import DeploymentManager from './components/DeploymentManager.js'; // 배포 관리 컴포넌트 추가
+import AIModelDashboard from './components/AIModelDashboard.js'; // AI 모델 대시보드 컴포넌트 추가
+import AIModelManagement from './components/AIModelManagement.js'; // AI 모델 관리 컴포넌트 추가
+import FileSecurityDashboard from './components/FileSecurityDashboard.js'; // 파일 보안 대시보드 컴포넌트 추가
+import NotificationProvider from './components/NotificationProvider.js'; // 알림 시스템 컴포넌트 추가
+import NotificationCenter from './components/NotificationCenter.js'; // 알림 센터 컴포넌트 추가
+import ToastNotification from './components/ToastNotification.js'; // 토스트 알림 컴포넌트 추가
 
 // PDF.js worker setup
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -33,24 +45,59 @@ const normalizePhoneNumber = (phone) => {
   return phone.replace(/\D/g, '');
 };
 
-// PDF 새창 열기 함수
+// 보안 강화된 PDF 새창 열기 함수
 const openPDFInNewWindow = async (fileId, filename) => {
   try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
     const response = await axios.get(`${API}/files/${fileId}/preview`, {
-      responseType: 'blob',
-      // 권한 체크 제거 - 누구나 PDF 볼 수 있도록
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
     });
     
-    const blob = new Blob([response.data], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    
-    const newWindow = window.open(url, '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
-    if (newWindow) {
-      newWindow.document.title = filename || 'PDF 문서';
+    if (response.data.type === 'pdf') {
+      // Base64 데이터를 Blob으로 변환
+      const binaryString = atob(response.data.content);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      // 보안 창 옵션으로 열기
+      const newWindow = window.open(
+        url, 
+        '_blank', 
+        'width=1000,height=800,scrollbars=yes,resizable=yes,toolbar=no,location=no,directories=no,status=no,menubar=no'
+      );
+      
+      if (newWindow) {
+        newWindow.document.title = `${filename || 'PDF 문서'} - ${response.data.watermark?.user || ''}`;
+        
+        // 워터마크 정보를 새 창에 전달
+        newWindow.watermarkInfo = response.data.watermark;
+      }
+    } else {
+      alert('PDF 파일이 아닙니다.');
     }
   } catch (error) {
     console.error('PDF 열기 실패:', error);
-    alert('PDF 파일을 열 수 없습니다.');
+    if (error.response?.status === 403) {
+      alert('이 파일에 접근할 권한이 없습니다.');
+    } else if (error.response?.status === 401) {
+      alert('로그인이 필요합니다.');
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    } else {
+      alert(`PDF 파일을 열 수 없습니다: ${error.response?.data?.detail || error.message}`);
+    }
   }
 };
 
@@ -497,7 +544,7 @@ const Login = ({ onLogin }) => {
       const response = await axios.post(`${API}/auth/login`, formData, {
         timeout: 10000, // 10초 타임아웃
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/x-www-form-urlencoded',
         }
       });
       
@@ -1232,10 +1279,7 @@ const ProjectManagement = ({ user }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    status: 'draft',
-    start_date: '',
-    end_date: '',
-    budget: ''
+    deadline: ''
   });
 
   useEffect(() => {
@@ -1347,10 +1391,7 @@ const ProjectManagement = ({ user }) => {
     setFormData({
       name: project.name,
       description: project.description,
-      status: project.status,
-      start_date: project.start_date ? project.start_date.split('T')[0] : '',
-      end_date: project.end_date ? project.end_date.split('T')[0] : '',
-      budget: project.budget || ''
+      deadline: project.deadline ? project.deadline.split('T')[0] : ''
     });
   };
 
@@ -1415,17 +1456,15 @@ const ProjectManagement = ({ user }) => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">프로젝트명</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">시작일</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">종료일</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">예산</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마감일</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {projects.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
                   <div className="text-4xl mb-4">📋</div>
                   <div>등록된 프로젝트가 없습니다.</div>
                   <div className="text-sm text-gray-400 mt-1">새 프로젝트를 생성해보세요.</div>
@@ -1438,19 +1477,11 @@ const ProjectManagement = ({ user }) => {
                     <div className="text-sm font-medium text-gray-900">{project.name}</div>
                     <div className="text-sm text-gray-500">{project.description}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(project.status)}`}>
-                      {getStatusName(project.status)}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {project.deadline ? new Date(project.deadline).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.end_date ? new Date(project.end_date).toLocaleDateString() : '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.budget ? `${Number(project.budget).toLocaleString()}원` : '-'}
+                    {project.created_at ? new Date(project.created_at).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -1502,55 +1533,21 @@ const ProjectManagement = ({ user }) => {
               rows="3"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">시작일</label>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">종료일</label>
-              <input
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">예산 (원)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">마감일</label>
             <input
-              type="number"
-              value={formData.budget}
-              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="draft">초안</option>
-              <option value="active">진행중</option>
-              <option value="completed">완료</option>
-              <option value="cancelled">취소</option>
-            </select>
           </div>
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
               onClick={() => {
                 setShowCreateModal(false);
-                setFormData({ name: '', description: '', status: 'draft', start_date: '', end_date: '', budget: '' });
+                setFormData({ name: '', description: '', deadline: '' });
               }}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             >
@@ -1595,55 +1592,21 @@ const ProjectManagement = ({ user }) => {
               rows="3"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">시작일</label>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">종료일</label>
-              <input
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">예산 (원)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">마감일</label>
             <input
-              type="number"
-              value={formData.budget}
-              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="draft">초안</option>
-              <option value="active">진행중</option>
-              <option value="completed">완료</option>
-              <option value="cancelled">취소</option>
-            </select>
           </div>
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
               onClick={() => {
                 setEditingProject(null);
-                setFormData({ name: '', description: '', status: 'draft', start_date: '', end_date: '', budget: '' });
+                setFormData({ name: '', description: '', deadline: '' });
               }}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
             >
@@ -1705,34 +1668,60 @@ const AdminDashboard = ({ user, setActiveTab }) => {
       });
     }
   };
-
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${BACKEND_URL}/api/dashboard/stats`, {
+      const response = await fetch(`${BACKEND_URL}/api/dashboard/statistics`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
+      
       if (response.ok) {
         const data = await response.json();
-        setDashboardStats(data);
-      } else {
-        // 임시 통계 데이터
+        // 새로운 백엔드 응답 구조에 맞게 매핑
         setDashboardStats({
-          totalProjects: 12,
-          activeProjects: 8,
-          totalUsers: 45,
-          pendingEvaluations: 23,
-          completedEvaluations: 187,
-          recentActivity: [
-            { type: "evaluation_completed", message: "평가가 완료되었습니다", time: "2분 전" },
-            { type: "user_created", message: "새 사용자가 등록되었습니다", time: "1시간 전" },
-            { type: "project_created", message: "새 프로젝트가 생성되었습니다", time: "3시간 전" }
-          ]
+          totalProjects: data.overview?.total_projects || 0,
+          activeProjects: data.overview?.total_projects || 0,
+          totalUsers: data.overview?.total_evaluators || 0,
+          totalEvaluations: data.overview?.total_evaluations || 0,
+          pendingEvaluations: data.evaluation_status?.pending || 0,
+          inProgressEvaluations: data.evaluation_status?.in_progress || 0,
+          completedEvaluations: data.evaluation_status?.completed || 0,
+          completionRate: data.evaluation_status?.completion_rate || 0,
+          recentActivity: data.recent_activity?.map(activity => ({
+            type: "evaluation",
+            message: `${activity.company_name || '알 수 없음'} 평가 - ${activity.status}`,
+            time: activity.created_at ? new Date(activity.created_at).toLocaleDateString() : "최근",
+            evaluator: activity.evaluator_name
+          })) || []
+        });
+      } else {
+        // 백엔드 연결 실패 시 기본 데이터
+        console.warn('백엔드 통계 API 연결 실패, 기본 데이터 사용');
+        setDashboardStats({
+          totalProjects: 0,
+          activeProjects: 0,
+          totalUsers: 0,
+          totalEvaluations: 0,
+          pendingEvaluations: 0,
+          inProgressEvaluations: 0,
+          completedEvaluations: 0,
+          completionRate: 0,
+          recentActivity: []
         });
       }
     } catch (err) {
       console.error("대시보드 통계 조회 실패:", err);
+      setDashboardStats({
+        totalProjects: 0,
+        activeProjects: 0,
+        totalUsers: 0,
+        totalEvaluations: 0,
+        pendingEvaluations: 0,
+        inProgressEvaluations: 0,
+        completedEvaluations: 0,
+        completionRate: 0,
+        recentActivity: []
+      });
     } finally {
       setLoading(false);
     }
@@ -1756,7 +1745,8 @@ const AdminDashboard = ({ user, setActiveTab }) => {
   const getActivityIcon = (type) => {
     switch (type) {
       case "evaluation_completed":
-        return "✅";
+      case "evaluation":
+        return "📝";
       case "user_created":
         return "👤";
       case "project_created":
@@ -1782,37 +1772,29 @@ const AdminDashboard = ({ user, setActiveTab }) => {
           안녕하세요, {user.user_name}님! 👋
         </h2>
         <p className="text-gray-600">
-          온라인 평가 시스템 관리자 대시보드입니다. 시스템 현황과 주요 통계를 확인하실 수 있습니다.
+          시스템의 실시간 상태와 핵심 지표를 한눈에 모니터링할 수 있습니다. 관리 작업은 상단 메뉴를 통해 접근하세요.
         </p>
       </div>
 
-      {/* 빠른 작업 */}
+      {/* 시스템 개요 */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">🚀 빠른 작업</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">          <button
-            onClick={() => setActiveTab('projects')}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-          >
-            <div className="text-blue-600 text-2xl mb-2">📁</div>
-            <div className="font-medium text-gray-900">새 프로젝트 생성</div>
-            <div className="text-sm text-gray-500">평가 프로젝트를 생성하고 관리합니다</div>
-          </button>
-          <button
-            onClick={() => setActiveTab('users')}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-          >
+        <h3 className="text-lg font-semibold mb-4">📋 시스템 개요</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <div className="text-blue-600 text-2xl mb-2">🎯</div>
+            <div className="font-medium text-gray-900">운영 중인 프로젝트</div>
+            <div className="text-sm text-gray-500">현재 진행 중인 평가 프로젝트들을 모니터링합니다</div>
+          </div>
+          <div className="p-4 bg-green-50 rounded-lg border border-green-100">
             <div className="text-green-600 text-2xl mb-2">👥</div>
-            <div className="font-medium text-gray-900">사용자 관리</div>
-            <div className="text-sm text-gray-500">사용자를 생성하고 권한을 관리합니다</div>
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-          >
+            <div className="font-medium text-gray-900">활성 사용자</div>
+            <div className="text-sm text-gray-500">로그인 및 활동 중인 사용자들을 추적합니다</div>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
             <div className="text-purple-600 text-2xl mb-2">📊</div>
-            <div className="font-medium text-gray-900">결과 분석</div>
-            <div className="text-sm text-gray-500">평가 결과를 분석하고 리포트를 생성합니다</div>
-          </button>
+            <div className="font-medium text-gray-900">평가 진행률</div>
+            <div className="text-sm text-gray-500">전체 평가 프로세스의 완료 상황을 확인합니다</div>
+          </div>
         </div>
       </div>
 
@@ -1866,13 +1848,15 @@ const AdminDashboard = ({ user, setActiveTab }) => {
           <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
             <div className="text-3xl text-green-600 mb-2">👥</div>
             <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalUsers}</div>
-            <div className="text-sm text-gray-600">등록된 사용자</div>
+            <div className="text-sm text-gray-600">평가위원</div>
+            <div className="text-xs text-blue-600 mt-1">총 평가: {dashboardStats.totalEvaluations}</div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500">
             <div className="text-3xl text-yellow-600 mb-2">⏳</div>
             <div className="text-2xl font-bold text-gray-900">{dashboardStats.pendingEvaluations}</div>
-            <div className="text-sm text-gray-600">대기 중인 평가</div>
+            <div className="text-sm text-gray-600">배정됨</div>
+            <div className="text-xs text-orange-600 mt-1">진행중: {dashboardStats.inProgressEvaluations}</div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
@@ -1884,9 +1868,12 @@ const AdminDashboard = ({ user, setActiveTab }) => {
           <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-500">
             <div className="text-3xl text-indigo-600 mb-2">📊</div>
             <div className="text-2xl font-bold text-gray-900">
-              {Math.round((dashboardStats.completedEvaluations / (dashboardStats.completedEvaluations + dashboardStats.pendingEvaluations)) * 100)}%
+              {dashboardStats.completionRate || 0}%
             </div>
             <div className="text-sm text-gray-600">완료율</div>
+            <div className="text-xs text-gray-500 mt-1">
+              실시간 업데이트
+            </div>
           </div>
         </div>
       )}
@@ -2233,6 +2220,7 @@ const AnalyticsManagement = ({ user }) => {
 // Main Dashboard Component
 const Dashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const renderContent = () => {
     if (user.role === "evaluator") {
       return <EvaluationForm user={user} />;
@@ -2253,6 +2241,24 @@ const Dashboard = ({ user, onLogout }) => {
         return <TemplateManagement />;
       case "analytics":
         return <AnalyticsManagement user={user} />;
+      case "ai-assistant":
+        return <AIAssistant user={user} onAnalysisComplete={(data) => console.log('AI 분석 완료:', data)} />;
+      case "ai-provider":
+        return <AIProviderManagement user={user} />;
+      case "ai-model-settings":
+        return <AIModelDashboard user={user} />;
+      case "ai-model-management":
+        return <AIModelManagement user={user} />;
+      case "secure-file-viewer":
+        return <FileSecureViewer user={user} />;
+      case "evaluation-print":
+        return <EvaluationPrintManager user={user} />;
+      case "ai-evaluation-control":
+        return <AIEvaluationController user={user} />;
+      case "deployment":
+        return <DeploymentManager user={user} />;
+      case "file-security-dashboard":
+        return <FileSecurityDashboard user={user} />;
       default:
         return <AdminDashboard user={user} />;
     }
@@ -2298,6 +2304,8 @@ const Dashboard = ({ user, onLogout }) => {
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
                 {getRoleDisplayName(user.role)}
               </span>
+              {/* 실시간 알림 센터 */}
+              <NotificationCenter />
               <button
                 onClick={onLogout}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -2314,6 +2322,7 @@ const Dashboard = ({ user, onLogout }) => {
         <nav className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex space-x-8">
+              {/* 기본 메뉴 항목들 */}
               <button
                 onClick={() => setActiveTab("dashboard")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -2324,34 +2333,19 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 📊 대시보드
               </button>
+              
               <button
                 onClick={() => setActiveTab("projects")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === "projects"
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}              >
+                }`}
+              >
                 🎯 프로젝트 관리
-              </button>              <button
-                onClick={() => setActiveTab("secretary-requests")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === "secretary-requests"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                👥 간사 신청 관리
               </button>
+              
               <button
-                onClick={() => setActiveTab("users")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === "users"
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                👤 사용자 관리
-              </button><button
                 onClick={() => setActiveTab("evaluations")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === "evaluations"
@@ -2361,6 +2355,7 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 📝 평가 관리
               </button>
+              
               <button
                 onClick={() => setActiveTab("templates")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -2371,18 +2366,33 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 📄 템플릿 관리
               </button>
-              {user.role === 'admin' && (
+              
+              {['admin', 'secretary', 'evaluator'].includes(user.role) && (
                 <button
-                  onClick={() => setActiveTab("admin")}
+                  onClick={() => setActiveTab("secure-file-viewer")}
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === "admin"
+                    activeTab === "secure-file-viewer"
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
-                  ⚙️ 관리자
+                  🔒 보안 파일 뷰어
                 </button>
               )}
+              
+              {['admin', 'secretary', 'evaluator'].includes(user.role) && (
+                <button
+                  onClick={() => setActiveTab("evaluation-print")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === "evaluation-print"
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  📄 평가표 출력
+                </button>
+              )}
+              
               <button
                 onClick={() => setActiveTab("analytics")}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -2393,9 +2403,156 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 📊 결과 분석
               </button>
+              
+              {['admin', 'secretary', 'evaluator'].includes(user.role) && (
+                <button
+                  onClick={() => setActiveTab("ai-assistant")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === "ai-assistant"
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  🤖 AI 도우미
+                </button>
+              )}
+              
+              {/* 관리자 드롭다운 메뉴 */}
+              {user.role === 'admin' && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-1 ${
+                      ['secretary-requests', 'users', 'ai-provider', 'ai-evaluation-control', 'deployment', 'file-security-dashboard'].includes(activeTab)
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    <span>⚙️ 관리자</span>
+                    <svg 
+                      className={`w-4 h-4 transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {showAdminDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="py-2">
+                        <button
+                          onClick={() => {
+                            setActiveTab("secretary-requests");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "secretary-requests" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          👥 간사 신청 관리
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("users");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "users" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          👤 사용자 관리
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("ai-provider");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "ai-provider" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          🤖 AI 공급자 관리
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("ai-model-settings");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "ai-model-settings" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          ⚙️ AI 모델 설정
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("ai-model-management");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "ai-model-management" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          🔧 AI 모델 관리
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("ai-evaluation-control");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "ai-evaluation-control" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          🤖 AI 평가 제어
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("deployment");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "deployment" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          🚀 배포 관리
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveTab("file-security-dashboard");
+                            setShowAdminDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                            activeTab === "file-security-dashboard" ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                          }`}
+                        >
+                          🔐 파일 보안 대시보드
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </nav>
+      )}
+      
+      {/* 드롭다운 외부 클릭 시 닫기 */}
+      {showAdminDropdown && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowAdminDropdown(false)}
+        ></div>
       )}
 
       {/* Main Content */}
@@ -2480,13 +2637,17 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      <div className="App">
-        {user ? (
-          <Dashboard user={user} onLogout={handleLogout} />
-        ) : (
-          <Login onLogin={handleLogin} />
-        )}
-      </div>
+      <NotificationProvider user={user}>
+        <div className="App">
+          {user ? (
+            <Dashboard user={user} onLogout={handleLogout} />
+          ) : (
+            <Login onLogin={handleLogin} />
+          )}
+          {/* 토스트 알림 컴포넌트 */}
+          <ToastNotification />
+        </div>
+      </NotificationProvider>
     </AuthContext.Provider>
   );
 }

@@ -578,7 +578,8 @@ volumes:
       o: bind
       device: /var/lib/online-evaluation/uploads
   logs_data_prod:
-    driver: local  ssl_certs_prod:
+    driver: local
+  ssl_certs_prod:
     driver: local
   nginx_cache_prod:
     driver: local

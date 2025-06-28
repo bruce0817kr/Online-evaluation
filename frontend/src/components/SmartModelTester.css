@@ -1,0 +1,533 @@
+/* SmartModelTester.css */
+
+.smart-model-tester {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tester-header {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+}
+
+.tester-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tester-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+/* 테스트 설정 */
+.test-configuration {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.config-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.config-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.config-options {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.config-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+  cursor: pointer;
+}
+
+.config-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* 모델 선택 */
+.model-selection {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.model-selection h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.model-selector-card {
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.model-selector-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.model-selector-card.selected {
+  border-color: #667eea;
+  background: #f8f9ff;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.model-selector-card .model-info h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.model-selector-card .model-info p {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.model-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #495057;
+}
+
+/* 시나리오 선택 */
+.scenario-selection {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.scenario-selection h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.scenario-card {
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.scenario-card:hover {
+  border-color: #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+}
+
+.scenario-card.selected {
+  border-color: #28a745;
+  background: #f8fff9;
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.2);
+}
+
+.scenario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.scenario-header h5 {
+  margin: 0;
+  font-size: 14px;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.scenario-category {
+  background: #6c757d;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.scenario-prompt {
+  font-size: 13px;
+  color: #495057;
+  line-height: 1.4;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.scenario-meta {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* 테스트 액션 */
+.test-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.run-test-btn,
+.export-results-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.run-test-btn:hover:not(:disabled),
+.export-results-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.run-test-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.export-results-btn {
+  background: #28a745;
+}
+
+.export-results-btn:hover {
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+/* 테스트 진행상황 */
+.test-progress {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+}
+
+.test-progress p {
+  margin: 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+/* 테스트 결과 */
+.test-results {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #dee2e6;
+}
+
+.test-results h4 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.results-summary {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* 결과 테이블 */
+.results-table {
+  overflow-x: auto;
+}
+
+.results-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.results-table th,
+.results-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.results-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.results-table tr:hover {
+  background: #f8f9fa;
+}
+
+.quality-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.score-bar {
+  height: 6px;
+  background: #28a745;
+  border-radius: 3px;
+  flex: 1;
+}
+
+.quality-score span {
+  font-size: 12px;
+  color: #495057;
+  min-width: 40px;
+}
+
+/* 스마트 추천 */
+.smart-recommendations {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #dee2e6;
+}
+
+.smart-recommendations h4 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.recommendation-card {
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #667eea;
+}
+
+.recommendation-card.best_overall {
+  background: linear-gradient(135deg, #fff3cd 0%, #fff 100%);
+  border-left-color: #ffc107;
+}
+
+.recommendation-card.best_category {
+  background: linear-gradient(135deg, #d4edda 0%, #fff 100%);
+  border-left-color: #28a745;
+}
+
+.rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.rec-header h5 {
+  margin: 0;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.rec-score {
+  background: #667eea;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rec-content p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+.rec-category {
+  background: #e9ecef;
+  color: #495057;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .smart-model-tester {
+    padding: 16px;
+  }
+  
+  .model-grid,
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .config-options {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .summary-stats {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .test-actions {
+    flex-direction: column;
+  }
+  
+  .run-test-btn,
+  .export-results-btn {
+    width: 100%;
+  }
+  
+  .results-table {
+    font-size: 12px;
+  }
+  
+  .results-table th,
+  .results-table td {
+    padding: 8px;
+  }
+  
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .tester-header {
+    padding: 16px;
+  }
+  
+  .config-section,
+  .model-selection,
+  .scenario-selection,
+  .test-results,
+  .smart-recommendations {
+    padding: 16px;
+  }
+  
+  .rec-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* 애니메이션 */
+.model-selector-card,
+.scenario-card,
+.recommendation-card {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

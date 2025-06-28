@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "total_tests": 9,
+    "successful_tests": 8,
+    "success_rate": 88.88888888888889,
+    "deployment_status": "✅ 배포 성공 - 시스템이 정상적으로 작동하고 있습니다."
+  },
+  "step_results": [
+    {
+      "name": "헬스체크",
+      "success": true,
+      "duration": 0.01067042350769043
+    },
+    {
+      "name": "인증 시스템",
+      "success": true,
+      "duration": 0.16324448585510254
+    },
+    {
+      "name": "API 엔드포인트",
+      "success": true,
+      "duration": 0.03399777412414551
+    },
+    {
+      "name": "데이터베이스 연결",
+      "success": true,
+      "duration": 0.006319999694824219
+    }
+  ],
+  "detailed_results": {
+    "backend_health": {
+      "success": true,
+      "details": "Status: healthy",
+      "timestamp": "2025-06-25T13:03:46.359516"
+    },
+    "frontend_accessibility": {
+      "success": true,
+      "details": "",
+      "timestamp": "2025-06-25T13:03:46.363475"
+    },
+    "login": {
+      "success": true,
+      "details": "User: 시스템 관리자, Role: admin",
+      "timestamp": "2025-06-25T13:03:46.521326"
+    },
+    "token_validation": {
+      "success": true,
+      "details": "User: 시스템 관리자",
+      "timestamp": "2025-06-25T13:03:46.526926"
+    },
+    "api__api_evaluations_list": {
+      "success": false,
+      "details": "HTTP 500",
+      "timestamp": "2025-06-25T13:03:46.532576"
+    },
+    "api__api_files_access-logs": {
+      "success": true,
+      "details": "HTTP 200",
+      "timestamp": "2025-06-25T13:03:46.549968"
+    },
+    "api__api_evaluations_jobs": {
+      "success": true,
+      "details": "HTTP 200",
+      "timestamp": "2025-06-25T13:03:46.555443"
+    },
+    "api__api_ai-evaluation_jobs": {
+      "success": true,
+      "details": "HTTP 200",
+      "timestamp": "2025-06-25T13:03:46.561010"
+    },
+    "database_connectivity": {
+      "success": true,
+      "details": "{'status': 'healthy', 'timestamp': '2025-06-25T04:03:46.565100', 'databases': {'mongodb': {'status': 'healthy', 'ping': {'ok': 1.0}, 'stats': {'collections': 4, 'dataSize': 558.0, 'storageSize': 65536.0}}, 'redis': {'status': 'healthy', 'info': {'status': 'connected', 'ping': 'pong'}}}}",
+      "timestamp": "2025-06-25T13:03:46.567305"
+    }
+  },
+  "service_urls": {
+    "frontend": "http://localhost:3002",
+    "backend": "http://localhost:8002",
+    "api_docs": "http://localhost:8002/docs"
+  }
+}

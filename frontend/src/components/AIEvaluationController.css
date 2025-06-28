@@ -1,0 +1,764 @@
+/* AIEvaluationController.css */
+
+.ai-evaluation-controller {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* 헤더 */
+.controller-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 24px;
+  text-align: center;
+}
+
+.controller-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.controller-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+/* 접근 거부 */
+.access-denied {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.access-denied h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #dc3545;
+}
+
+/* 에러 알림 */
+.error-alert {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px 16px;
+  margin: 16px 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.error-icon {
+  margin-right: 8px;
+}
+
+.close-error {
+  background: none;
+  border: none;
+  color: #721c24;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+/* 탭 네비게이션 */
+.tab-navigation {
+  display: flex;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 150px;
+}
+
+.tab-btn:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.tab-btn.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background: white;
+}
+
+/* 탭 콘텐츠 */
+.tab-content {
+  padding: 24px;
+}
+
+.execute-tab h3,
+.jobs-tab h3,
+.results-tab h3,
+.settings-tab h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.execute-tab p,
+.jobs-tab p,
+.results-tab p,
+.settings-tab p {
+  margin: 0 0 24px 0;
+  color: #6c757d;
+}
+
+/* AI 설정 */
+.ai-config {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.ai-config h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #495057;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.config-item label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.config-item select,
+.config-item input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.config-item.checkbox-item {
+  display: flex;
+  align-items: center;
+}
+
+.config-item.checkbox-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.config-item.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.custom-prompt {
+  margin-top: 16px;
+}
+
+.custom-prompt label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.custom-prompt textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+/* 평가 선택 */
+.evaluation-selection {
+  margin-bottom: 24px;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selection-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #495057;
+}
+
+.selection-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select-btn, .deselect-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.select-btn:hover {
+  background: #5a6268;
+}
+
+.deselect-btn {
+  background: #dc3545;
+}
+
+.deselect-btn:hover {
+  background: #c82333;
+}
+
+.selection-count {
+  font-size: 12px;
+  color: #6c757d;
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+/* 평가 목록 */
+.evaluation-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.evaluation-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 16px;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.evaluation-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.evaluation-item label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.evaluation-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.evaluation-info h5 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.evaluation-info p {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.ai-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.ai-badge.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.ai-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 실행 액션 */
+.execute-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.execute-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 250px;
+}
+
+.execute-btn:hover:not(:disabled) {
+  background: #1e7e34;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.execute-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 작업 목록 */
+.jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-jobs {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+/* 작업 카드 */
+.job-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.job-card.completed {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.job-card.failed,
+.job-card.cancelled {
+  border-color: #dc3545;
+  background: #fff5f5;
+}
+
+.job-card.processing {
+  border-color: #ffc107;
+  background: #fffdf5;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.job-status {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.job-card.completed .job-status {
+  color: #28a745;
+}
+
+.job-card.failed .job-status,
+.job-card.cancelled .job-status {
+  color: #dc3545;
+}
+
+.job-card.processing .job-status {
+  color: #ffc107;
+}
+
+.job-id {
+  font-size: 11px;
+  color: #6c757d;
+  font-family: monospace;
+}
+
+.job-details {
+  margin-bottom: 16px;
+}
+
+.job-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.job-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+/* 진행률 바 */
+.progress-section {
+  margin: 12px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #ffc107;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: #6c757d;
+  text-align: right;
+}
+
+/* 오류 메시지 */
+.error-messages {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.error-messages h5 {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #721c24;
+}
+
+.error-text {
+  margin: 0 0 2px 0;
+  font-size: 11px;
+  color: #721c24;
+}
+
+/* 작업 액션 */
+.job-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancel-btn, .details-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+.details-btn {
+  background: #17a2b8;
+  color: white;
+}
+
+.details-btn:hover {
+  background: #117a8b;
+}
+
+/* 결과 관리 */
+.results-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+}
+
+.result-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.result-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.result-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-badge.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.result-details p {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.approve-btn, .reject-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.approve-btn {
+  background: #28a745;
+  color: white;
+}
+
+.approve-btn:hover {
+  background: #1e7e34;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #c82333;
+}
+
+/* 설정 */
+.settings-form {
+  max-width: 600px;
+}
+
+.setting-group {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.setting-group h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #495057;
+}
+
+.setting-item {
+  margin-bottom: 16px;
+}
+
+.setting-item label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.setting-item input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.setting-item small {
+  display: block;
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.setting-item.checkbox-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-item.checkbox-item label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.setting-item.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .tab-content {
+    padding: 16px;
+  }
+  
+  .tab-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .tab-btn {
+    min-width: 120px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .evaluation-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .results-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .selection-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .selection-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .job-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .job-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .job-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .controller-header {
+    padding: 16px;
+  }
+  
+  .controller-header h2 {
+    font-size: 20px;
+  }
+  
+  .execute-btn {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .approval-actions {
+    flex-direction: column;
+  }
+}

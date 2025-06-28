@@ -3,8 +3,8 @@
  * 실행: mongosh --file create_sample_data.js
  */
 
-// 데이터베이스 연결
-use('online_evaluation');
+// 데이터베이스 연결 (프로덕션 환경용으로 변경)
+use('online_evaluation_prod');
 
 // UUID 생성 함수
 function generateUUID() {

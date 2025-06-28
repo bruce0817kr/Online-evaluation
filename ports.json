@@ -1,0 +1,6 @@
+{
+  "frontend": 3002,
+  "backend": 8002,
+  "mongodb": 27018,
+  "redis": 6382
+}

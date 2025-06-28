@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-06-28 01:44:39",
+  "backend_url": "http://localhost:8019",
+  "working_accounts": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin",
+      "token": "eyJhbGciOiJIUzI1NiIs..."
+    },
+    {
+      "username": "secretary01",
+      "password": "secretary123",
+      "role": "secretary",
+      "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
+  ],
+  "failed_accounts": [
+    "evaluator01"
+  ],
+  "user_creation_api_working": false,
+  "evaluator_creation_api_working": false
+}

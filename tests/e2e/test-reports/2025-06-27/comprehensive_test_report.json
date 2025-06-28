@@ -1,0 +1,306 @@
+{
+  "timestamp": "2025-06-27T16:20:52.724Z",
+  "testDuration": 229,
+  "environment": {
+    "frontendUrl": "http://localhost:3019",
+    "backendUrl": "http://localhost:8019",
+    "nodeVersion": "v18.20.8"
+  },
+  "summary": {
+    "totalUsers": 3,
+    "totalTests": 10,
+    "passedTests": 8,
+    "failedTests": 2,
+    "skippedTests": 0,
+    "warningTests": 0
+  },
+  "userResults": {
+    "admin": {
+      "username": "admin",
+      "role": "admin",
+      "displayName": "시스템 관리자",
+      "loginSuccess": true,
+      "apiTests": [
+        {
+          "name": "사용자 목록 조회",
+          "endpoint": "/api/users",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "프로젝트 목록 조회",
+          "endpoint": "/api/projects",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "템플릿 목록 조회",
+          "endpoint": "/api/templates",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "AI 공급자 조회",
+          "endpoint": "/api/admin/ai/providers",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "AI 상태 확인",
+          "endpoint": "/api/ai/status",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "파일 목록 조회",
+          "endpoint": "/api/files",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        },
+        {
+          "name": "배포 상태 조회",
+          "endpoint": "/api/deployment/status",
+          "method": "GET",
+          "expectedStatus": [
+            200,
+            500
+          ],
+          "status": "passed",
+          "actualStatus": 500
+        },
+        {
+          "name": "사용자 프로필 조회",
+          "endpoint": "/api/auth/me",
+          "method": "GET",
+          "expectedStatus": 200,
+          "status": "passed",
+          "actualStatus": 200
+        }
+      ],
+      "summary": {
+        "passed": 8,
+        "failed": 0,
+        "warnings": 0
+      }
+    },
+    "secretary": {
+      "username": "secretary",
+      "role": "secretary",
+      "displayName": "간사",
+      "loginSuccess": false,
+      "apiTests": [],
+      "summary": {
+        "passed": 0,
+        "failed": 0,
+        "warnings": 0
+      }
+    },
+    "evaluator": {
+      "username": "evaluator",
+      "role": "evaluator",
+      "displayName": "평가위원",
+      "loginSuccess": false,
+      "apiTests": [],
+      "summary": {
+        "passed": 0,
+        "failed": 0,
+        "warnings": 0
+      }
+    }
+  },
+  "detailedLogs": [
+    {
+      "timestamp": "2025-06-27T16:20:52.727Z",
+      "level": "INFO",
+      "message": "시스템 상태 확인 시작",
+      "details": null
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.734Z",
+      "level": "SUCCESS",
+      "message": "Frontend 연결 정상",
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.739Z",
+      "level": "SUCCESS",
+      "message": "Backend Health 정상",
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.742Z",
+      "level": "SUCCESS",
+      "message": "Backend Docs 정상",
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.742Z",
+      "level": "INFO",
+      "message": "시스템 관리자 로그인 테스트 시작",
+      "details": null
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.913Z",
+      "level": "SUCCESS",
+      "message": "시스템 관리자 로그인 성공",
+      "details": {
+        "userId": "685e418d17d378c8a4a47be9",
+        "role": "admin",
+        "tokenLength": 149
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.914Z",
+      "level": "INFO",
+      "message": "시스템 관리자 API 엔드포인트 테스트 시작",
+      "details": null
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.919Z",
+      "level": "SUCCESS",
+      "message": "사용자 목록 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/users",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.924Z",
+      "level": "SUCCESS",
+      "message": "프로젝트 목록 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/projects",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.928Z",
+      "level": "SUCCESS",
+      "message": "템플릿 목록 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/templates",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.933Z",
+      "level": "SUCCESS",
+      "message": "AI 공급자 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/admin/ai/providers",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.936Z",
+      "level": "SUCCESS",
+      "message": "AI 상태 확인 테스트 통과",
+      "details": {
+        "endpoint": "/api/ai/status",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.941Z",
+      "level": "SUCCESS",
+      "message": "파일 목록 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/files",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.945Z",
+      "level": "SUCCESS",
+      "message": "배포 상태 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/deployment/status",
+        "status": 500,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.950Z",
+      "level": "SUCCESS",
+      "message": "사용자 프로필 조회 테스트 통과",
+      "details": {
+        "endpoint": "/api/auth/me",
+        "status": 200,
+        "method": "GET"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.950Z",
+      "level": "INFO",
+      "message": "간사 로그인 테스트 시작",
+      "details": null
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.952Z",
+      "level": "ERROR",
+      "message": "간사 로그인 실패",
+      "details": {
+        "error": "로그인 실패: 429 - {\"detail\":\"Rate limit exceeded. Please try again later.\"}"
+      }
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.952Z",
+      "level": "INFO",
+      "message": "평가위원 로그인 테스트 시작",
+      "details": null
+    },
+    {
+      "timestamp": "2025-06-27T16:20:52.953Z",
+      "level": "ERROR",
+      "message": "평가위원 로그인 실패",
+      "details": {
+        "error": "로그인 실패: 429 - {\"detail\":\"Rate limit exceeded. Please try again later.\"}"
+      }
+    }
+  ],
+  "recommendations": [],
+  "systemHealth": [
+    {
+      "name": "Frontend 연결",
+      "url": "http://localhost:3019",
+      "status": "healthy",
+      "code": 200
+    },
+    {
+      "name": "Backend Health",
+      "url": "http://localhost:8019/health",
+      "status": "healthy",
+      "code": 200
+    },
+    {
+      "name": "Backend Docs",
+      "url": "http://localhost:8019/docs",
+      "status": "healthy",
+      "code": 200
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: emergency-mongodb
+    restart: unless-stopped
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: online_evaluation
+    volumes:
+      - emergency_mongodb:/data/db
+    networks:
+      - emergency-net
+    command: mongod --quiet
+
+  redis:
+    image: redis:7-alpine
+    container_name: emergency-redis
+    restart: unless-stopped
+    ports:
+      - "6384:6379"
+    command: redis-server --appendonly yes --loglevel warning
+    volumes:
+      - emergency_redis:/data
+    networks:
+      - emergency-net
+
+  backend:
+    image: python:3.11-slim
+    container_name: emergency-backend
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    environment:
+      MONGO_URL: "mongodb://admin:password123@mongodb:27017/online_evaluation?authSource=admin"
+      JWT_SECRET: "emergency-secret-1750814225"
+      CORS_ORIGINS: "http://localhost:3004"
+      REDIS_URL: "redis://redis:6379"
+      PYTHONPATH: "/app"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    working_dir: /app
+    command: >
+      bash -c "
+        echo 'Backend 긴급 시작...' &&
+        pip install --no-cache-dir --quiet \
+          fastapi uvicorn motor pymongo pydantic \
+          'python-jose[cryptography]' 'passlib[bcrypt]' \
+          python-multipart python-dotenv &&
+        echo 'Backend 의존성 설치 완료' &&
+        python -c '
+import sys, os
+print("Python path:", sys.path)
+print("Working dir:", os.getcwd())
+print("Files:", os.listdir("."))
+' &&
+        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+      "
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - emergency-net
+
+  frontend:
+    image: nginx:alpine
+    container_name: emergency-frontend
+    restart: unless-stopped
+    ports:
+      - "3004:80"
+    volumes:
+      - ./emergency-frontend.html:/usr/share/nginx/html/index.html:ro
+    networks:
+      - emergency-net
+    depends_on:
+      - backend
+
+networks:
+  emergency-net:
+    driver: bridge
+
+volumes:
+  emergency_mongodb:
+    driver: local
+  emergency_redis:
+    driver: local

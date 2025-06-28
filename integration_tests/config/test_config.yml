@@ -1,0 +1,281 @@
+# AI 모델 관리 시스템 - 통합 테스트 설정
+
+# 테스트 환경 설정
+environment:
+  target_urls:
+    frontend: "http://localhost:3000"
+    backend: "http://localhost:8000"
+    api_base: "http://localhost:8000/api"
+  
+  database:
+    mongodb_url: "mongodb://localhost:27017/test_online_evaluation"
+    redis_url: "redis://localhost:6379/1"
+  
+  services:
+    - name: "frontend"
+      url: "http://localhost:3000"
+      health_check: "/"
+      timeout: 30
+    - name: "backend"
+      url: "http://localhost:8000/health"
+      health_check: "/health"
+      timeout: 30
+    - name: "database"
+      url: "http://localhost:8000/api/health/database"
+      health_check: "/api/health/database"
+      timeout: 10
+
+# 테스트 스위트 설정
+test_suites:
+  environment_setup:
+    enabled: true
+    timeout: 300  # 5분
+    description: "테스트 환경 준비 및 검증"
+    
+  functional_tests:
+    enabled: true
+    timeout: 1800  # 30분
+    description: "핵심 기능 테스트"
+    test_files:
+      - "tests/test_auth.py"
+      - "tests/test_ai_models.py"
+      - "tests/test_evaluations.py"
+      - "tests/test_users.py"
+      - "tests/test_files.py"
+    coverage:
+      target: 85
+      fail_under: 70
+      
+  performance_tests:
+    enabled: true
+    timeout: 900   # 15분
+    description: "성능 및 부하 테스트"
+    parameters:
+      concurrent_users: 50
+      test_duration: 600  # 10분
+      ramp_up_time: 60
+    thresholds:
+      avg_response_time: 2.0  # 초
+      p95_response_time: 5.0
+      error_rate: 1.0  # %
+      
+  security_tests:
+    enabled: true
+    timeout: 600   # 10분
+    description: "보안 취약점 테스트"
+    mode: "safe"  # safe, aggressive
+    scan_depth: "standard"  # basic, standard, deep
+    
+  ui_e2e_tests:
+    enabled: true
+    timeout: 1200  # 20분
+    description: "UI/E2E 통합 테스트"
+    browsers: ["chromium", "firefox"]
+    viewport_sizes:
+      - { width: 1920, height: 1080 }  # 데스크톱
+      - { width: 768, height: 1024 }   # 태블릿
+      - { width: 375, height: 667 }    # 모바일
+    test_scenarios:
+      - "user_workflows"
+      - "admin_workflows"
+      - "secretary_workflows"
+      - "responsive_design"
+      - "accessibility"
+
+# 시스템 모니터링 설정
+system_monitoring:
+  enabled: true
+  interval: 10  # 초
+  metrics:
+    - "cpu"
+    - "memory"
+    - "disk"
+    - "network"
+  thresholds:
+    cpu_warning: 80
+    cpu_critical: 95
+    memory_warning: 80
+    memory_critical: 95
+    
+# 테스트 데이터 설정
+test_data:
+  users:
+    admin:
+      count: 2
+      email_template: "admin{id}@test.com"
+      password: "TestAdmin123!"
+      role: "admin"
+    secretary:
+      count: 3
+      email_template: "secretary{id}@test.com"
+      password: "TestSecretary123!"
+      role: "secretary"
+    evaluator:
+      count: 5
+      email_template: "evaluator{id}@test.com"
+      password: "TestEvaluator123!"
+      role: "evaluator"
+      
+  ai_models:
+    mock_models:
+      - provider: "openai"
+        model_id: "test-gpt35-turbo"
+        model_name: "gpt-3.5-turbo"
+        display_name: "Test GPT-3.5 Turbo"
+        mock_response: "이것은 테스트 응답입니다."
+      - provider: "anthropic"
+        model_id: "test-claude-haiku"
+        model_name: "claude-3-haiku"
+        display_name: "Test Claude 3 Haiku"
+        mock_response: "Claude 테스트 응답입니다."
+      - provider: "google"
+        model_id: "test-gemini-pro"
+        model_name: "gemini-pro"
+        display_name: "Test Gemini Pro"
+        mock_response: "Gemini 테스트 응답입니다."
+        
+  evaluation_templates:
+    - name: "기본 품질 평가"
+      criteria:
+        - name: "정확성"
+          weight: 30
+          description: "응답의 정확성과 사실성"
+        - name: "유창성"
+          weight: 25
+          description: "자연스러운 언어 표현"
+        - name: "관련성"
+          weight: 25
+          description: "질문과의 관련성"
+        - name: "완성도"
+          weight: 20
+          description: "응답의 완성도"
+          
+    - name: "한국어 특화 평가"
+      criteria:
+        - name: "한국어 이해"
+          weight: 35
+          description: "한국어 맥락 이해도"
+        - name: "문화적 적절성"
+          weight: 30
+          description: "한국 문화에 맞는 응답"
+        - name: "언어 정확성"
+          weight: 35
+          description: "한국어 문법과 표현"
+
+# 리포팅 설정
+reporting:
+  formats:
+    - "json"      # 구조화된 데이터
+    - "html"      # 시각적 대시보드
+    - "junit"     # CI/CD 연동
+    - "slack"     # 실시간 알림
+    
+  output_directory: "test-results"
+  
+  html_report:
+    include_charts: true
+    include_screenshots: true
+    include_system_metrics: true
+    theme: "modern"
+    
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        success: "#test-results"
+        failure: "#test-alerts"
+    
+    email:
+      enabled: false
+      smtp_server: "smtp.company.com"
+      recipients: ["team@company.com"]
+      
+# CI/CD 통합 설정
+ci_cd:
+  fail_fast: false  # 첫 번째 실패 시 중단 여부
+  parallel_execution: true
+  max_parallel_jobs: 4
+  
+  quality_gates:
+    min_success_rate: 95  # %
+    max_execution_time: 3600  # 초 (1시간)
+    min_coverage: 80  # %
+    max_critical_security_issues: 0
+    max_high_security_issues: 2
+    
+  artifacts:
+    retention_days: 30
+    include_logs: true
+    include_screenshots: true
+    include_videos: false
+    compress: true
+
+# 디버깅 및 개발 설정
+debugging:
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  capture_browser_logs: true
+  save_failed_request_data: true
+  screenshot_on_failure: true
+  
+  test_isolation:
+    cleanup_after_each_test: true
+    reset_database: true
+    clear_cache: true
+    
+# 외부 서비스 Mock 설정
+external_services:
+  ai_apis:
+    mock_mode: true  # true: Mock 사용, false: 실제 API 사용
+    response_delay: 1.0  # 초
+    failure_rate: 0.05  # 5% 실패율 시뮬레이션
+    
+  file_storage:
+    mock_mode: true
+    storage_path: "/tmp/test_uploads"
+    max_file_size: "10MB"
+    
+# 성능 벤치마크 기준
+benchmarks:
+  response_times:
+    api_endpoints:
+      "/api/auth/login": 0.5
+      "/api/ai-models/available": 1.0
+      "/api/evaluations": 2.0
+      "/api/files/upload": 5.0
+      
+  database_operations:
+    simple_query: 0.1
+    complex_aggregation: 1.0
+    bulk_insert: 2.0
+    
+  system_resources:
+    max_cpu_usage: 80
+    max_memory_usage: 70
+    max_disk_io: 50
+
+# 보안 테스트 세부 설정
+security:
+  scan_scope:
+    include_paths:
+      - "/api/*"
+      - "/auth/*"
+      - "/files/*"
+    exclude_paths:
+      - "/health"
+      - "/metrics"
+      
+  vulnerability_checks:
+    - "sql_injection"
+    - "xss"
+    - "csrf"
+    - "authentication_bypass"
+    - "authorization_bypass"
+    - "sensitive_data_exposure"
+    - "security_misconfiguration"
+    - "insecure_dependencies"
+    
+  compliance_checks:
+    - "owasp_top10"
+    - "gdpr"
+    - "iso27001"

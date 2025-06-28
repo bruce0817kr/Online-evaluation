@@ -1,0 +1,9 @@
+{
+  "frontend": 3019,
+  "backend": 8019,
+  "mongodb": 27036,
+  "redis": 6398,
+  "environment": "production",
+  "rule": "base_port + 19",
+  "allocated_at": "2025-06-27T15:34:28+09:00"
+}

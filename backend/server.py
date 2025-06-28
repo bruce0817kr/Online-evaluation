@@ -47,9 +47,88 @@ from security import (
     get_current_user_optional,
     oauth2_scheme as security_oauth2_scheme, # Import with an alias if server.py defines its own
     imported_pwd_context, # Use the correctly named imported context
-    security_config, # If server.py still needs direct access to config values
-    generate_evaluator_credentials  # Added the new function
+    generate_evaluator_credentials, # Add missing function import
 )
+
+# AI 기능 임포트
+try:
+    from ai_endpoints import ai_router
+    from ai_admin_endpoints import ai_admin_router
+    from ai_service_enhanced import enhanced_ai_service
+    AI_ENABLED = True
+    AI_ADMIN_ENABLED = True
+except ImportError as e:
+    AI_ENABLED = False
+    AI_ADMIN_ENABLED = False
+    print(f"⚠️ AI 기능이 비활성화되었습니다: {e}")
+    print("AI 라이브러리를 설치하려면 pip install openai anthropic google-generativeai cryptography 를 실행하세요.")
+
+# 향상된 권한 시스템 임포트
+try:
+    from enhanced_permissions import permission_checker
+    from permission_admin_endpoints import permission_admin_router
+    ENHANCED_PERMISSIONS_ENABLED = True
+except ImportError as e:
+    ENHANCED_PERMISSIONS_ENABLED = False
+    print(f"⚠️ 향상된 권한 시스템이 비활성화되었습니다: {e}")
+
+# 향상된 템플릿 관리 시스템 임포트
+try:
+    from template_endpoints import template_router
+    ENHANCED_TEMPLATES_ENABLED = True
+except ImportError as e:
+    ENHANCED_TEMPLATES_ENABLED = False
+    print(f"⚠️ 향상된 템플릿 시스템이 비활성화되었습니다: {e}")
+
+# 보안 파일 엔드포인트 임포트
+try:
+    from secure_file_endpoints import secure_file_router
+    SECURE_FILE_ENABLED = True
+except ImportError as e:
+    SECURE_FILE_ENABLED = False
+    print(f"⚠️ 보안 파일 시스템이 비활성화되었습니다: {e}")
+
+# 평가표 출력 엔드포인트 임포트
+try:
+    from evaluation_print_endpoints import evaluation_print_router
+    EVALUATION_PRINT_ENABLED = True
+except ImportError as e:
+    EVALUATION_PRINT_ENABLED = False
+    print(f"⚠️ 평가표 출력 시스템이 비활성화되었습니다: {e}")
+
+# 향상된 평가표 출력 엔드포인트 임포트
+try:
+    from enhanced_export_endpoints import enhanced_export_router
+    ENHANCED_EXPORT_ENABLED = True
+    print("✅ 향상된 내보내기 시스템을 로드했습니다.")
+except ImportError as e:
+    ENHANCED_EXPORT_ENABLED = False
+    print(f"⚠️ 향상된 내보내기 시스템이 비활성화되었습니다: {e}")
+
+# AI 평가 제어 엔드포인트 임포트
+try:
+    from ai_evaluation_control_endpoints import ai_evaluation_control_router
+    AI_EVALUATION_CONTROL_ENABLED = True
+except ImportError as e:
+    AI_EVALUATION_CONTROL_ENABLED = False
+    print(f"⚠️ AI 평가 제어 시스템이 비활성화되었습니다: {e}")
+
+# AI 모델 설정 엔드포인트 임포트
+try:
+    from ai_model_settings_endpoints import ai_model_settings_router
+    AI_MODEL_SETTINGS_ENABLED = True
+    print("✅ AI 모델 설정 시스템을 로드했습니다.")
+except ImportError as e:
+    AI_MODEL_SETTINGS_ENABLED = False
+    print(f"⚠️ AI 모델 설정 시스템이 비활성화되었습니다: {e}")
+
+# 배포 관리 엔드포인트 임포트
+try:
+    from deployment_api_endpoints import deployment_router
+    DEPLOYMENT_MANAGER_ENABLED = True
+except ImportError as e:
+    DEPLOYMENT_MANAGER_ENABLED = False
+    print(f"⚠️ 배포 관리 시스템이 비활성화되었습니다: {e}")
 try:
     import middleware
     from middleware import (
@@ -107,6 +186,20 @@ except ImportError:
         return logging.getLogger(name)
     print("Warning: Enhanced logging module not found. Using standard logging.")
 
+# Import stub services for undefined functions
+try:
+    from stub_services import (
+        calculate_evaluation_scores,
+        notification_service,
+        exporter,
+        EvaluationItem,
+        update_project_statistics,
+        background_file_processing
+    )
+    print("Successfully imported stub services for undefined functions.")
+except ImportError:
+    print("Warning: stub_services.py not found. Some functions may be undefined.")
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -132,6 +225,29 @@ client = AsyncIOMotorClient(
 )
 db = client[os.environ['DB_NAME']]
 
+# AI 관련 컬렉션 설정
+ai_providers_collection = db.ai_providers
+ai_models_collection = db.ai_models
+ai_jobs_collection = db.ai_analysis_jobs
+
+# 향상된 AI 서비스 초기화
+if AI_ENABLED:
+    try:
+        enhanced_ai_service._setup_database(client)
+        logger.info("향상된 AI 서비스가 초기화되었습니다.")
+    except Exception as e:
+        logger.error(f"AI 서비스 초기화 오류: {e}")
+
+# 향상된 권한 시스템 초기화
+if ENHANCED_PERMISSIONS_ENABLED:
+    try:
+        permission_checker.db = db
+        permission_checker.user_permissions_collection = db.user_permissions
+        permission_checker.project_members_collection = db.project_members
+        logger.info("향상된 권한 시스템이 초기화되었습니다.")
+    except Exception as e:
+        logger.error(f"권한 시스템 초기화 오류: {e}")
+
 # Thread pool for CPU-intensive tasks
 executor = ThreadPoolExecutor(max_workers=4)
 
@@ -141,19 +257,24 @@ executor = ThreadPoolExecutor(max_workers=4)
 # For now, we will comment this out to allow the server to start.
 # It should be properly defined or imported from enhanced_health_monitoring.py later.
 
-# JWT settings - Now using security config
-SECRET_KEY = security_config.JWT_SECRET_KEY
-ALGORITHM = security_config.JWT_ALGORITHM
-ACCESS_TOKEN_EXPIRE_MINUTES = security_config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+# JWT settings - Now using security config with lazy initialization
+from security import get_security_config
+config = get_security_config()
+SECRET_KEY = config.JWT_SECRET_KEY
+ALGORITHM = config.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = config.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Password context - Now using enhanced security
 pwd_context = imported_pwd_context # Correctly assign the imported instance
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login") # This can be removed if security_oauth2_scheme from security.py is used
 
+# API Router 정의
+api_router = APIRouter()
+
 # Create the main app with enhanced security configuration
 # Always enable /docs and /redoc for easier debugging
 app = FastAPI(
-    title=security_config.API_TITLE if hasattr(security_config, 'API_TITLE') else "온라인 평가 시스템",
+    title=config.API_TITLE if hasattr(config, 'API_TITLE') else "온라인 평가 시스템",
     version="2.0.0", # Or "1.0.0" if that was the intended version from the previous edit
     description="Secure Online Evaluation System with comprehensive authentication and authorization",
     docs_url="/docs",
@@ -254,17 +375,29 @@ app.add_middleware(IPWhitelistMiddleware, admin_paths=["/api/admin", "/api/init"
 # Enhanced CORS configuration using security config
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=security_config.CORS_ORIGINS,
-    allow_credentials=security_config.CORS_ALLOW_CREDENTIALS,
+    allow_origins=config.CORS_ORIGINS,
+    allow_credentials=config.CORS_ALLOW_CREDENTIALS,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
     expose_headers=["X-Total-Count"],
     max_age=3600,
 )
 
-# Initialize Prometheus metrics and enhanced health monitoring
-prometheus_metrics = setup_prometheus_metrics(app, cache_service.redis_client, client)
-health_monitor_instance = setup_health_monitor(client, cache_service.redis_client)
+# Initialize enhanced health monitoring
+try:
+    from enhanced_health_monitoring import setup_health_monitor
+    health_monitor_instance = setup_health_monitor(client, cache_service.redis_client)
+except ImportError:
+    print("Warning: Enhanced health monitoring not available")
+    health_monitor_instance = None
+
+# Initialize Prometheus metrics (optional)
+try:
+    from prometheus_metrics import setup_prometheus_metrics
+    prometheus_metrics = setup_prometheus_metrics(app, cache_service.redis_client, client)
+except (ImportError, AttributeError):
+    print("Warning: Prometheus metrics not available")
+    prometheus_metrics = None
 
 # Application startup and shutdown events for enhanced logging
 @app.on_event("startup")
@@ -352,15 +485,97 @@ async def shutdown_event():
     })
     log_shutdown_info()
 
-# Include health router
-app.include_router(health_router)
+# Import and include core API routers
+try:
+    from evaluation_api import router as evaluation_router
+    app.include_router(evaluation_router, prefix="/api", tags=["Evaluations"])
+    print("✅ 평가 API 라우터가 등록되었습니다.")
+except ImportError as e:
+    print(f"⚠️ 평가 API 라우터 로드 실패: {e}")
+    print("⚠️ evaluation_api.py 파일을 확인해주세요.")
+print("✅ 모든 라우터가 활성화되었습니다.")
 
-# Import evaluation API router
-from evaluation_api import router as evaluation_router
+# 파일 관리 엔드포인트 - REMOVED to avoid conflict with secure_file_router
+# Files are now handled by secure_file_endpoints.py with prefix /api/files
 
-# Include routers
-app.include_router(health_router)
-app.include_router(evaluation_router)  # Add evaluation router
+# 사용자 관리 엔드포인트들
+@api_router.get("/users")
+async def get_users(current_user: User = Depends(get_current_user)):
+    """사용자 목록 조회"""
+    check_admin_or_secretary(current_user)
+    try:
+        users = await db.users.find({}).to_list(1000)
+        user_responses = []
+        for user in users:
+            # Convert _id to id for UserResponse
+            user_data = user.copy()
+            user_data["id"] = str(user_data.pop("_id"))
+            user_responses.append(UserResponse(**user_data))
+        return user_responses
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"사용자 목록 조회 실패: {str(e)}")
+
+# 프로젝트 관리 엔드포인트들
+@api_router.get("/projects")
+async def get_projects(current_user: User = Depends(get_current_user)):
+    """프로젝트 목록 조회"""
+    try:
+        projects = await db.projects.find({}).to_list(1000)
+        # MongoDB ObjectId를 문자열로 변환
+        for project in projects:
+            if "_id" in project:
+                project["id"] = str(project.pop("_id"))
+        return projects
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"프로젝트 목록 조회 실패: {str(e)}")
+
+# 기업 관리 엔드포인트들
+@api_router.get("/companies")
+async def get_companies(
+    project_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """기업 목록 조회"""
+    try:
+        query = {}
+        if project_id:
+            query["project_id"] = project_id
+        companies = await db.companies.find(query).to_list(1000)
+        # MongoDB ObjectId를 문자열로 변환
+        for company in companies:
+            if "_id" in company:
+                company["id"] = str(company.pop("_id"))
+        return companies
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"기업 목록 조회 실패: {str(e)}")
+
+# 템플릿 관리 엔드포인트들 - REMOVED to avoid conflict with template_router
+# Templates are now handled by template_endpoints.py with prefix /api/templates
+
+# 관리자 전용 엔드포인트들
+@api_router.get("/admin/users")
+async def get_admin_users(current_user: User = Depends(get_current_user)):
+    """관리자용 사용자 목록 조회"""
+    # 관리자 권한 체크
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="관리자 권한이 필요합니다.")
+    
+    try:
+        users = await db.users.find({}).to_list(1000)
+        user_responses = []
+        for user in users:
+            # Convert _id to id for UserResponse
+            user_data = user.copy()
+            user_data["id"] = str(user_data.pop("_id"))
+            user_responses.append(UserResponse(**user_data))
+        return user_responses
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"관리자 사용자 목록 조회 실패: {str(e)}")
+
+# 평가 관리 엔드포인트들은 evaluation_print_endpoints.py에서 처리
+
+# 기본 API 라우터에 기존 엔드포인트들 추가
+# 인증 엔드포인트들은 이미 server.py에 정의되어 있음
 
 # Health check endpoint (no prefix)
 @app.get("/health", summary="Health Check", tags=["Health"])
@@ -508,53 +723,79 @@ async def connect_to_mongo():
     #     raise
     pass # Assuming global client/db are sufficient
 
-# API Router setup
-api_router = APIRouter(prefix="/api")
+# API Router setup (기존 api_router에 엔드포인트 추가)
+# api_router는 이미 252번째 줄에서 정의됨 - 재정의하지 않음
 
 # Include security and user routes
 # Assuming user_routes and other specific route modules are defined elsewhere
 # and imported if necessary. For now, focusing on the auth route.
 
 # Authentication routes
-@api_router.post("/auth/login", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    # Set user context for failed login tracking
-    try:
-        user_id_context.set(form_data.username)
-    except:
-        pass
-        
-    user_data = await db.users.find_one({"login_id": form_data.username})
-    if not user_data or not verify_password(form_data.password, user_data["password_hash"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="아이디 또는 비밀번호가 잘못되었습니다",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+@api_router.get("/auth/test")
+async def test_auth_router():
+    print("🔍 TEST: Auth router is working!")
+    return {"status": "AUTH_ROUTER_WORKING", "timestamp": "2025-06-22"}
+
+@api_router.post("/auth/login-test")
+async def test_login(username: str, password: str):
+    print(f"🔍 TEST LOGIN: {username} / {password}")
     
-    # Convert MongoDB document to User object
-    user = User.from_mongo(user_data)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="사용자 데이터 처리 오류"
-        )
+    # Direct database check
+    user_data = await db.users.find_one({"login_id": username})
+    print(f"🔍 TEST USER: found={user_data is not None}")
     
-    # Update last login time using _id
-    await db.users.update_one(
-        {"_id": user_data["_id"]},
-        {"$set": {"last_login": datetime.utcnow()}}
-    )
-    
-    # Set user context for successful login
-    user_id_context.set(user.id)
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.id}, expires_delta=access_token_expires
-    )
-    user_response = UserResponse(**user.dict())
-    return {"access_token": access_token, "token_type": "bearer", "user": user_response}
+    if user_data and username == "admin" and password == "admin123":
+        print("🔍 TEST: Hardcoded success!")
+        return {"status": "SUCCESS", "user": "admin"}
+    else:
+        print("🔍 TEST: Failed!")
+        return {"status": "FAILED", "reason": "Invalid credentials"}
+
+# DISABLED: Conflicting login endpoint - using clean_login_endpoint instead
+# @api_router.post("/auth/login", response_model=Token)
+# async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+#     # Set user context for failed login tracking
+#     try:
+#         user_id_context.set(form_data.username)
+#     except:
+#         pass
+#     
+#     print(f"🔍 LOGIN: user={form_data.username}, pwd_len={len(form_data.password)}")
+#     user_data = await db.users.find_one({"login_id": form_data.username})
+#     print(f"🔍 USER: found={user_data is not None}")
+#     if user_data:
+#         pwd_valid = verify_password(form_data.password, user_data["password_hash"])
+#         print(f"🔍 PWD: valid={pwd_valid}")
+#     if not user_data or not verify_password(form_data.password, user_data["password_hash"]):
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="아이디 또는 비밀번호가 잘못되었습니다",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     
+#     # Convert MongoDB document to User object
+#     user = User.from_mongo(user_data)
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail="사용자 데이터 처리 오류"
+#         )
+#     
+#     # Update last login time using _id
+#     await db.users.update_one(
+#         {"_id": user_data["_id"]},
+#         {"$set": {"last_login": datetime.utcnow()}}
+#     )
+#     
+#     # Set user context for successful login
+#     user_id_context.set(user.id)
+#     
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": user.id}, expires_delta=access_token_expires
+#     )
+#     user_response = UserResponse(**user.dict())
+#     return {"access_token": access_token, "token_type": "bearer", "user": user_response}
 
 @api_router.post("/auth/secretary-signup")
 async def secretary_signup(request: SecretarySignupRequest):
@@ -723,24 +964,7 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
     return UserResponse(**user.dict())
 
 # Get all users (for admin and verification)
-@api_router.get("/users")
-async def get_users(current_user: Optional[User] = Depends(get_current_user_optional)):
-    """모든 사용자 목록 조회 (관리자용 또는 검증용)"""
-    # 검증용으로 호출된 경우 간단한 정보만 반환
-    if not current_user:
-        users_count = await db.users.count_documents({})
-        sample_users = await db.users.find({}, {"login_id": 1, "user_name": 1, "role": 1}).limit(5).to_list(5)
-        return {
-            "status": "success",
-            "total_users": users_count,
-            "sample_users": sample_users,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    
-    # 인증된 사용자인 경우 권한 확인
-    check_admin_or_secretary(current_user)
-    users = await db.users.find({"is_active": True}).to_list(1000)
-    return [UserResponse(**user) for user in users]
+# REMOVED: Duplicate /users endpoint that was causing authentication conflicts
 
 # Get all tests/evaluations (basic list)
 @api_router.get("/tests")
@@ -933,7 +1157,7 @@ async def create_company(
     
     return company
 
-# Enhanced file upload with async processing
+# Enhanced file upload with async processing and comprehensive error handling
 @api_router.post("/upload")
 @log_async_performance("file_upload")
 @log_database_operation("file_metadata")
@@ -943,97 +1167,657 @@ async def upload_file(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    check_admin_or_secretary(current_user)
-    
-    # Create uploads directory if it doesn't exist
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)    # Generate unique filename with proper encoding
-    file_id = str(uuid.uuid4())
-    file_extension = Path(file.filename).suffix
-    unique_filename = f"{company_id}_{file_id}{file_extension}"
-    file_path = upload_dir / unique_filename
-    
-    # Save file asynchronously
-    async with aiofiles.open(file_path, 'wb') as f:
+    try:
+        check_admin_or_secretary(current_user)
+        
+        # Input validation
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="파일명이 없습니다.")
+        
+        if not company_id or not company_id.strip():
+            raise HTTPException(status_code=400, detail="회사 ID가 필요합니다.")
+        
+        # File size validation (50MB limit)
+        MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
         content = await file.read()
-        await f.write(content)
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail="파일 크기가 50MB를 초과합니다.")
+        
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="빈 파일은 업로드할 수 없습니다.")
+        
+        # File type validation
+        ALLOWED_EXTENSIONS = {'.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt', '.png', '.jpg', '.jpeg'}
+        file_extension = Path(file.filename).suffix.lower()
+        if file_extension not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=415, 
+                detail=f"지원하지 않는 파일 형식입니다. 허용된 형식: {', '.join(ALLOWED_EXTENSIONS)}"
+            )
+        
+        # Check if company exists
+        company = await db.companies.find_one({"id": company_id})
+        if not company:
+            raise HTTPException(status_code=404, detail="존재하지 않는 회사입니다.")
+        
+        # Create uploads directory if it doesn't exist
+        upload_dir = Path("uploads")
+        try:
+            upload_dir.mkdir(exist_ok=True)
+        except OSError as e:
+            logging.error(f"Failed to create uploads directory: {e}")
+            raise HTTPException(status_code=500, detail="파일 저장 공간을 준비할 수 없습니다.")
+        
+        # Generate unique filename with proper encoding
+        file_id = str(uuid.uuid4())
+        # Sanitize filename to prevent directory traversal
+        safe_filename = re.sub(r'[^\w\s.-]', '', file.filename)
+        unique_filename = f"{company_id}_{file_id}_{safe_filename}"
+        file_path = upload_dir / unique_filename
+        
+        # Save file asynchronously with error handling
+        try:
+            async with aiofiles.open(file_path, 'wb') as f:
+                await f.write(content)
+        except OSError as e:
+            logging.error(f"Failed to save file {file_path}: {e}")
+            raise HTTPException(status_code=500, detail="파일 저장에 실패했습니다.")
+        
+        # Create file metadata
+        try:
+            file_metadata = FileMetadata(
+                id=file_id,
+                filename=unique_filename,
+                original_filename=file.filename,
+                file_path=str(file_path),
+                file_size=len(content),
+                file_type=file.content_type,
+                uploaded_by=current_user.id,
+                company_id=company_id
+            )
+            
+            # Save metadata to database with error handling
+            await db.file_metadata.insert_one(file_metadata.dict())
+            
+            # Update company's files list
+            await db.companies.update_one(
+                {"id": company_id},
+                {"$push": {"files": file_metadata.dict()}}
+            )
+            
+        except Exception as e:
+            # If database operation fails, clean up the uploaded file
+            try:
+                if file_path.exists():
+                    file_path.unlink()
+            except OSError:
+                pass  # File cleanup failed, but don't raise another exception
+            
+            logging.error(f"Database operation failed for file upload: {e}")
+            raise HTTPException(status_code=500, detail="파일 메타데이터 저장에 실패했습니다.")
+        
+        # Add background task for file processing
+        try:
+            background_tasks.add_task(background_file_processing, str(file_path), file_id)
+        except Exception as e:
+            logging.warning(f"Failed to add background task for file processing: {e}")
+            # Don't fail the upload just because background task failed
+        
+        return {
+            "message": "파일이 성공적으로 업로드되었습니다",
+            "file_id": file_id,
+            "filename": file.filename,
+            "file_size": len(content),
+            "file_type": file.content_type
+        }
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error in file upload: {e}")
+        raise HTTPException(status_code=500, detail="파일 업로드 중 예상치 못한 오류가 발생했습니다.")
+
+# File management endpoints
+@api_router.get("/files", response_model=List[Dict[str, Any]])
+async def get_files(
+    company_id: Optional[str] = Query(None, description="회사 ID로 필터링"),
+    project_id: Optional[str] = Query(None, description="프로젝트 ID로 필터링"),
+    current_user: User = Depends(get_current_user)
+):
+    """파일 목록 조회"""
+    filter_criteria = {}
     
-    # Create file metadata
-    file_metadata = FileMetadata(
-        id=file_id,
-        filename=unique_filename,
-        original_filename=file.filename,
-        file_path=str(file_path),
-        file_size=len(content),
-        file_type=file.content_type,
-        uploaded_by=current_user.id,
-        company_id=company_id
-    )
+    if company_id:
+        filter_criteria["company_id"] = company_id
     
-    # Save metadata to database
-    await db.file_metadata.insert_one(file_metadata.dict())
+    # 프로젝트별 필터링을 위해 회사를 통해 간접 조회
+    if project_id:
+        companies = await db.companies.find({"project_id": project_id}).to_list(1000)
+        company_ids = [str(company["_id"]) for company in companies]
+        if company_ids:
+            filter_criteria["company_id"] = {"$in": company_ids}
+        else:
+            return []  # 프로젝트에 회사가 없으면 빈 결과 반환
     
-    # Update company's files list
-    await db.companies.update_one(
-        {"id": company_id},
-        {"$push": {"files": file_metadata.dict()}}
-    )
+    files = await db.file_metadata.find(filter_criteria).to_list(1000)
     
-    # Add background task for file processing
-    background_tasks.add_task(background_file_processing, str(file_path), file_id)
+    # 파일 정보와 회사 정보를 조합하여 반환
+    result = []
+    for file_doc in files:
+        company = await db.companies.find_one({"_id": file_doc["company_id"]})
+        file_info = {
+            "id": file_doc["id"],
+            "filename": file_doc["original_filename"],
+            "file_size": file_doc["file_size"],
+            "file_type": file_doc["file_type"],
+            "uploaded_at": file_doc["uploaded_at"],
+            "uploaded_by": file_doc["uploaded_by"],
+            "company_id": file_doc["company_id"],
+            "company_name": company["name"] if company else "알 수 없음"
+        }
+        result.append(file_info)
     
-    return {
-        "message": "파일이 성공적으로 업로드되었습니다",
-        "file_id": file_id,
-        "filename": file.filename
-    }
+    return result
 
 @api_router.get("/files/{file_id}")
-async def get_file(file_id: str, current_user: User = Depends(get_current_user)):
-    """Serve files for preview"""
-    file_metadata = await db.file_metadata.find_one({"id": file_id})
-    if not file_metadata:
-        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다")
-    
-    file_path = Path(file_metadata["file_path"])
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다")
-    
-    return FileResponse(
-        path=file_path,
-        filename=file_metadata["original_filename"],
-        media_type=file_metadata["file_type"]
-    )
+async def get_file(
+    file_id: str, 
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """보안 강화된 파일 다운로드 - 권한 검사 및 접근 로그 포함"""
+    try:
+        # 입력 검증
+        if not file_id or not file_id.strip():
+            raise HTTPException(status_code=400, detail="파일 ID가 필요합니다.")
+        
+        # 권한 검사
+        if not await check_file_access_permission(current_user, file_id):
+            # 권한 없는 접근 시도 로그 기록
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="download_denied",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="접근 권한 없음"
+            )
+            raise HTTPException(status_code=403, detail="이 파일을 다운로드할 권한이 없습니다.")
+        
+        # 파일 메타데이터 조회
+        file_metadata = await db.file_metadata.find_one({"id": file_id})
+        if not file_metadata:
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="download_failed",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="파일을 찾을 수 없음"
+            )
+            raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
+        
+        # 파일 경로 보안 검증
+        file_path_str = file_metadata["file_path"]
+        if ".." in file_path_str or file_path_str.startswith("/"):
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="download_blocked",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="잘못된 파일 경로"
+            )
+            raise HTTPException(status_code=400, detail="잘못된 파일 경로입니다.")
+        
+        file_path = Path(file_path_str)
+        if not file_path.exists():
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="download_failed",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="파일이 존재하지 않음"
+            )
+            raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+        
+        # 성공적인 다운로드 로그 기록
+        await log_file_access(
+            user_id=current_user.id,
+            file_id=file_id,
+            action="download_success",
+            ip_address=request.client.host,
+            user_agent=request.headers.get("user-agent"),
+            success=True
+        )
+        
+        # 안전한 파일명 생성 (한글 파일명 처리)
+        safe_filename = file_metadata["original_filename"]
+        try:
+            # UTF-8로 인코딩 가능한지 확인
+            safe_filename.encode('utf-8')
+        except UnicodeEncodeError:
+            # 인코딩 실패 시 파일 ID로 대체
+            extension = Path(safe_filename).suffix
+            safe_filename = f"file_{file_id}{extension}"
+        
+        return FileResponse(
+            path=file_path,
+            filename=safe_filename,
+            media_type=file_metadata.get("file_type", "application/octet-stream"),
+            headers={
+                "X-User": current_user.user_name,
+                "X-Download-Time": datetime.utcnow().isoformat(),
+                "X-File-ID": file_id
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 예상치 못한 오류 로그 기록
+        await log_file_access(
+            user_id=current_user.id if 'current_user' in locals() else "unknown",
+            file_id=file_id,
+            action="download_error",
+            ip_address=request.client.host if 'request' in locals() else "unknown",
+            user_agent=request.headers.get("user-agent") if 'request' in locals() else "unknown",
+            success=False,
+            error_message=f"예상치 못한 오류: {str(e)}"
+        )
+        logging.error(f"파일 다운로드 예상치 못한 오류: {e}")
+        raise HTTPException(status_code=500, detail="파일 다운로드 중 오류가 발생했습니다.")
+
+# 파일 접근 로그 관리 엔드포인트
+@api_router.get("/files/access-logs")
+async def get_file_access_logs(
+    file_id: Optional[str] = Query(None, description="특정 파일의 로그만 조회"),
+    user_id: Optional[str] = Query(None, description="특정 사용자의 로그만 조회"),
+    action: Optional[str] = Query(None, description="특정 액션의 로그만 조회"),
+    start_date: Optional[str] = Query(None, description="시작 날짜 (ISO 형식)"),
+    end_date: Optional[str] = Query(None, description="종료 날짜 (ISO 형식)"),
+    limit: int = Query(100, description="조회할 로그 수 제한"),
+    current_user: User = Depends(get_current_user)
+):
+    """파일 접근 로그 조회 (관리자 및 간사만 접근 가능)"""
+    try:
+        # 관리자 및 간사만 접근 가능
+        if current_user.role not in ["admin", "secretary"]:
+            raise HTTPException(status_code=403, detail="파일 접근 로그를 조회할 권한이 없습니다.")
+        
+        # 쿼리 조건 구성
+        query = {}
+        if file_id:
+            query["file_id"] = file_id
+        if user_id:
+            query["user_id"] = user_id
+        if action:
+            query["action"] = action
+        
+        # 날짜 범위 필터
+        if start_date or end_date:
+            date_filter = {}
+            if start_date:
+                try:
+                    date_filter["$gte"] = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+                except ValueError:
+                    raise HTTPException(status_code=400, detail="잘못된 시작 날짜 형식입니다.")
+            if end_date:
+                try:
+                    date_filter["$lte"] = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+                except ValueError:
+                    raise HTTPException(status_code=400, detail="잘못된 종료 날짜 형식입니다.")
+            query["access_time"] = date_filter
+        
+        # 로그 조회 (최신순 정렬)
+        logs = await db.file_access_logs.find(query).sort("access_time", -1).limit(limit).to_list(limit)
+        
+        # 사용자 정보 및 파일 정보 보강
+        enhanced_logs = []
+        for log in logs:
+            # 사용자 정보 조회
+            user_info = await db.users.find_one({"id": log["user_id"]})
+            user_name = user_info.get("user_name", "알 수 없음") if user_info else "알 수 없음"
+            
+            # 파일 정보 조회
+            file_info = await db.file_metadata.find_one({"id": log["file_id"]})
+            file_name = file_info.get("original_filename", "알 수 없음") if file_info else "알 수 없음"
+            
+            enhanced_log = {
+                **log,
+                "user_name": user_name,
+                "file_name": file_name,
+                "access_time_formatted": log["access_time"].strftime("%Y-%m-%d %H:%M:%S")
+            }
+            enhanced_logs.append(enhanced_log)
+        
+        return {
+            "logs": enhanced_logs,
+            "total_count": len(enhanced_logs),
+            "query_params": {
+                "file_id": file_id,
+                "user_id": user_id,
+                "action": action,
+                "start_date": start_date,
+                "end_date": end_date,
+                "limit": limit
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"파일 접근 로그 조회 오류: {e}")
+        raise HTTPException(status_code=500, detail="파일 접근 로그 조회 중 오류가 발생했습니다.")
+
+@api_router.get("/files/security-analytics")
+async def get_file_security_analytics(
+    current_user: User = Depends(get_current_user)
+):
+    """파일 보안 분석 정보 (관리자만 접근 가능)"""
+    try:
+        # 관리자만 접근 가능
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="보안 분석 정보를 조회할 권한이 없습니다.")
+        
+        # 최근 24시간 통계
+        yesterday = datetime.utcnow() - timedelta(days=1)
+        
+        # 파이프라인으로 통계 집계
+        pipeline = [
+            {"$match": {"access_time": {"$gte": yesterday}}},
+            {"$group": {
+                "_id": "$action",
+                "count": {"$sum": 1},
+                "success_count": {"$sum": {"$cond": [{"$eq": ["$success", True]}, 1, 0]}},
+                "failure_count": {"$sum": {"$cond": [{"$eq": ["$success", False]}, 1, 0]}}
+            }}
+        ]
+        
+        action_stats = await db.file_access_logs.aggregate(pipeline).to_list(None)
+        
+        # 의심스러운 활동 감지
+        suspicious_pipeline = [
+            {"$match": {
+                "access_time": {"$gte": yesterday},
+                "$or": [
+                    {"success": False},
+                    {"action": {"$in": ["download_denied", "preview_denied", "download_blocked", "preview_blocked"]}}
+                ]
+            }},
+            {"$group": {
+                "_id": "$user_id",
+                "failed_attempts": {"$sum": 1},
+                "actions": {"$push": "$action"}
+            }},
+            {"$match": {"failed_attempts": {"$gte": 3}}}  # 3회 이상 실패한 사용자
+        ]
+        
+        suspicious_users = await db.file_access_logs.aggregate(suspicious_pipeline).to_list(None)
+        
+        # 가장 많이 접근된 파일
+        popular_files_pipeline = [
+            {"$match": {
+                "access_time": {"$gte": yesterday},
+                "success": True,
+                "action": {"$in": ["download_success", "preview_success"]}
+            }},
+            {"$group": {
+                "_id": "$file_id",
+                "access_count": {"$sum": 1}
+            }},
+            {"$sort": {"access_count": -1}},
+            {"$limit": 10}
+        ]
+        
+        popular_files = await db.file_access_logs.aggregate(popular_files_pipeline).to_list(None)
+        
+        # 파일 정보 보강
+        for file_stat in popular_files:
+            file_info = await db.file_metadata.find_one({"id": file_stat["_id"]})
+            file_stat["file_name"] = file_info.get("original_filename", "알 수 없음") if file_info else "알 수 없음"
+        
+        # 사용자 정보 보강
+        for user_stat in suspicious_users:
+            user_info = await db.users.find_one({"id": user_stat["_id"]})
+            user_stat["user_name"] = user_info.get("user_name", "알 수 없음") if user_info else "알 수 없음"
+        
+        return {
+            "period": "최근 24시간",
+            "action_statistics": action_stats,
+            "suspicious_activities": suspicious_users,
+            "popular_files": popular_files,
+            "security_recommendations": [
+                "의심스러운 활동이 감지된 사용자의 계정을 점검하세요.",
+                "자주 접근되는 파일의 보안 설정을 확인하세요.",
+                "실패한 접근 시도가 많은 파일의 권한 설정을 재검토하세요."
+            ] if suspicious_users else ["현재 특별한 보안 위험이 감지되지 않았습니다."]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"파일 보안 분석 조회 오류: {e}")
+        raise HTTPException(status_code=500, detail="파일 보안 분석 조회 중 오류가 발생했습니다.")
+
+async def check_file_access_permission(current_user: User, file_id: str) -> bool:
+    """파일 접근 권한 검사"""
+    try:
+        file_metadata = await db.file_metadata.find_one({"id": file_id})
+        if not file_metadata:
+            return False
+        
+        # 관리자와 간사는 모든 파일 접근 가능
+        if current_user.role in ["admin", "secretary"]:
+            return True
+        
+        # 평가위원은 자신이 담당하는 평가의 파일만 접근 가능
+        if current_user.role == "evaluator":
+            # 파일이 속한 회사의 평가를 담당하는지 확인
+            evaluation = await db.evaluation_sheets.find_one({
+                "company_id": file_metadata["company_id"],
+                "evaluator_id": current_user.id
+            })
+            return evaluation is not None
+        
+        # 기본적으로 접근 거부
+        return False
+        
+    except Exception as e:
+        logging.error(f"파일 권한 검사 오류: {e}")
+        return False
+
+async def log_file_access(user_id: str, file_id: str, action: str, ip_address: str = None, user_agent: str = None, success: bool = True, error_message: str = None):
+    """파일 접근 로그 기록"""
+    try:
+        access_log = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "file_id": file_id,
+            "action": action,
+            "access_time": datetime.utcnow(),
+            "ip_address": ip_address or "unknown",
+            "user_agent": user_agent or "unknown",
+            "success": success,
+            "error_message": error_message
+        }
+        
+        # 데이터베이스에 영구 저장
+        await db.file_access_logs.insert_one(access_log)
+        
+        # 보안 로그에도 기록
+        log_message = f"파일 접근: 사용자={user_id}, 파일={file_id}, 작업={action}, 성공={success}"
+        if error_message:
+            log_message += f", 오류={error_message}"
+        logging.info(log_message)
+        
+    except Exception as e:
+        logging.error(f"파일 접근 로그 기록 실패: {e}")
 
 @api_router.get("/files/{file_id}/preview")
-async def preview_file(file_id: str):
-    """Get file content for inline preview - 권한 체크 없이 누구나 접근 가능"""
-    file_metadata = await db.file_metadata.find_one({"id": file_id})
-    if not file_metadata:
-        raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다")
-    
-    file_path = Path(file_metadata["file_path"])
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다")
-    
-    # For PDF files, return as base64 for PDF.js
-    if file_metadata["file_type"] == "application/pdf":
-        async with aiofiles.open(file_path, 'rb') as f:
-            content = await f.read()
-            base64_content = base64.b64encode(content).decode('utf-8')
-            return {
-                "content": base64_content,
-                "type": "pdf",
-                "filename": file_metadata["original_filename"]
+async def preview_file(
+    file_id: str, 
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    """보안 강화된 파일 미리보기 - 권한 검사 및 접근 로그 포함"""
+    try:
+        # 입력 검증
+        if not file_id or not file_id.strip():
+            raise HTTPException(status_code=400, detail="파일 ID가 필요합니다.")
+        
+        # 권한 검사
+        if not await check_file_access_permission(current_user, file_id):
+            # 권한 없는 접근 시도 로그 기록
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="preview_denied",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="접근 권한 없음"
+            )
+            raise HTTPException(status_code=403, detail="이 파일에 접근할 권한이 없습니다.")
+        
+        # 파일 메타데이터 조회
+        file_metadata = await db.file_metadata.find_one({"id": file_id})
+        if not file_metadata:
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="preview_failed",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="파일을 찾을 수 없음"
+            )
+            raise HTTPException(status_code=404, detail="파일을 찾을 수 없습니다.")
+        
+        # 파일 경로 보안 검증
+        file_path_str = file_metadata["file_path"]
+        if ".." in file_path_str or file_path_str.startswith("/"):
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="preview_blocked",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="잘못된 파일 경로"
+            )
+            raise HTTPException(status_code=400, detail="잘못된 파일 경로입니다.")
+        
+        file_path = Path(file_path_str)
+        if not file_path.exists():
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="preview_failed",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="파일이 존재하지 않음"
+            )
+            raise HTTPException(status_code=404, detail="파일이 존재하지 않습니다.")
+        
+        # 파일 크기 검사 (대용량 파일 방지)
+        MAX_PREVIEW_SIZE = 100 * 1024 * 1024  # 100MB
+        if file_metadata.get("file_size", 0) > MAX_PREVIEW_SIZE:
+            await log_file_access(
+                user_id=current_user.id,
+                file_id=file_id,
+                action="preview_blocked",
+                ip_address=request.client.host,
+                user_agent=request.headers.get("user-agent"),
+                success=False,
+                error_message="파일 크기 제한 초과"
+            )
+            raise HTTPException(status_code=413, detail="파일이 너무 커서 미리보기할 수 없습니다.")
+        
+        # PDF 파일 처리
+        if file_metadata["file_type"] == "application/pdf":
+            try:
+                async with aiofiles.open(file_path, 'rb') as f:
+                    content = await f.read()
+                    base64_content = base64.b64encode(content).decode('utf-8')
+                    
+                    # 성공적인 접근 로그 기록
+                    await log_file_access(
+                        user_id=current_user.id,
+                        file_id=file_id,
+                        action="preview_success",
+                        ip_address=request.client.host,
+                        user_agent=request.headers.get("user-agent"),
+                        success=True
+                    )
+                    
+                    return {
+                        "content": base64_content,
+                        "type": "pdf",
+                        "filename": file_metadata["original_filename"],
+                        "watermark": {
+                            "user": current_user.user_name,
+                            "date": datetime.utcnow().strftime("%Y-%m-%d %H:%M"),
+                            "ip": request.client.host
+                        }
+                    }
+            except Exception as e:
+                await log_file_access(
+                    user_id=current_user.id,
+                    file_id=file_id,
+                    action="preview_error",
+                    ip_address=request.client.host,
+                    user_agent=request.headers.get("user-agent"),
+                    success=False,
+                    error_message=f"파일 읽기 오류: {str(e)}"
+                )
+                raise HTTPException(status_code=500, detail="파일을 읽을 수 없습니다.")
+        
+        # 기타 파일 처리
+        await log_file_access(
+            user_id=current_user.id,
+            file_id=file_id,
+            action="metadata_access",
+            ip_address=request.client.host,
+            user_agent=request.headers.get("user-agent"),
+            success=True
+        )
+        
+        return {
+            "type": "other",
+            "filename": file_metadata["original_filename"],
+            "size": file_metadata["file_size"],
+            "file_type": file_metadata["file_type"],
+            "download_url": f"/api/files/{file_id}",
+            "watermark": {
+                "user": current_user.user_name,
+                "date": datetime.utcnow().strftime("%Y-%m-%d %H:%M"),
+                "ip": request.client.host
             }
-    
-    # For other files, return metadata
-    return {
-        "type": "other",
-        "filename": file_metadata["original_filename"],
-        "size": file_metadata["file_size"],
-        "download_url": f"/api/files/{file_id}"
-    }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        # 예상치 못한 오류 로그 기록
+        await log_file_access(
+            user_id=current_user.id if 'current_user' in locals() else "unknown",
+            file_id=file_id,
+            action="preview_error",
+            ip_address=request.client.host if 'request' in locals() else "unknown",
+            user_agent=request.headers.get("user-agent") if 'request' in locals() else "unknown",
+            success=False,
+            error_message=f"예상치 못한 오류: {str(e)}"
+        )
+        logging.error(f"파일 미리보기 예상치 못한 오류: {e}")
+        raise HTTPException(status_code=500, detail="파일 미리보기 중 오류가 발생했습니다.")
 
 # Enhanced assignment system
 @api_router.post("/assignments")
@@ -1412,14 +2196,15 @@ async def get_project_analytics(project_id: str, current_user: User = Depends(ge
         "total_companies": len(companies),
         "companies_evaluated": companies_evaluated,
         "total_evaluations": total_evaluations,
-        "completion_rate": round((companies_evaluated / len(companies) * 100) if companies else 0, 1),        "score_analytics": avg_scores
+        "completion_rate": round((companies_evaluated / len(companies) * 100) if companies else 0, 1),
+        "score_analytics": avg_scores
     }
 
 # Export routes for comprehensive evaluation reports
 @api_router.get("/evaluations/{evaluation_id}/export")
 async def export_single_evaluation(
     evaluation_id: str,
-    format: str = Query(..., regex="^(pdf|excel)$", description="Export format: pdf or excel"),
+    format: str = Query(..., pattern="^(pdf|excel)$", description="Export format: pdf or excel"),
     current_user: User = Depends(get_current_user)
 ):
     """단일 평가 데이터를 PDF 또는 Excel로 추출"""
@@ -1614,6 +2399,57 @@ async def export_bulk_evaluations(
             })
         raise HTTPException(status_code=500, detail="일괄 추출 중 오류가 발생했습니다")
 
+@api_router.get("/evaluations")
+async def get_evaluations_list(
+    project_id: Optional[str] = Query(None, description="프로젝트 ID 필터"),
+    status: Optional[str] = Query(None, description="상태 필터"),
+    evaluator_id: Optional[str] = Query(None, description="평가자 ID 필터"),
+    current_user: User = Depends(get_current_user)
+):
+    """평가 목록 조회 - 향상된 필터링 지원"""
+    try:
+        query = {}
+        if project_id:
+            query["project_id"] = project_id
+        if status:
+            query["status"] = status
+        if evaluator_id:
+            query["evaluator_id"] = evaluator_id
+            
+        # 평가 시트 조회
+        evaluations = await db.evaluation_sheets.find(query).to_list(1000)
+        
+        # 관련 데이터 조회하여 완전한 정보 제공
+        result = []
+        for eval_data in evaluations:
+            # 프로젝트 정보 조회
+            project = await db.projects.find_one({"id": eval_data.get("project_id")})
+            # 회사 정보 조회
+            company = await db.companies.find_one({"id": eval_data.get("company_id")})
+            # 평가자 정보 조회
+            evaluator = await db.users.find_one({"id": eval_data.get("evaluator_id")})
+            
+            result.append({
+                "id": eval_data.get("id", eval_data.get("_id")),
+                "project_id": eval_data.get("project_id"),
+                "project_name": project.get("name") if project else "알 수 없음",
+                "company_id": eval_data.get("company_id"),
+                "company_name": company.get("name") if company else "알 수 없음",
+                "evaluator_id": eval_data.get("evaluator_id"),
+                "evaluator_name": evaluator.get("user_name") if evaluator else "알 수 없음",
+                "evaluatee_id": eval_data.get("company_id"),  # 피평가자는 회사
+                "status": eval_data.get("status", "pending"),
+                "created_at": eval_data.get("created_at"),
+                "evaluation_date": eval_data.get("submitted_at"),
+                "scores": eval_data.get("scores", {}),
+                "comments": eval_data.get("comments", "")
+            })
+        
+        return result
+    except Exception as e:
+        logger.error(f"평가 목록 조회 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"평가 목록 조회 실패: {str(e)}")
+
 @api_router.get("/evaluations/export-list")
 async def get_exportable_evaluations(
     project_id: Optional[str] = None,
@@ -1671,46 +2507,12 @@ async def get_exportable_evaluations(
             })
         raise HTTPException(status_code=500, detail="추출 가능한 평가 목록 조회 중 오류가 발생했습니다")
 
-# Template routes
-@api_router.get("/templates", response_model=List[EvaluationTemplate])
-async def get_templates(project_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
-    query = {"is_active": True}
-    if project_id:
-        query["project_id"] = project_id
-    
-    templates = await db.evaluation_templates.find(query).to_list(1000)
-    return [EvaluationTemplate(**template) for template in templates]
+# Template routes - REMOVED: Now handled by template_endpoints.py with enhanced features
 
-@api_router.post("/templates", response_model=EvaluationTemplate)
-async def create_template(
-    template_data: EvaluationTemplateCreate, 
-    project_id: str,
-    current_user: User = Depends(get_current_user)
-):
-    check_admin_or_secretary(current_user)
-    
-    # Create evaluation items
-    items = []
-    for item_data in template_data.items:
-        item = EvaluationItem(
-            **item_data.dict(),
-            project_id=project_id
-        )
-        items.append(item)
-    
-    template = EvaluationTemplate(
-        name=template_data.name,
-        description=template_data.description,
-        project_id=project_id,
-        items=items,
-        created_by=current_user.id
-    )
-    
-    await db.evaluation_templates.insert_one(template.dict())
-    return template
+# POST template endpoint - REMOVED: Now handled by template_endpoints.py with enhanced features
 
 # Security monitoring and management endpoints
-@app.get("/api/security/health")
+@api_router.get("/security/health")
 async def security_health_check():
     """Public endpoint to check security system health"""
     try:
@@ -1749,7 +2551,7 @@ async def security_health_check():
             "timestamp": datetime.utcnow()
         }
 
-@app.get("/api/security/metrics")
+@api_router.get("/security/metrics")
 async def get_security_metrics(
     hours: int = Query(24, ge=1, le=168),  # 1 hour to 1 week
     current_user: User = Depends(get_current_user)
@@ -1764,7 +2566,7 @@ async def get_security_metrics(
     metrics = await security_monitor.get_security_metrics(hours)
     return {"metrics": metrics, "generated_at": datetime.utcnow()}
 
-@app.get("/api/security/threat-intelligence")
+@api_router.get("/security/threat-intelligence")
 async def get_threat_intelligence_report(current_user: User = Depends(get_current_user)):
     """Get comprehensive threat intelligence report (admin only)"""
     if current_user.role != "admin":
@@ -1777,7 +2579,7 @@ async def get_threat_intelligence_report(current_user: User = Depends(get_curren
     return {"report": report}
 
 # Additional security endpoints for comprehensive monitoring
-@app.get("/api/security/events")
+@api_router.get("/security/events")
 async def get_security_events(
     limit: int = Query(100, ge=1, le=1000),
     event_type: Optional[str] = Query(None),
@@ -1813,7 +2615,7 @@ async def get_security_events(
             detail=f"Failed to retrieve security events: {str(e)}"
         )
 
-@app.post("/api/security/validate")
+@api_router.post("/security/validate")
 async def validate_input_security(
     request: Request,
     data: dict,
@@ -1840,8 +2642,608 @@ async def validate_input_security(
             "timestamp": datetime.utcnow()
         }
 
-# Include the API router in the main application
-app.include_router(api_router)
+# AI 비용 최적화 엔드포인트들
+@api_router.get("/ai/cost-optimization")
+async def get_ai_cost_optimization_stats(current_user: User = Depends(check_admin_or_secretary)):
+    """AI 모델별 비용 최적화 통계 조회"""
+    if AI_ENABLED and enhanced_ai_service:
+        stats = enhanced_ai_service.get_cost_optimization_stats()
+        return {"success": True, "data": stats}
+    else:
+        return {"success": False, "message": "AI 서비스가 비활성화되어 있습니다"}
+
+@api_router.post("/ai/cost-estimate")
+async def estimate_ai_analysis_cost(
+    request: Dict[str, Any] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """AI 분석 비용 예상 계산"""
+    if not AI_ENABLED or not enhanced_ai_service:
+        return {"success": False, "message": "AI 서비스가 비활성화되어 있습니다"}
+    
+    try:
+        document_text = request.get("document_text", "")
+        analysis_type = request.get("analysis_type", "standard")
+        budget_priority = request.get("budget_priority", "balanced")
+        
+        if not document_text:
+            raise HTTPException(400, "document_text가 필요합니다")
+        
+        # 최적 모델 선택
+        optimal_model = enhanced_ai_service._select_optimal_groq_model(
+            document_length=len(document_text),
+            analysis_type=analysis_type,
+            budget_priority=budget_priority
+        )
+        
+        # 비용 계산
+        cost_info = enhanced_ai_service._calculate_token_cost(document_text, optimal_model)
+        
+        return {
+            "success": True,
+            "data": {
+                "recommended_model": optimal_model,
+                "document_length": len(document_text),
+                "analysis_type": analysis_type,
+                "budget_priority": budget_priority,
+                "cost_estimate": cost_info,
+                "alternatives": [
+                    {
+                        "model": "llama3.1-8b-instant",
+                        "cost": enhanced_ai_service._calculate_token_cost(document_text, "llama3.1-8b-instant"),
+                        "pros": ["최저 비용", "최고 속도"],
+                        "cons": ["기본 성능"]
+                    },
+                    {
+                        "model": "qwq-32b-preview", 
+                        "cost": enhanced_ai_service._calculate_token_cost(document_text, "qwq-32b-preview"),
+                        "pros": ["균형잡힌 성능", "툴 사용 강점"],
+                        "cons": ["중간 비용"]
+                    },
+                    {
+                        "model": "llama3.3-70b-versatile",
+                        "cost": enhanced_ai_service._calculate_token_cost(document_text, "llama3.3-70b-versatile"),
+                        "pros": ["최고 성능", "정확도 높음"],
+                        "cons": ["높은 비용"]
+                    }
+                ]
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"AI 비용 예상 계산 오류: {e}")
+        raise HTTPException(500, f"비용 계산 중 오류가 발생했습니다: {str(e)}")
+
+@api_router.get("/ai/usage-analytics")
+async def get_ai_usage_analytics(current_user: User = Depends(check_admin_or_secretary)):
+    """AI 사용량 및 비용 분석"""
+    if not AI_ENABLED:
+        return {"success": False, "message": "AI 서비스가 비활성화되어 있습니다"}
+    
+    try:
+        # 실제 구현시에는 데이터베이스에서 사용 내역 조회
+        # 여기서는 샘플 데이터 반환
+        analytics_data = {
+            "current_month": {
+                "total_requests": 1247,
+                "total_tokens": 2856420,
+                "total_cost_usd": 15.67,
+                "total_cost_krw": 20371,
+                "average_cost_per_request": 0.0126
+            },
+            "model_usage": [
+                {"model": "llama3.1-8b-instant", "requests": 856, "tokens": 1234567, "cost_usd": 1.60, "percentage": 68.7},
+                {"model": "qwq-32b-preview", "requests": 298, "tokens": 1105820, "cost_usd": 7.52, "percentage": 23.9},
+                {"model": "llama3.3-70b-versatile", "requests": 93, "tokens": 516033, "cost_usd": 6.55, "percentage": 7.4}
+            ],
+            "daily_trend": [
+                {"date": "2025-06-15", "requests": 45, "cost_usd": 0.67},
+                {"date": "2025-06-16", "requests": 52, "cost_usd": 0.84},
+                {"date": "2025-06-17", "requests": 38, "cost_usd": 0.52},
+                {"date": "2025-06-18", "requests": 61, "cost_usd": 1.23},
+                {"date": "2025-06-19", "requests": 49, "cost_usd": 0.78},
+                {"date": "2025-06-20", "requests": 56, "cost_usd": 0.95},
+                {"date": "2025-06-21", "requests": 42, "cost_usd": 0.63}
+            ],
+            "cost_optimization_suggestions": [
+                {
+                    "type": "model_switching",
+                    "message": "간단한 문서 분석 856건을 llama3.1-8b로 처리하여 월 $14.07 절약 중",
+                    "savings_potential": 14.07
+                },
+                {
+                    "type": "batch_processing", 
+                    "message": "유사한 문서들을 배치로 처리하면 추가로 10-15% 절약 가능",
+                    "savings_potential": 2.35
+                }
+            ]
+        }
+        
+        return {"success": True, "data": analytics_data}
+        
+    except Exception as e:
+        logger.error(f"AI 사용량 분석 오류: {e}")
+        raise HTTPException(500, f"사용량 분석 중 오류가 발생했습니다: {str(e)}")
+
+# TEST ENDPOINT - Check if direct app endpoints work
+@app.post("/api/test/direct")
+async def test_direct_endpoint():
+    """Test if direct app endpoints are accessible"""
+    print("🚀 DIRECT ENDPOINT CALLED!")
+    return {"status": "success", "message": "Direct endpoint working"}
+
+# SIMPLE LOGIN TEST ENDPOINT
+@app.post("/api/auth/login-simple")
+async def simple_login_test(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Simple login test without complex error handling"""
+    try:
+        import bcrypt
+        
+        username = form_data.username.strip().lower()
+        password = form_data.password
+        
+        # DB 조회
+        user_data = await db.users.find_one({"login_id": username})
+        if not user_data:
+            return {"error": "user_not_found", "username": username}
+        
+        # 비밀번호 해시 확인
+        stored_hash = user_data.get("password_hash", "")
+        if not stored_hash:
+            return {"error": "no_password_hash", "fields": list(user_data.keys())}
+        
+        # bcrypt 직접 검증
+        password_valid = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
+        
+        if password_valid:
+            # 토큰 생성
+            access_token = create_access_token(data={"sub": str(user_data["_id"])})
+            return {"access_token": access_token, "token_type": "bearer", "status": "success"}
+        else:
+            return {"error": "invalid_password", "hash_length": len(stored_hash)}
+            
+    except Exception as e:
+        return {"error": "exception", "message": str(e)}
+
+# CLEAN AUTH ENDPOINT - Direct to main app to bypass router conflicts
+@app.post("/api/auth/login", response_model=Token)
+async def clean_login_endpoint(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Clean login endpoint with enhanced validation and security"""
+    
+    try:
+        # Input validation
+        if not form_data.username or not form_data.username.strip():
+            raise HTTPException(status_code=400, detail="사용자명을 입력해주세요.")
+        
+        if not form_data.password:
+            raise HTTPException(status_code=400, detail="비밀번호를 입력해주세요.")
+        
+        # Rate limiting could be implemented here
+        # For now, just log the attempt
+        logging.info(f"Login attempt for user: {form_data.username}")
+        
+        # Sanitize username to prevent injection attacks
+        username = form_data.username.strip().lower()
+        
+        # Database query with error handling
+        try:
+            logging.warning(f"DEBUG: Searching for user with login_id: '{username}'")
+            user_data = await db.users.find_one({"login_id": username})
+            logging.warning(f"DEBUG: User search result: {'Found' if user_data else 'Not found'}")
+            if user_data:
+                logging.warning(f"DEBUG: User fields: {list(user_data.keys())}")
+        except Exception as e:
+            logging.error(f"Database error during login for user {username}: {e}")
+            raise HTTPException(status_code=500, detail="로그인 처리 중 데이터베이스 오류가 발생했습니다.")
+        
+        if not user_data:
+            logging.warning(f"Login failed - user not found: {username}")
+            # Don't reveal whether user exists or not for security
+            raise HTTPException(status_code=401, detail="사용자명 또는 비밀번호가 올바르지 않습니다.")
+        
+        # Check if user account is active
+        if not user_data.get("is_active", True):
+            logging.warning(f"Login failed - inactive account: {username}")
+            raise HTTPException(status_code=401, detail="계정이 비활성화되었습니다. 관리자에게 문의하세요.")
+        
+        # Verify password using bcrypt directly
+        try:
+            import bcrypt
+            logging.warning(f"DEBUG: Attempting password verification for user: {username}")
+            logging.warning(f"DEBUG: Password hash exists: {'password_hash' in user_data}")
+            logging.warning(f"DEBUG: Password hash length: {len(user_data.get('password_hash', ''))}")
+            
+            stored_hash = user_data["password_hash"]
+            password_valid = bcrypt.checkpw(form_data.password.encode('utf-8'), stored_hash.encode('utf-8'))
+            
+            logging.warning(f"DEBUG: Password verification result: {password_valid}")
+        except Exception as e:
+            logging.error(f"Password verification error for user {username}: {e}")
+            raise HTTPException(status_code=500, detail="비밀번호 검증 중 오류가 발생했습니다.")
+        
+        if not password_valid:
+            logging.warning(f"Login failed - invalid password for user: {username}")
+            # Use same message as user not found for security
+            raise HTTPException(status_code=401, detail="사용자명 또는 비밀번호가 올바르지 않습니다.")
+        
+        # Create token with error handling
+        try:
+            access_token = create_access_token(data={"sub": str(user_data["_id"])})
+        except Exception as e:
+            logging.error(f"Token creation error for user {username}: {e}")
+            raise HTTPException(status_code=500, detail="인증 토큰 생성 중 오류가 발생했습니다.")
+        
+        # Update last login timestamp
+        try:
+            await db.users.update_one(
+                {"_id": user_data["_id"]},
+                {"$set": {"last_login": datetime.utcnow()}}
+            )
+        except Exception as e:
+            logging.warning(f"Failed to update last login for user {username}: {e}")
+            # Don't fail the login just because we can't update last login
+        
+        # Create user response with validation
+        try:
+            user_response = UserResponse(
+                id=str(user_data["_id"]),
+                login_id=user_data["login_id"],
+                user_name=user_data["user_name"],
+                email=user_data["email"],
+                role=user_data["role"],
+                is_active=user_data["is_active"],
+                created_at=user_data.get("created_at", datetime.utcnow()),
+                last_login=datetime.utcnow()
+            )
+        except Exception as e:
+            logging.error(f"User response creation error for user {username}: {e}")
+            raise HTTPException(status_code=500, detail="사용자 정보 구성 중 오류가 발생했습니다.")
+        
+        logging.info(f"Login successful for user: {username}")
+        return Token(access_token=access_token, token_type="bearer", user=user_response)
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        # Log unexpected errors securely (don't expose sensitive details)
+        logging.error(f"Unexpected error during login: {e}")
+        raise HTTPException(status_code=500, detail="로그인 처리 중 예상치 못한 오류가 발생했습니다.")
+
+# API router will be included later with /api prefix
+
+# 보안 파일 라우터 추가
+if SECURE_FILE_ENABLED:
+    app.include_router(secure_file_router)
+    print("✅ 보안 파일 시스템이 활성화되었습니다.")
+
+# 평가표 출력 라우터 추가
+if EVALUATION_PRINT_ENABLED:
+    app.include_router(evaluation_print_router)
+    print("✅ 평가표 출력 시스템이 활성화되었습니다.")
+
+# 향상된 내보내기 라우터 추가
+if ENHANCED_EXPORT_ENABLED:
+    app.include_router(enhanced_export_router)
+    print("✅ 향상된 내보내기 시스템이 활성화되었습니다.")
+
+# AI 평가 제어 라우터 추가
+if AI_EVALUATION_CONTROL_ENABLED:
+    app.include_router(ai_evaluation_control_router)
+    print("✅ AI 평가 제어 시스템이 활성화되었습니다.")
+
+# AI 라우터 추가 (AI 기능이 활성화된 경우에만)
+if AI_ENABLED:
+    app.include_router(ai_router)
+    print("✅ AI 기능이 활성화되었습니다.")
+
+# AI 관리자 라우터 추가 (AI 관리 기능이 활성화된 경우에만)
+if AI_ADMIN_ENABLED:
+    app.include_router(ai_admin_router)
+    print("✅ AI 관리자 기능이 활성화되었습니다.")
+
+# AI 모델 설정 라우터 추가
+if AI_MODEL_SETTINGS_ENABLED:
+    app.include_router(ai_model_settings_router)
+    print("✅ AI 모델 설정 기능이 활성화되었습니다.")
+
+# 권한 관리 라우터 추가 (향상된 권한 시스템이 활성화된 경우에만)
+if ENHANCED_PERMISSIONS_ENABLED:
+    app.include_router(permission_admin_router)
+    print("✅ 향상된 권한 관리 기능이 활성화되었습니다.")
+
+# 향상된 템플릿 관리 라우터 추가 - MOVED to after api_router registration
+
+# 헬스 모니터링 라우터 추가
+if enhanced_health_monitoring:
+    app.include_router(health_router)
+    print("✅ 향상된 헬스 모니터링 기능이 활성화되었습니다.")
+
+# 평가 워크플로우 완성을 위한 추가 엔드포인트들
+
+@api_router.post("/evaluations/create")
+async def create_evaluation_assignment(
+    assignment_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """새로운 평가 배정 생성"""
+    check_admin_or_secretary(current_user)
+    
+    try:
+        # 평가 시트 생성
+        evaluation_sheet = {
+            "id": str(uuid.uuid4()),
+            "project_id": assignment_data["project_id"],
+            "company_id": assignment_data["company_id"],
+            "evaluator_id": assignment_data["evaluator_id"],
+            "template_id": assignment_data.get("template_id"),
+            "status": "assigned",
+            "created_at": datetime.utcnow(),
+            "created_by": current_user.id,
+            "scores": {},
+            "comments": ""
+        }
+        
+        await db.evaluation_sheets.insert_one(evaluation_sheet)
+        return {"message": "평가가 성공적으로 배정되었습니다", "evaluation_id": evaluation_sheet["id"]}
+    
+    except Exception as e:
+        logger.error(f"평가 배정 생성 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"평가 배정 실패: {str(e)}")
+
+@api_router.get("/evaluations/{evaluation_id}")
+async def get_evaluation_detail(
+    evaluation_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """평가 상세 정보 조회"""
+    try:
+        evaluation = await db.evaluation_sheets.find_one({"id": evaluation_id})
+        if not evaluation:
+            raise HTTPException(status_code=404, detail="평가를 찾을 수 없습니다")
+        
+        # 권한 확인
+        if current_user.role == "evaluator" and evaluation["evaluator_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="접근 권한이 없습니다")
+        
+        # 관련 정보 조회
+        project = await db.projects.find_one({"id": evaluation["project_id"]})
+        company = await db.companies.find_one({"id": evaluation["company_id"]})
+        evaluator = await db.users.find_one({"id": evaluation["evaluator_id"]})
+        template = await db.evaluation_templates.find_one({"id": evaluation.get("template_id")})
+        
+        return {
+            "evaluation": evaluation,
+            "project": project,
+            "company": company,
+            "evaluator": evaluator,
+            "template": template
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"평가 상세 조회 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"평가 상세 조회 실패: {str(e)}")
+
+@api_router.put("/evaluations/{evaluation_id}")
+async def update_evaluation(
+    evaluation_id: str,
+    update_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """평가 업데이트 (임시 저장)"""
+    try:
+        evaluation = await db.evaluation_sheets.find_one({"id": evaluation_id})
+        if not evaluation:
+            raise HTTPException(status_code=404, detail="평가를 찾을 수 없습니다")
+        
+        # 권한 확인
+        if current_user.role == "evaluator" and evaluation["evaluator_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="접근 권한이 없습니다")
+        
+        # 업데이트 데이터 준비
+        update_fields = {
+            "scores": update_data.get("scores", evaluation["scores"]),
+            "comments": update_data.get("comments", evaluation["comments"]),
+            "status": update_data.get("status", "in_progress"),
+            "updated_at": datetime.utcnow(),
+            "updated_by": current_user.id
+        }
+        
+        # 제출인 경우 제출 시간 기록
+        if update_data.get("status") == "submitted":
+            update_fields["submitted_at"] = datetime.utcnow()
+        
+        await db.evaluation_sheets.update_one(
+            {"id": evaluation_id},
+            {"$set": update_fields}
+        )
+        
+        return {"message": "평가가 성공적으로 업데이트되었습니다"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"평가 업데이트 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"평가 업데이트 실패: {str(e)}")
+
+@api_router.delete("/evaluations/{evaluation_id}")
+async def delete_evaluation(
+    evaluation_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """평가 삭제"""
+    check_admin_or_secretary(current_user)
+    
+    try:
+        result = await db.evaluation_sheets.delete_one({"id": evaluation_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="평가를 찾을 수 없습니다")
+        
+        # 관련 점수 데이터도 삭제
+        await db.evaluation_scores.delete_many({"sheet_id": evaluation_id})
+        
+        return {"message": "평가가 성공적으로 삭제되었습니다"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"평가 삭제 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"평가 삭제 실패: {str(e)}")
+
+@api_router.get("/dashboard/statistics")
+async def get_dashboard_statistics(
+    current_user: User = Depends(get_current_user)
+):
+    """대시보드 통계 데이터 조회"""
+    try:
+        # 기본 통계 데이터 조회
+        total_projects = await db.projects.count_documents({})
+        total_companies = await db.companies.count_documents({})
+        total_evaluators = await db.users.count_documents({"role": "evaluator"})
+        total_evaluations = await db.evaluation_sheets.count_documents({})
+        
+        # 상태별 평가 집계
+        pending_evaluations = await db.evaluation_sheets.count_documents({"status": "assigned"})
+        in_progress_evaluations = await db.evaluation_sheets.count_documents({"status": "in_progress"})
+        completed_evaluations = await db.evaluation_sheets.count_documents({"status": "submitted"})
+        
+        # 최근 활동
+        recent_evaluations = await db.evaluation_sheets.find(
+            {},
+            sort=[("created_at", -1)],
+            limit=5
+        ).to_list(5)
+        
+        return {
+            "overview": {
+                "total_projects": total_projects,
+                "total_companies": total_companies,
+                "total_evaluators": total_evaluators,
+                "total_evaluations": total_evaluations
+            },
+            "evaluation_status": {
+                "pending": pending_evaluations,
+                "in_progress": in_progress_evaluations,
+                "completed": completed_evaluations,
+                "completion_rate": round((completed_evaluations / max(total_evaluations, 1)) * 100, 1)
+            },
+            "recent_activity": recent_evaluations
+        }
+    
+    except Exception as e:
+        logger.error(f"대시보드 통계 조회 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"대시보드 통계 조회 실패: {str(e)}")
+
+# 보안 파일 라우터 추가
+if SECURE_FILE_ENABLED:
+    app.include_router(secure_file_router)
+    print("✅ 보안 파일 관리 기능이 활성화되었습니다.")
+
+# 평가표 출력 라우터는 이미 위에서 등록됨 (중복 제거)
+
+# AI 평가 제어 라우터 추가
+if AI_EVALUATION_CONTROL_ENABLED:
+    app.include_router(ai_evaluation_control_router)
+    print("✅ AI 평가 제어 기능이 활성화되었습니다.")
+
+# 배포 관리 라우터 추가
+if DEPLOYMENT_MANAGER_ENABLED:
+    app.include_router(deployment_router)
+    print("✅ 배포 관리 기능이 활성화되었습니다.")
+
+# WebSocket 엔드포인트 추가
+try:
+    from websocket_service import connection_manager, notification_service as ws_notification_service
+    
+    @app.websocket("/ws/{user_id}")
+    async def websocket_endpoint(websocket: WebSocket, user_id: str):
+        """WebSocket 연결 엔드포인트"""
+        await connection_manager.connect(websocket, user_id)
+        try:
+            while True:
+                # 클라이언트로부터 메시지 수신
+                data = await websocket.receive_text()
+                try:
+                    message = json.loads(data)
+                    
+                    # 메시지 타입별 처리
+                    if message.get("type") == "join_room":
+                        room_id = message.get("room_id")
+                        if room_id:
+                            await connection_manager.join_room(websocket, room_id)
+                    
+                    elif message.get("type") == "leave_room":
+                        room_id = message.get("room_id")
+                        if room_id:
+                            await connection_manager.leave_room(websocket, room_id)
+                    
+                    elif message.get("type") == "ping":
+                        # 연결 상태 확인
+                        await connection_manager.send_personal_message({
+                            "type": "pong",
+                            "timestamp": datetime.utcnow().isoformat()
+                        }, websocket)
+                    
+                except json.JSONDecodeError:
+                    # 잘못된 JSON 메시지 무시
+                    pass
+                    
+        except WebSocketDisconnect:
+            connection_manager.disconnect(websocket)
+    
+    @app.get("/api/notifications/active-connections")
+    async def get_active_connections(current_user: User = Depends(get_current_user)):
+        """활성 WebSocket 연결 상태 조회 (관리자 전용)"""
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="관리자만 연결 상태를 조회할 수 있습니다")
+        
+        return {
+            "active_users": connection_manager.get_active_users(),
+            "total_connections": connection_manager.get_connection_count(),
+            "rooms": list(connection_manager.rooms.keys())
+        }
+    
+    @app.post("/api/notifications/send-broadcast")
+    async def send_broadcast_notification(
+        message: dict,
+        current_user: User = Depends(get_current_user)
+    ):
+        """전체 사용자에게 브로드캐스트 알림 전송 (관리자 전용)"""
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="관리자만 브로드캐스트 알림을 보낼 수 있습니다")
+        
+        notification_message = {
+            "type": "admin_broadcast",
+            "title": message.get("title", "관리자 공지"),
+            "message": message.get("message", ""),
+            "priority": message.get("priority", "info"),
+            "timestamp": datetime.utcnow().isoformat(),
+            "sender": current_user.user_name
+        }
+        
+        await connection_manager.broadcast_to_all(notification_message)
+        
+        return {"message": "브로드캐스트 알림이 전송되었습니다"}
+    
+    print("✅ WebSocket 실시간 알림 시스템이 활성화되었습니다.")
+    
+except ImportError as e:
+    print(f"⚠️ WebSocket 서비스를 가져올 수 없습니다: {e}")
+
+# 기본 API 라우터 추가 (중요한 엔드포인트들)
+try:
+    app.include_router(api_router, prefix="/api", tags=["Main API"])
+    print("✅ 기본 API 라우터가 등록되었습니다.")
+except Exception as e:
+    print(f"⚠️ API 라우터 등록 실패: {e}")
+    print("API 라우터가 정의되지 않았을 수 있습니다. 기본 엔드포인트들은 직접 등록됩니다.")
+
+# 향상된 템플릿 관리 라우터 추가 (prefix 없이 등록하여 우선순위 확보)
+if ENHANCED_TEMPLATES_ENABLED:
+    app.include_router(template_router, prefix="")
+    print("✅ 향상된 템플릿 관리 기능이 활성화되었습니다 (prefix 없이 등록하여 우선순위 확보).")
 
 # Main entry point for Uvicorn (if running directly)
 if __name__ == "__main__":

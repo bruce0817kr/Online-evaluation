@@ -1,0 +1,54 @@
+{
+  "startTime": "2025-06-27T16:15:40.962Z",
+  "results": [
+    {
+      "user": "관리자",
+      "test": "로그인",
+      "status": "passed",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ODVlNDE4ZDE3ZDM3OGM4YTRhNDdiZTkiLCJleHAiOjE3NTEwNTUzNDF9.qn5qgMn0YaCh1Q_EMocKUCVKK93dHoap8rQSD8M5lJw"
+    },
+    {
+      "user": "관리자",
+      "test": "API - 사용자 목록",
+      "status": "passed",
+      "statusCode": 200
+    },
+    {
+      "user": "관리자",
+      "test": "API - 프로젝트 목록",
+      "status": "passed",
+      "statusCode": 200
+    },
+    {
+      "user": "관리자",
+      "test": "API - 템플릿 목록",
+      "status": "passed",
+      "statusCode": 200
+    },
+    {
+      "user": "관리자",
+      "test": "API - AI 공급자 목록",
+      "status": "passed",
+      "statusCode": 200
+    },
+    {
+      "user": "관리자",
+      "test": "API - AI 모델 목록",
+      "status": "failed",
+      "error": "Status 404"
+    },
+    {
+      "user": "관리자",
+      "test": "API - 배포 상태",
+      "status": "failed",
+      "error": "Status 500"
+    },
+    {
+      "user": "간사",
+      "test": "로그인",
+      "status": "failed",
+      "error": "로그인 실패: 401"
+    }
+  ],
+  "endTime": "2025-06-27T16:15:41.874Z"
+}

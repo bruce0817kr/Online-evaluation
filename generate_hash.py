@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""비밀번호 해시 생성 도구"""
-
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
-passwords = {
-    "admin123": pwd_context.hash("admin123"),
-    "secretary123": pwd_context.hash("secretary123"), 
-    "evaluator123": pwd_context.hash("evaluator123")
-}
+password = "evaluator123"
+hash_value = pwd_context.hash(password)
 
-for password, hash_value in passwords.items():
-    print(f"{password}: {hash_value}")
+print(f"Password: {password}")
+print(f"Hash: {hash_value}")
+
+# Test verification
+is_valid = pwd_context.verify(password, hash_value)
+print(f"Verification: {is_valid}")

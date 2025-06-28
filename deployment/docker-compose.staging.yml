@@ -1,0 +1,484 @@
+version: '3.8'
+
+# 🚀 AI 모델 관리 시스템 - 스테이징 환경 Docker Compose 설정
+# 백엔드 페르소나 중심의 고성능, 고가용성 구성
+
+services:
+  # 백엔드 서비스 - 인스턴스 1
+  backend-1:
+    image: ${ECR_REGISTRY}/${PROJECT_NAME}/backend:${IMAGE_TAG:-staging}
+    container_name: ${PROJECT_NAME}-backend-1
+    hostname: backend-1
+    restart: unless-stopped
+    
+    environment:
+      # 기본 환경 설정
+      - NODE_ENV=staging
+      - ENVIRONMENT=staging
+      - PROJECT_NAME=${PROJECT_NAME}
+      - INSTANCE_ID=backend-1
+      - PORT=8000
+      
+      # 데이터베이스 설정
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+      
+      # 보안 설정
+      - JWT_SECRET=${JWT_SECRET}
+      - API_RATE_LIMIT=1000
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      
+      # 성능 최적화 설정
+      - UVICORN_WORKERS=4
+      - UVICORN_MAX_REQUESTS=1000
+      - UVICORN_MAX_REQUESTS_JITTER=100
+      - DATABASE_POOL_SIZE=20
+      - REDIS_POOL_SIZE=10
+      - CACHE_TTL=300
+      
+      # 모니터링 설정
+      - LOG_LEVEL=INFO
+      - MONITORING_ENABLED=true
+      - METRICS_PORT=9090
+      - HEALTH_CHECK_INTERVAL=30
+      
+      # 파일 업로드 설정
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=50MB
+      - ALLOWED_FILE_TYPES=pdf,docx,xlsx,txt,json
+      
+    ports:
+      - "8000:8000"
+      - "9090:9090"  # Prometheus metrics
+      
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./config:/app/config
+      
+    networks:
+      - backend-network
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+          
+    labels:
+      - "app=ai-model-backend"
+      - "instance=backend-1"
+      - "environment=staging"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9090"
+      - "prometheus.io/path=/metrics"
+
+  # 백엔드 서비스 - 인스턴스 2  
+  backend-2:
+    image: ${ECR_REGISTRY}/${PROJECT_NAME}/backend:${IMAGE_TAG:-staging}
+    container_name: ${PROJECT_NAME}-backend-2
+    hostname: backend-2
+    restart: unless-stopped
+    
+    environment:
+      # 기본 환경 설정
+      - NODE_ENV=staging
+      - ENVIRONMENT=staging
+      - PROJECT_NAME=${PROJECT_NAME}
+      - INSTANCE_ID=backend-2
+      - PORT=8001
+      
+      # 데이터베이스 설정
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+      
+      # 보안 설정
+      - JWT_SECRET=${JWT_SECRET}
+      - API_RATE_LIMIT=1000
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      
+      # 성능 최적화 설정
+      - UVICORN_WORKERS=4
+      - UVICORN_MAX_REQUESTS=1000
+      - UVICORN_MAX_REQUESTS_JITTER=100
+      - DATABASE_POOL_SIZE=20
+      - REDIS_POOL_SIZE=10
+      - CACHE_TTL=300
+      
+      # 모니터링 설정
+      - LOG_LEVEL=INFO
+      - MONITORING_ENABLED=true
+      - METRICS_PORT=9091
+      - HEALTH_CHECK_INTERVAL=30
+      
+      # 파일 업로드 설정
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=50MB
+      - ALLOWED_FILE_TYPES=pdf,docx,xlsx,txt,json
+      
+    ports:
+      - "8001:8001"
+      - "9091:9091"  # Prometheus metrics
+      
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./config:/app/config
+      
+    networks:
+      - backend-network
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+          
+    labels:
+      - "app=ai-model-backend"
+      - "instance=backend-2"
+      - "environment=staging"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9091"
+      - "prometheus.io/path=/metrics"
+
+  # 백엔드 서비스 - 인스턴스 3
+  backend-3:
+    image: ${ECR_REGISTRY}/${PROJECT_NAME}/backend:${IMAGE_TAG:-staging}
+    container_name: ${PROJECT_NAME}-backend-3
+    hostname: backend-3
+    restart: unless-stopped
+    
+    environment:
+      # 기본 환경 설정
+      - NODE_ENV=staging
+      - ENVIRONMENT=staging
+      - PROJECT_NAME=${PROJECT_NAME}
+      - INSTANCE_ID=backend-3
+      - PORT=8002
+      
+      # 데이터베이스 설정
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+      
+      # 보안 설정
+      - JWT_SECRET=${JWT_SECRET}
+      - API_RATE_LIMIT=1000
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      
+      # 성능 최적화 설정
+      - UVICORN_WORKERS=4
+      - UVICORN_MAX_REQUESTS=1000
+      - UVICORN_MAX_REQUESTS_JITTER=100
+      - DATABASE_POOL_SIZE=20
+      - REDIS_POOL_SIZE=10
+      - CACHE_TTL=300
+      
+      # 모니터링 설정
+      - LOG_LEVEL=INFO
+      - MONITORING_ENABLED=true
+      - METRICS_PORT=9092
+      - HEALTH_CHECK_INTERVAL=30
+      
+      # 파일 업로드 설정
+      - UPLOAD_DIR=/app/uploads
+      - MAX_FILE_SIZE=50MB
+      - ALLOWED_FILE_TYPES=pdf,docx,xlsx,txt,json
+      
+    ports:
+      - "8002:8002"
+      - "9092:9092"  # Prometheus metrics
+      
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./config:/app/config
+      
+    networks:
+      - backend-network
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+          
+    labels:
+      - "app=ai-model-backend"
+      - "instance=backend-3"
+      - "environment=staging"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9092"
+      - "prometheus.io/path=/metrics"
+
+  # 백그라운드 작업 처리기
+  worker:
+    image: ${ECR_REGISTRY}/${PROJECT_NAME}/backend:${IMAGE_TAG:-staging}
+    container_name: ${PROJECT_NAME}-worker
+    hostname: worker
+    restart: unless-stopped
+    
+    command: python -m workers.background_worker
+    
+    environment:
+      # 기본 환경 설정
+      - NODE_ENV=staging
+      - ENVIRONMENT=staging
+      - PROJECT_NAME=${PROJECT_NAME}
+      - INSTANCE_ID=worker
+      - WORKER_TYPE=background
+      
+      # 데이터베이스 설정
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+      
+      # 보안 설정
+      - JWT_SECRET=${JWT_SECRET}
+      
+      # 워커 설정
+      - WORKER_CONCURRENCY=4
+      - WORKER_PREFETCH=2
+      - QUEUE_MAX_SIZE=1000
+      - TASK_TIMEOUT=3600
+      
+      # 모니터링 설정
+      - LOG_LEVEL=INFO
+      - MONITORING_ENABLED=true
+      - METRICS_PORT=9093
+      
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./config:/app/config
+      
+    networks:
+      - backend-network
+      
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:9093/health')"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1.5G
+        reservations:
+          cpus: '0.3'
+          memory: 512M
+          
+    labels:
+      - "app=ai-model-worker"
+      - "instance=worker"
+      - "environment=staging"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9093"
+      - "prometheus.io/path=/metrics"
+
+  # Nginx 리버스 프록시 (로컬 로드 밸런싱)
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: ${PROJECT_NAME}-nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./logs:/var/log/nginx
+      
+    networks:
+      - backend-network
+      
+    depends_on:
+      - backend-1
+      - backend-2
+      - backend-3
+      
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+          
+    labels:
+      - "app=nginx-proxy"
+      - "environment=staging"
+
+  # Prometheus (메트릭 수집)
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: ${PROJECT_NAME}-prometheus
+    restart: unless-stopped
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      
+    ports:
+      - "9090:9090"
+      
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+      
+    networks:
+      - backend-network
+      
+    depends_on:
+      - backend-1
+      - backend-2
+      - backend-3
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+          
+    labels:
+      - "app=prometheus"
+      - "environment=staging"
+
+  # Grafana (모니터링 대시보드)
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: ${PROJECT_NAME}-grafana
+    restart: unless-stopped
+    
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      
+    ports:
+      - "3000:3000"
+      
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+      
+    networks:
+      - backend-network
+      
+    depends_on:
+      - prometheus
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+          
+    labels:
+      - "app=grafana"
+      - "environment=staging"
+
+  # 로그 수집기 (Fluent Bit)
+  fluent-bit:
+    image: fluent/fluent-bit:2.2
+    container_name: ${PROJECT_NAME}-fluent-bit
+    restart: unless-stopped
+    
+    volumes:
+      - ./monitoring/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./logs:/app/logs:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      
+    networks:
+      - backend-network
+      
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+          
+    labels:
+      - "app=fluent-bit"
+      - "environment=staging"
+
+volumes:
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/prometheus
+      
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana
+
+networks:
+  backend-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: ai-model-net

@@ -1,0 +1,96 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: quick-mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: online_evaluation
+    volumes:
+      - quick_mongodb:/data/db
+    networks:
+      - quick-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: quick-redis
+    restart: unless-stopped
+    ports:
+      - "6382:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - quick_redis:/data
+    networks:
+      - quick-net
+
+  backend:
+    image: python:3.11-slim
+    container_name: quick-backend
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      MONGO_URL: "mongodb://admin:password123@mongodb:27017/online_evaluation?authSource=admin"
+      JWT_SECRET: "quick-secret-1750813798"
+      CORS_ORIGINS: "http://localhost:3002"
+      REDIS_URL: "redis://redis:6379"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    working_dir: /app
+    command: >
+      bash -c "
+        echo 'Backend 시작 중...' &&
+        pip install --no-cache-dir --quiet fastapi uvicorn motor pymongo pydantic python-jose[cryptography] passlib[bcrypt] python-multipart &&
+        echo 'Backend 의존성 설치 완료' &&
+        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+      "
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - quick-net
+
+  frontend:
+    image: node:18-alpine
+    container_name: quick-frontend
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:8002"
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/app
+      - quick_nodemodules:/app/node_modules
+    working_dir: /app
+    command: >
+      sh -c "
+        echo 'Frontend 시작 중...' &&
+        if [ ! -d node_modules ] || [ ! -f node_modules/.install-complete ]; then
+          echo 'npm 의존성 설치 중...'
+          npm install --silent --no-progress &&
+          touch node_modules/.install-complete
+        fi &&
+        echo 'Frontend 의존성 준비 완료' &&
+        npm start
+      "
+    depends_on:
+      - backend
+    networks:
+      - quick-net
+
+networks:
+  quick-net:
+    driver: bridge
+
+volumes:
+  quick_mongodb:
+    driver: local
+  quick_redis:
+    driver: local
+  quick_nodemodules:
+    driver: local

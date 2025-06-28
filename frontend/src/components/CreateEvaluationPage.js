@@ -129,7 +129,7 @@ const CreateEvaluationPage = ({ user, onEvaluationCreated, onCancel }) => {
       }
 
       // API 호출
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/api/evaluations`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8019'}/api/evaluations`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

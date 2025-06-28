@@ -34,9 +34,9 @@ class SecurityConfig:
     
     def __init__(self):
         # JWT Configuration
-        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", self._generate_secret_key())
+        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET", os.getenv("JWT_SECRET_KEY", self._generate_secret_key()))
         self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-        self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+        self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "240"))  # 4시간으로 연장
         self.JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7"))
         
         # Password Security
@@ -67,8 +67,14 @@ class SecurityConfig:
         """Generate a secure secret key"""
         return secrets.token_urlsafe(32)
 
-# Global security configuration
-security_config = SecurityConfig()
+# Global security configuration - Initialize lazily to ensure environment variables are loaded
+security_config = None
+
+def get_security_config():
+    global security_config
+    if security_config is None:
+        security_config = SecurityConfig()
+    return security_config
 
 # Password context with improved settings
 # Renaming to imported_pwd_context to avoid conflict if server.py also defines pwd_context
@@ -104,15 +110,21 @@ class JWTManager:
             logger.error(f"JWTError during token verification: {e}")
             raise credentials_exception
 
-# Instantiate JWTManager
-jwt_manager = JWTManager(security_config)
+# Instantiate JWTManager with lazy initialization
+jwt_manager = None
+
+def get_jwt_manager():
+    global jwt_manager
+    if jwt_manager is None:
+        jwt_manager = JWTManager(get_security_config())
+    return jwt_manager
 
 # Top-level functions for server.py to import
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """
     Creates a new access token.
     """
-    return jwt_manager.create_access_token(data, expires_delta)
+    return get_jwt_manager().create_access_token(data, expires_delta)
 
 def get_password_hash(password: str) -> str:
     """
@@ -205,7 +217,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt_manager.verify_token(token.credentials, credentials_exception)
+        payload = get_jwt_manager().verify_token(token.credentials, credentials_exception)
         user_id: str = payload.get("sub")
         if user_id is None:
             logger.warning("Token payload missing 'sub' (user_id)")
@@ -230,7 +242,7 @@ async def get_current_user_optional(
     if token is None or token.credentials is None:
         return None
     try:
-        payload = jwt_manager.verify_token(token.credentials, HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"))
+        payload = get_jwt_manager().verify_token(token.credentials, HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"))
         user_id: str = payload.get("sub")
         if user_id is None:
             return None

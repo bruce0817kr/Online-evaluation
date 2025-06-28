@@ -12,6 +12,9 @@
     "test:workflow": "playwright test tests/e2e/workflow.spec.js",
     "test:system": "playwright test tests/e2e/system.spec.js",
     "test:ui-tests": "playwright test tests/e2e/ui.spec.js",
+    "test:user-roles": "node tests/e2e/user-role-test.spec.js",
+    "test:user-roles:watch": "TEST_URL=http://localhost:3019 HEADLESS=false SLOW_MO=100 node tests/e2e/user-role-test.spec.js",
+    "create:test-accounts": "node scripts/create_test_accounts.js",
     "test:parallel": "playwright test --workers=4",
     "test:chrome": "playwright test --project=chromium",
     "test:firefox": "playwright test --project=firefox",
@@ -30,7 +33,10 @@
     "react-beautiful-dnd": "^13.1.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "puppeteer": "^21.7.0",
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.3.0"
   },
   "keywords": ["evaluation", "testing", "playwright", "automation", "fastapi", "react"],
   "author": "Online Evaluation System Team",

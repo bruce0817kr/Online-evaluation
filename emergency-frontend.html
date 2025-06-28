@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Evaluation System - Emergency Mode</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .status {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #4CAF50;
+        }
+        .service-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .service-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        .service-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #FFF;
+        }
+        .service-url {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        .emergency-badge {
+            background: #FF4444;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Online Evaluation System <span class="emergency-badge">Emergency Mode</span></h1>
+        
+        <div class="status">
+            <h3>✅ 시스템 상태: 작동 중</h3>
+            <p>모든 백엔드 서비스가 정상적으로 실행되고 있습니다. 아래 링크를 통해 시스템에 접근할 수 있습니다.</p>
+        </div>
+
+        <div class="service-list">
+            <div class="service-card">
+                <div class="service-title">🔧 API 문서</div>
+                <div class="service-url">http://localhost:8003/docs</div>
+                <a href="http://localhost:8003/docs" class="btn" target="_blank">API 문서 열기</a>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title">🔍 Health Check</div>
+                <div class="service-url">http://localhost:8003/health</div>
+                <a href="http://localhost:8003/health" class="btn" target="_blank">상태 확인</a>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title">📊 Database</div>
+                <div class="service-url">MongoDB: localhost:27019</div>
+                <button class="btn" onclick="testDB()">DB 연결 테스트</button>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-title">⚡ Cache</div>
+                <div class="service-url">Redis: localhost:6384</div>
+                <button class="btn" onclick="testRedis()">Redis 테스트</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🆘 Emergency Mode에서 실행 중입니다.</p>
+            <p>전체 기능을 사용하려면 React 앱이 필요하지만, 모든 API는 정상 작동합니다.</p>
+            <p>포트 정보: Frontend(3004), Backend(8003), MongoDB(27019), Redis(6384)</p>
+        </div>
+    </div>
+
+    <script>
+        async function testDB() {
+            try {
+                const response = await fetch('http://localhost:8003/health');
+                const data = await response.json();
+                alert('DB 연결 상태: ' + (data.database ? '✅ 정상' : '❌ 오류'));
+            } catch (e) {
+                alert('❌ DB 테스트 실패: ' + e.message);
+            }
+        }
+
+        async function testRedis() {
+            try {
+                const response = await fetch('http://localhost:8003/health');
+                const data = await response.json();
+                alert('Redis 연결 상태: ' + (data.redis ? '✅ 정상' : '❌ 오류'));
+            } catch (e) {
+                alert('❌ Redis 테스트 실패: ' + e.message);
+            }
+        }
+
+        // 자동 상태 확인
+        setInterval(async () => {
+            try {
+                const response = await fetch('http://localhost:8003/health');
+                if (response.ok) {
+                    document.querySelector('.status h3').innerHTML = '✅ 시스템 상태: 작동 중';
+                } else {
+                    document.querySelector('.status h3').innerHTML = '⚠️ 시스템 상태: 부분 작동';
+                }
+            } catch (e) {
+                document.querySelector('.status h3').innerHTML = '❌ 시스템 상태: 오프라인';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

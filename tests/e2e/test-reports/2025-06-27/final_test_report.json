@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-06-27T16:21:34.913Z",
+  "results": [
+    {
+      "user": "시스템 관리자",
+      "login": "success",
+      "profile": "success",
+      "role": "admin"
+    },
+    {
+      "user": "간사",
+      "login": "failed",
+      "error": "로그인 실패: 401",
+      "role": "secretary"
+    },
+    {
+      "user": "평가위원",
+      "login": "failed",
+      "error": "로그인 실패: 401",
+      "role": "evaluator"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 2,
+    "failed": 2
+  }
+}

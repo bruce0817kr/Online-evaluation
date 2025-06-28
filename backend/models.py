@@ -97,10 +97,11 @@ class ProjectBase(BaseModel):
     end_date: Optional[datetime] = None
 
 class ProjectCreate(ProjectBase):
-    pass
+    deadline: Optional[datetime] = Field(None, description="Project deadline")
 
 class Project(ProjectBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    deadline: Optional[datetime] = Field(None, description="Project deadline")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None # User ID
@@ -149,22 +150,6 @@ class EvaluationTemplateCreate(BaseModel):
     description: Optional[str] = Field(None, description="Template description")
     project_id: str = Field(..., description="Project ID this template belongs to")
     items: List[Dict[str, Any]] = Field(default_factory=list, description="Evaluation criteria items")
-
-# Update ProjectCreate to include deadline field
-class ProjectCreate(ProjectBase):
-    deadline: Optional[datetime] = Field(None, description="Project deadline")
-
-# Update Project to include deadline field
-class Project(ProjectBase):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
-    deadline: Optional[datetime] = Field(None, description="Project deadline")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    created_by: Optional[str] = None # User ID
-
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
 
 # Add other models as identified from server.py's usage and errors
 # For example: EvaluationSheet, EvaluationItem, Submission, etc.
@@ -356,6 +341,71 @@ class EvaluationTemplate(BaseModel):
     class Config:
         allow_population_by_field_name = True
         json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class EvaluationCriterionEnhanced(BaseModel):
+    """향상된 평가 기준 모델 (사업별 지표 및 가점 관리용)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="기준 ID")
+    name: str = Field(..., description="평가 항목명")
+    description: Optional[str] = Field(None, description="항목 설명")
+    max_score: int = Field(..., description="최대 점수")
+    min_score: int = Field(0, description="최소 점수")
+    weight: float = Field(1.0, description="가중치")
+    bonus: bool = Field(False, description="가점 항목 여부")
+    category: Optional[str] = Field(None, description="기준 카테고리 (기술성, 사업성, 혁신성 등)")
+    is_required: bool = Field(True, description="필수 항목 여부")
+    evaluation_guide: Optional[str] = Field(None, description="평가 가이드라인")
+    order: int = Field(0, description="표시 순서")
+
+class EvaluationTemplateEnhanced(BaseModel):
+    """향상된 평가 템플릿 모델 (사업별 지표 및 가점 관리용)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    name: str = Field(..., description="템플릿 이름")
+    description: Optional[str] = Field(None, description="템플릿 설명")
+    project_id: str = Field(..., description="프로젝트 ID")
+    category: Optional[str] = Field(None, description="템플릿 카테고리 (스타트업, 혁신기술, R&D 등)")
+    
+    # 평가 기준들
+    criteria: List[EvaluationCriterionEnhanced] = Field(default_factory=list, description="평가 기준 목록")
+    
+    # 템플릿 메타데이터
+    version: int = Field(1, description="템플릿 버전")
+    parent_template_id: Optional[str] = Field(None, description="부모 템플릿 ID (버전 관리용)")
+    is_default: bool = Field(False, description="기본 템플릿 여부")
+    is_organization_default: bool = Field(False, description="조직 기본 템플릿 여부")
+    
+    # 상태 관리
+    status: str = Field("draft", description="템플릿 상태 (draft, active, archived)")
+    approval_status: str = Field("draft", description="승인 상태 (draft, pending_approval, approved, rejected)")
+    approved_by: Optional[str] = Field(None, description="승인자 ID")
+    approved_at: Optional[datetime] = Field(None, description="승인 일시")
+    
+    # 권한 및 공유
+    is_public: bool = Field(False, description="공개 템플릿 여부")
+    shared_with: List[str] = Field(default_factory=list, description="공유된 사용자 ID 목록")
+    
+    # 추적 정보
+    created_by: str = Field(..., description="생성자 ID")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_by: Optional[str] = Field(None, description="최종 수정자 ID")
+    
+    # 사용 통계
+    usage_count: int = Field(0, description="사용 횟수")
+    last_used_at: Optional[datetime] = Field(None, description="마지막 사용 일시")
+
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class EvaluationTemplateCreateEnhanced(BaseModel):
+    """향상된 템플릿 생성 요청 모델"""
+    name: str = Field(..., description="템플릿 이름")
+    description: Optional[str] = Field(None, description="템플릿 설명")
+    project_id: str = Field(..., description="프로젝트 ID")
+    category: Optional[str] = Field(None, description="템플릿 카테고리")
+    criteria: List[EvaluationCriterionEnhanced] = Field(..., description="평가 기준 목록")
+    is_default: bool = Field(False, description="기본 템플릿 여부")
+    is_public: bool = Field(False, description="공개 템플릿 여부")
 
 # Add Assignment models for evaluation assignment functionality
 class AssignmentCreate(BaseModel):
@@ -632,3 +682,124 @@ class ScoreSubmissionCreate(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
+
+# AI 공급자 관리 모델들
+class AIProviderConfig(BaseModel):
+    """AI 공급자 설정 모델"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    provider_name: str = Field(..., description="AI 공급자명 (openai, anthropic, google, groq)")
+    display_name: str = Field(..., description="표시할 공급자명")
+    api_key: str = Field(..., description="API 키 (암호화 저장)")
+    api_endpoint: Optional[str] = Field(None, description="커스텀 API 엔드포인트")
+    is_active: bool = Field(True, description="활성화 여부")
+    priority: int = Field(1, description="우선순위 (1이 가장 높음)")
+    max_tokens: Optional[int] = Field(None, description="최대 토큰 수")
+    temperature: float = Field(0.3, description="기본 temperature 설정")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str = Field(..., description="설정한 관리자 ID")
+    
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+        from_attributes = True
+    
+    @classmethod
+    def from_mongo(cls, data: dict):
+        """MongoDB 문서를 AIProviderConfig 객체로 변환"""
+        if data and "_id" in data:
+            data = data.copy()
+            data["id"] = str(data.pop("_id"))
+        return cls(**data) if data else None
+    
+    def to_mongo(self) -> dict:
+        """AIProviderConfig 객체를 MongoDB 문서로 변환"""
+        data = self.dict(by_alias=True, exclude_unset=True)
+        if "id" in data and data["id"]:
+            data["_id"] = data.pop("id")
+        return data
+
+class AIModelConfig(BaseModel):
+    """AI 모델 설정 모델"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    provider_id: str = Field(..., description="AI 공급자 ID")
+    model_name: str = Field(..., description="모델명 (gpt-4, claude-3-haiku, gemini-pro)")
+    display_name: str = Field(..., description="표시할 모델명")
+    model_type: str = Field(..., description="모델 타입 (chat, completion, embedding)")
+    is_default: bool = Field(False, description="기본 모델 여부")
+    is_active: bool = Field(True, description="활성화 여부")
+    max_tokens: Optional[int] = Field(None, description="최대 토큰 수")
+    cost_per_1k_tokens: Optional[float] = Field(None, description="1K 토큰당 비용")
+    capabilities: List[str] = Field(default_factory=list, description="지원 기능 목록")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class AIProviderConfigCreate(BaseModel):
+    """AI 공급자 설정 생성 요청 모델"""
+    provider_name: str = Field(..., description="AI 공급자명")
+    display_name: str = Field(..., description="표시할 공급자명")
+    api_key: str = Field(..., description="API 키")
+    api_endpoint: Optional[str] = Field(None, description="커스텀 API 엔드포인트")
+    is_active: bool = Field(True, description="활성화 여부")
+    priority: int = Field(1, description="우선순위")
+    max_tokens: Optional[int] = Field(None, description="최대 토큰 수")
+    temperature: float = Field(0.3, description="기본 temperature 설정")
+
+class AIProviderConfigUpdate(BaseModel):
+    """AI 공급자 설정 업데이트 요청 모델"""
+    display_name: Optional[str] = Field(None, description="표시할 공급자명")
+    api_key: Optional[str] = Field(None, description="API 키")
+    api_endpoint: Optional[str] = Field(None, description="커스텀 API 엔드포인트")
+    is_active: Optional[bool] = Field(None, description="활성화 여부")
+    priority: Optional[int] = Field(None, description="우선순위")
+    max_tokens: Optional[int] = Field(None, description="최대 토큰 수")
+    temperature: Optional[float] = Field(None, description="기본 temperature 설정")
+
+class AIServiceStatus(BaseModel):
+    """AI 서비스 상태 모델"""
+    provider_statuses: List[Dict[str, Any]] = Field(default_factory=list, description="공급자별 상태")
+    active_providers: int = Field(0, description="활성화된 공급자 수")
+    total_providers: int = Field(0, description="전체 공급자 수")
+    default_provider: Optional[str] = Field(None, description="기본 공급자")
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+class AIAnalysisJob(BaseModel):
+    """AI 분석 작업 모델"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    user_id: str = Field(..., description="요청자 ID")
+    job_type: str = Field(..., description="작업 타입 (document_analysis, score_suggestion, plagiarism_check)")
+    input_data: Dict[str, Any] = Field(..., description="입력 데이터")
+    status: str = Field("pending", description="작업 상태 (pending, processing, completed, failed)")
+    provider_used: Optional[str] = Field(None, description="사용된 AI 공급자")
+    model_used: Optional[str] = Field(None, description="사용된 모델")
+    result_data: Optional[Dict[str, Any]] = Field(None, description="결과 데이터")
+    error_message: Optional[str] = Field(None, description="오류 메시지")
+    processing_time: Optional[float] = Field(None, description="처리 시간(초)")
+    tokens_used: Optional[int] = Field(None, description="사용된 토큰 수")
+    cost: Optional[float] = Field(None, description="비용")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = Field(None, description="완료 시간")
+    
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.isoformat()}
+
+class AIUsageStatistics(BaseModel):
+    """AI 사용 통계 모델"""
+    period: str = Field(..., description="기간 (daily, weekly, monthly)")
+    date: datetime = Field(..., description="날짜")
+    provider_usage: Dict[str, int] = Field(default_factory=dict, description="공급자별 사용 횟수")
+    total_requests: int = Field(0, description="총 요청 수")
+    total_tokens: int = Field(0, description="총 토큰 사용량")
+    total_cost: float = Field(0.0, description="총 비용")
+    success_rate: float = Field(0.0, description="성공률")
+    average_response_time: float = Field(0.0, description="평균 응답 시간")
+
+class AIProviderTestRequest(BaseModel):
+    """AI 공급자 테스트 요청 모델"""
+    provider_name: str = Field(..., description="테스트할 공급자명")
+    api_key: str = Field(..., description="테스트할 API 키")
+    test_prompt: str = Field("Hello, this is a test message.", description="테스트 프롬프트")
