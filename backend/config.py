@@ -5,7 +5,9 @@ class Settings:
     PROJECT_VERSION: str = "1.0.0"
 
     # Security settings
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "a_very_secret_key_that_should_be_in_env_var")
+    SECRET_KEY: str = os.getenv("SECRET_KEY") # Removed default value
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable is not set. This is critical for security.")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -18,7 +20,7 @@ class Settings:
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development") # development, staging, production
 
     # CORS settings
-    CORS_ORIGINS: list[str] = ["*"] # Adjust in production
+    CORS_ORIGINS: list[str] = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") # Adjust in production
 
     # Logging settings
     LOG_LEVEL: str = "INFO"
@@ -35,7 +37,6 @@ class Settings:
     # Test user credentials (for initial setup or testing)
     # These should ideally be managed securely, not hardcoded
     ADMIN_LOGIN_ID: str = "admin"
-    ADMIN_PASSWORD: str = "adminpass" # Store hashed passwords in production
 
     # File upload settings
     UPLOAD_DIR: str = "/app/uploads"

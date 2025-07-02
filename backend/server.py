@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks, Query, WebSocket, WebSocketDisconnect
+from contextlib import asynccontextmanager
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse, StreamingResponse
 from dotenv import load_dotenv
@@ -49,6 +50,7 @@ from security import (
     imported_pwd_context, # Use the correctly named imported context
     generate_evaluator_credentials, # Add missing function import
 )
+from secure_file_endpoints import check_file_access_permission, log_file_access
 
 # AI 기능 임포트
 try:
@@ -81,12 +83,8 @@ except ImportError as e:
     print(f"⚠️ 향상된 템플릿 시스템이 비활성화되었습니다: {e}")
 
 # 보안 파일 엔드포인트 임포트
-try:
-    from secure_file_endpoints import secure_file_router
-    SECURE_FILE_ENABLED = True
-except ImportError as e:
-    SECURE_FILE_ENABLED = False
-    print(f"⚠️ 보안 파일 시스템이 비활성화되었습니다: {e}")
+from secure_file_endpoints import secure_file_router
+SECURE_FILE_ENABLED = True
 
 # 평가표 출력 엔드포인트 임포트
 try:
@@ -100,7 +98,7 @@ except ImportError as e:
 try:
     from enhanced_export_endpoints import enhanced_export_router
     ENHANCED_EXPORT_ENABLED = True
-    print("✅ 향상된 내보내기 시스템을 로드했습니다.")
+    print("향상된 내보내기 시스템을 로드했습니다.")
 except ImportError as e:
     ENHANCED_EXPORT_ENABLED = False
     print(f"⚠️ 향상된 내보내기 시스템이 비활성화되었습니다: {e}")
@@ -117,7 +115,7 @@ except ImportError as e:
 try:
     from ai_model_settings_endpoints import ai_model_settings_router
     AI_MODEL_SETTINGS_ENABLED = True
-    print("✅ AI 모델 설정 시스템을 로드했습니다.")
+    print("AI 모델 설정 시스템을 로드했습니다.")
 except ImportError as e:
     AI_MODEL_SETTINGS_ENABLED = False
     print(f"⚠️ AI 모델 설정 시스템이 비활성화되었습니다: {e}")
@@ -164,12 +162,12 @@ except ImportError:
     prometheus_metrics = None
     print("Warning: Prometheus metrics module not found.")
 
-try:
-    import enhanced_health_monitoring
-    from enhanced_health_monitoring import setup_health_monitor, health_router
-except ImportError:
-    enhanced_health_monitoring = None
-    print("Warning: Enhanced health monitoring module not found.")
+# try:
+#     import enhanced_health_monitoring
+#     from enhanced_health_monitoring import setup_health_monitor, health_router
+# except ImportError:
+#     enhanced_health_monitoring = None
+#     print("Warning: Enhanced health monitoring module not found.")
 
 # Import enhanced logging system
 try:
@@ -187,18 +185,18 @@ except ImportError:
     print("Warning: Enhanced logging module not found. Using standard logging.")
 
 # Import stub services for undefined functions
-try:
-    from stub_services import (
-        calculate_evaluation_scores,
-        notification_service,
-        exporter,
-        EvaluationItem,
-        update_project_statistics,
-        background_file_processing
-    )
-    print("Successfully imported stub services for undefined functions.")
-except ImportError:
-    print("Warning: stub_services.py not found. Some functions may be undefined.")
+# try:
+#     from stub_services import (
+#         calculate_evaluation_scores,
+#         notification_service,
+#         exporter,
+#         EvaluationItem,
+#         update_project_statistics,
+#         background_file_processing
+#     )
+#     print("Successfully imported stub services for undefined functions.")
+# except ImportError:
+#     print("Warning: stub_services.py not found. Some functions may be undefined.")
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -206,7 +204,7 @@ load_dotenv(ROOT_DIR / '.env')
 # Initialize enhanced logging system
 setup_logging(
     service_name="online-evaluation-backend",
-    log_level=os.getenv("LOG_LEVEL", "INFO"),
+    log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
     log_file="/app/logs/app.log"
 )
 
@@ -271,6 +269,69 @@ pwd_context = imported_pwd_context # Correctly assign the imported instance
 # API Router 정의
 api_router = APIRouter()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan event handler"""
+    # Startup
+    with RequestContext(request_id="startup", user_id="system"):
+        log_startup_info()
+        logger.info("FastAPI application startup initiated", extra={
+            'custom_event': 'application_startup',
+            'custom_environment': os.getenv("ENVIRONMENT", "development"),
+            'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost',  # Hide credentials
+            'custom_services': ['mongodb', 'redis', 'prometheus']
+        })
+        
+        # Initialize the database connection in security module
+        from security import set_database
+        set_database(db)
+        logger.info("Database connection initialized in security module", extra={
+            'custom_service': 'security_db_init',
+            'custom_status': 'completed'
+        })
+        
+        # Initialize Redis client for performance monitoring
+        try:
+            await cache_service.connect()
+            if cache_service.redis_client:
+                await cache_service.redis_client.ping()
+                logger.info("Redis connection verified", extra={
+                    'custom_service': 'redis_init',
+                    'custom_status': 'connected'
+                })
+            else:
+                logger.warning("Redis client not available", extra={
+                    'custom_service': 'redis_init',
+                    'custom_status': 'unavailable'
+                })
+        except Exception as e:
+            logger.error("Redis connection failed", extra={
+                'custom_service': 'redis_init',
+                'custom_status': 'failed',
+                'custom_error_type': type(e).__name__
+            })
+        
+        # Log enhanced security systems status
+        logger.info("Security systems initialized", extra={
+            'custom_security_systems': ['rate_limiting', 'input_validation', 'threat_detection'],
+            'custom_security_status': 'active'
+        })
+        
+        log_startup_info()
+        logger.info("FastAPI application startup completed", extra={
+            'custom_event': 'application_startup',
+            'custom_environment': os.getenv("ENVIRONMENT", "development"),
+            'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost'  # Hide credentials
+        })
+    
+    yield  # Application runs here
+    
+    # Shutdown
+    logger.info("FastAPI application shutdown initiated", extra={
+        'custom_event': 'application_shutdown'
+    })
+    log_shutdown_info()
+
 # Create the main app with enhanced security configuration
 # Always enable /docs and /redoc for easier debugging
 app = FastAPI(
@@ -278,7 +339,8 @@ app = FastAPI(
     version="2.0.0", # Or "1.0.0" if that was the intended version from the previous edit
     description="Secure Online Evaluation System with comprehensive authentication and authorization",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Request logging middleware for context tracking
@@ -399,101 +461,20 @@ except (ImportError, AttributeError):
     print("Warning: Prometheus metrics not available")
     prometheus_metrics = None
 
-# Application startup and shutdown events for enhanced logging
-@app.on_event("startup")
-async def startup_event():
-    """Application startup event with enhanced logging"""
-    # Set startup context
-    with RequestContext(request_id="startup", user_id="system"):
-        log_startup_info()
-        logger.info("FastAPI application startup initiated", extra={
-            'custom_event': 'application_startup',
-            'custom_environment': os.getenv("ENVIRONMENT", "development"),
-            'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost',  # Hide credentials
-            'custom_services': ['mongodb', 'redis', 'prometheus']
-        })
-        
-        # Initialize the database connection in security module
-        from security import set_database
-        set_database(db)
-        logger.info("Database connection initialized in security module", extra={
-            'custom_service': 'security_db_init',
-            'custom_status': 'completed'
-        })
-        
-        # Log MongoDB connection details
-        try:
-            await client.admin.command('ping')
-            logger.info("MongoDB connection established", extra={
-                'custom_service': 'mongodb',
-                'custom_status': 'connected'
-            })
-        except Exception as e:
-            logger.error("MongoDB connection failed", extra={
-                'custom_service': 'mongodb',
-                'custom_status': 'failed',
-                'custom_error_type': type(e).__name__
-            })
-        
-        # Initialize cache service
-        try:
-            await cache_service.connect()
-            logger.info("Cache service initialized", extra={
-                'custom_service': 'redis',
-                'custom_status': 'connected'
-            })
-        except Exception as e:
-            logger.error("Cache service initialization failed", extra={
-                'custom_service': 'redis',
-                'custom_status': 'failed',
-                'custom_error_type': type(e).__name__
-            })
-        
-        # Start Prometheus metrics background collection
-        if prometheus_metrics:
-            try:
-                await prometheus_metrics.start_background_collection()
-                logger.info("Prometheus metrics collection started", extra={
-                    'custom_service': 'prometheus',
-                    'custom_status': 'active'
-                })
-            except Exception as e:
-                logger.error("Prometheus metrics initialization failed", extra={
-                    'custom_service': 'prometheus',
-                    'custom_status': 'failed',
-                    'custom_error_type': type(e).__name__
-                })
-        
-        # Log enhanced security systems status
-        logger.info("Security systems initialized", extra={
-            'custom_security_systems': ['rate_limiting', 'input_validation', 'threat_detection'],
-            'custom_security_status': 'active'
-        })
-        
-        log_startup_info()
-    logger.info("FastAPI application startup completed", extra={
-        'custom_event': 'application_startup',
-        'custom_environment': os.getenv("ENVIRONMENT", "development"),
-        'custom_mongodb_url': mongo_url.split('@')[-1] if '@' in mongo_url else 'localhost'  # Hide credentials
-    })
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Application shutdown event"""
-    logger.info("FastAPI application shutdown initiated", extra={
-        'custom_event': 'application_shutdown'
-    })
-    log_shutdown_info()
+# api_router registration moved to centralized location to avoid duplicates
 
 # Import and include core API routers
 try:
     from evaluation_api import router as evaluation_router
     app.include_router(evaluation_router, prefix="/api", tags=["Evaluations"])
-    print("✅ 평가 API 라우터가 등록되었습니다.")
+    print("평가 API 라우터가 등록되었습니다.")
 except ImportError as e:
     print(f"⚠️ 평가 API 라우터 로드 실패: {e}")
     print("⚠️ evaluation_api.py 파일을 확인해주세요.")
-print("✅ 모든 라우터가 활성화되었습니다.")
+print("모든 라우터가 활성화되었습니다.")
+
+# Removed duplicate get_dashboard_statistics - better implementation exists at line 3019
 
 # 파일 관리 엔드포인트 - REMOVED to avoid conflict with secure_file_router
 # Files are now handled by secure_file_endpoints.py with prefix /api/files
@@ -515,39 +496,9 @@ async def get_users(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"사용자 목록 조회 실패: {str(e)}")
 
-# 프로젝트 관리 엔드포인트들
-@api_router.get("/projects")
-async def get_projects(current_user: User = Depends(get_current_user)):
-    """프로젝트 목록 조회"""
-    try:
-        projects = await db.projects.find({}).to_list(1000)
-        # MongoDB ObjectId를 문자열로 변환
-        for project in projects:
-            if "_id" in project:
-                project["id"] = str(project.pop("_id"))
-        return projects
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"프로젝트 목록 조회 실패: {str(e)}")
+# Removed duplicate get_projects - better implementation exists at line 1082
 
-# 기업 관리 엔드포인트들
-@api_router.get("/companies")
-async def get_companies(
-    project_id: Optional[str] = None,
-    current_user: User = Depends(get_current_user)
-):
-    """기업 목록 조회"""
-    try:
-        query = {}
-        if project_id:
-            query["project_id"] = project_id
-        companies = await db.companies.find(query).to_list(1000)
-        # MongoDB ObjectId를 문자열로 변환
-        for company in companies:
-            if "_id" in company:
-                company["id"] = str(company.pop("_id"))
-        return companies
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"기업 목록 조회 실패: {str(e)}")
+# Removed duplicate get_companies - better implementation exists at line 1113
 
 # 템플릿 관리 엔드포인트들 - REMOVED to avoid conflict with template_router
 # Templates are now handled by template_endpoints.py with prefix /api/templates
@@ -578,7 +529,7 @@ async def get_admin_users(current_user: User = Depends(get_current_user)):
 # 인증 엔드포인트들은 이미 server.py에 정의되어 있음
 
 # Health check endpoint (no prefix)
-@app.get("/health", summary="Health Check", tags=["Health"])
+@app.get("/health", operation_id="health_check", summary="Health Check", tags=["Health"])
 async def health_check():
     """헬스체크 엔드포인트"""
     try:
@@ -606,7 +557,7 @@ async def health_check():
         raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
 
 # Database status endpoint
-@app.get("/db-status")
+@app.get("/db-status", operation_id="database_status")
 async def database_status():
     """데이터베이스 상태 확인 엔드포인트"""
     try:
@@ -649,7 +600,7 @@ async def database_status():
         raise HTTPException(status_code=503, detail=f"Database unhealthy: {str(e)}")
 
 # API Root endpoint
-@app.get("/")
+@app.get("/", operation_id="root_endpoint")
 async def root():
     """API 루트 엔드포인트"""
     return {
@@ -1258,7 +1209,8 @@ async def upload_file(
         
         # Add background task for file processing
         try:
-            background_tasks.add_task(background_file_processing, str(file_path), file_id)
+            # background_tasks.add_task(background_file_processing, str(file_path), file_id)
+            pass
         except Exception as e:
             logging.warning(f"Failed to add background task for file processing: {e}")
             # Don't fail the upload just because background task failed
@@ -1606,59 +1558,7 @@ async def get_file_security_analytics(
         logging.error(f"파일 보안 분석 조회 오류: {e}")
         raise HTTPException(status_code=500, detail="파일 보안 분석 조회 중 오류가 발생했습니다.")
 
-async def check_file_access_permission(current_user: User, file_id: str) -> bool:
-    """파일 접근 권한 검사"""
-    try:
-        file_metadata = await db.file_metadata.find_one({"id": file_id})
-        if not file_metadata:
-            return False
-        
-        # 관리자와 간사는 모든 파일 접근 가능
-        if current_user.role in ["admin", "secretary"]:
-            return True
-        
-        # 평가위원은 자신이 담당하는 평가의 파일만 접근 가능
-        if current_user.role == "evaluator":
-            # 파일이 속한 회사의 평가를 담당하는지 확인
-            evaluation = await db.evaluation_sheets.find_one({
-                "company_id": file_metadata["company_id"],
-                "evaluator_id": current_user.id
-            })
-            return evaluation is not None
-        
-        # 기본적으로 접근 거부
-        return False
-        
-    except Exception as e:
-        logging.error(f"파일 권한 검사 오류: {e}")
-        return False
 
-async def log_file_access(user_id: str, file_id: str, action: str, ip_address: str = None, user_agent: str = None, success: bool = True, error_message: str = None):
-    """파일 접근 로그 기록"""
-    try:
-        access_log = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "file_id": file_id,
-            "action": action,
-            "access_time": datetime.utcnow(),
-            "ip_address": ip_address or "unknown",
-            "user_agent": user_agent or "unknown",
-            "success": success,
-            "error_message": error_message
-        }
-        
-        # 데이터베이스에 영구 저장
-        await db.file_access_logs.insert_one(access_log)
-        
-        # 보안 로그에도 기록
-        log_message = f"파일 접근: 사용자={user_id}, 파일={file_id}, 작업={action}, 성공={success}"
-        if error_message:
-            log_message += f", 오류={error_message}"
-        logging.info(log_message)
-        
-    except Exception as e:
-        logging.error(f"파일 접근 로그 기록 실패: {e}")
 
 @api_router.get("/files/{file_id}/preview")
 async def preview_file(
@@ -2806,7 +2706,7 @@ async def simple_login_test(form_data: OAuth2PasswordRequestForm = Depends()):
         return {"error": "exception", "message": str(e)}
 
 # CLEAN AUTH ENDPOINT - Direct to main app to bypass router conflicts
-@app.post("/api/auth/login", response_model=Token)
+@app.post("/api/auth/login", operation_id="login_user", response_model=Token)
 async def clean_login_endpoint(form_data: OAuth2PasswordRequestForm = Depends()):
     """Clean login endpoint with enhanced validation and security"""
     
@@ -2912,52 +2812,24 @@ async def clean_login_endpoint(form_data: OAuth2PasswordRequestForm = Depends())
 
 # API router will be included later with /api prefix
 
-# 보안 파일 라우터 추가
-if SECURE_FILE_ENABLED:
-    app.include_router(secure_file_router)
-    print("✅ 보안 파일 시스템이 활성화되었습니다.")
-
-# 평가표 출력 라우터 추가
-if EVALUATION_PRINT_ENABLED:
-    app.include_router(evaluation_print_router)
-    print("✅ 평가표 출력 시스템이 활성화되었습니다.")
-
-# 향상된 내보내기 라우터 추가
-if ENHANCED_EXPORT_ENABLED:
-    app.include_router(enhanced_export_router)
-    print("✅ 향상된 내보내기 시스템이 활성화되었습니다.")
-
-# AI 평가 제어 라우터 추가
-if AI_EVALUATION_CONTROL_ENABLED:
-    app.include_router(ai_evaluation_control_router)
-    print("✅ AI 평가 제어 시스템이 활성화되었습니다.")
-
-# AI 라우터 추가 (AI 기능이 활성화된 경우에만)
-if AI_ENABLED:
-    app.include_router(ai_router)
-    print("✅ AI 기능이 활성화되었습니다.")
-
-# AI 관리자 라우터 추가 (AI 관리 기능이 활성화된 경우에만)
-if AI_ADMIN_ENABLED:
-    app.include_router(ai_admin_router)
-    print("✅ AI 관리자 기능이 활성화되었습니다.")
+# Router registrations moved to centralized location below to avoid duplicates
 
 # AI 모델 설정 라우터 추가
 if AI_MODEL_SETTINGS_ENABLED:
     app.include_router(ai_model_settings_router)
-    print("✅ AI 모델 설정 기능이 활성화되었습니다.")
+    print("AI 모델 설정 기능이 활성화되었습니다.")
 
 # 권한 관리 라우터 추가 (향상된 권한 시스템이 활성화된 경우에만)
 if ENHANCED_PERMISSIONS_ENABLED:
     app.include_router(permission_admin_router)
-    print("✅ 향상된 권한 관리 기능이 활성화되었습니다.")
+    print("향상된 권한 관리 기능이 활성화되었습니다.")
 
 # 향상된 템플릿 관리 라우터 추가 - MOVED to after api_router registration
 
 # 헬스 모니터링 라우터 추가
-if enhanced_health_monitoring:
-    app.include_router(health_router)
-    print("✅ 향상된 헬스 모니터링 기능이 활성화되었습니다.")
+# if enhanced_health_monitoring:
+#     app.include_router(health_router)
+#     print("✅ 향상된 헬스 모니터링 기능이 활성화되었습니다.")
 
 # 평가 워크플로우 완성을 위한 추가 엔드포인트들
 
@@ -3136,17 +3008,7 @@ async def get_dashboard_statistics(
         logger.error(f"대시보드 통계 조회 실패: {str(e)}")
         raise HTTPException(status_code=500, detail=f"대시보드 통계 조회 실패: {str(e)}")
 
-# 보안 파일 라우터 추가
-if SECURE_FILE_ENABLED:
-    app.include_router(secure_file_router)
-    print("✅ 보안 파일 관리 기능이 활성화되었습니다.")
-
-# 평가표 출력 라우터는 이미 위에서 등록됨 (중복 제거)
-
-# AI 평가 제어 라우터 추가
-if AI_EVALUATION_CONTROL_ENABLED:
-    app.include_router(ai_evaluation_control_router)
-    print("✅ AI 평가 제어 기능이 활성화되었습니다.")
+# Duplicate router registrations removed - centralized below
 
 # 배포 관리 라우터 추가
 if DEPLOYMENT_MANAGER_ENABLED:

@@ -15,6 +15,8 @@ from io import BytesIO
 import time
 import os
 
+logger = logging.getLogger(__name__)
+
 # AI Provider clients
 try:
     from openai import OpenAI
@@ -30,8 +32,6 @@ from ai_model_management import (
     TaskType, ModelProvider, ModelStatus, ModelRecommendation,
     ai_model_service, smart_recommender, load_balancer
 )
-
-logger = logging.getLogger(__name__)
 
 # AI Model Settings Router
 ai_model_settings_router = APIRouter(
@@ -1351,7 +1351,7 @@ async def test_model_connection(
             'user_id': current_user.id,
             'model_id': model_id,
             'is_healthy': is_healthy,
-            'response_time': test_result["response_time"]
+            'response_time': avg_response_time
         })
         
         return result

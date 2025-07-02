@@ -125,7 +125,7 @@ class SuperFixer:
         echo 'Backend Super 시작...' &&
         pip install --no-cache-dir --quiet fastapi uvicorn motor pymongo pydantic python-jose[cryptography] passlib[bcrypt] python-multipart python-dotenv &&
         echo 'Backend 의존성 설치 완료' &&
-        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+        python3 -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
       "
     depends_on:
       - mongodb

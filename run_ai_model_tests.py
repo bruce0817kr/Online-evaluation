@@ -81,7 +81,7 @@ class AIModelTestRunner:
         # Check Python dependencies
         print("Checking Python dependencies...")
         for dep in backend_deps:
-            success, _, _ = self.run_command(f"python -c \"import {dep.split('[')[0].replace('-', '_')}\"")
+            success, _, _ = self.run_command(f"python3 -c \"import {dep.split('[')[0].replace('-', '_')}\"")
             if not success:
                 print(f"❌ Missing Python dependency: {dep}")
                 print(f"   Install with: pip install {dep}")
@@ -110,7 +110,7 @@ class AIModelTestRunner:
         
         # Run tests with coverage
         cmd = (
-            "python -m pytest test_ai_model_management.py test_ai_model_endpoints.py "
+            "python3 -m pytest test_ai_model_management.py test_ai_model_endpoints.py "
             "--cov=ai_model_management --cov=ai_model_settings_endpoints "
             "--cov-report=term-missing --cov-report=json:coverage.json "
             "--json-report --json-report-file=test_results.json -v"
@@ -367,7 +367,7 @@ if __name__ == "__main__":
             with open(perf_file, 'w') as f:
                 f.write(performance_script)
             
-            success, stdout, stderr = self.run_command(f"python {perf_file}")
+            success, stdout, stderr = self.run_command(f"python3 {perf_file}")
             
             if success:
                 print("✅ Performance tests passed")

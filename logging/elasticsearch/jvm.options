@@ -21,10 +21,7 @@
 # Garbage Collection Settings
 # G1GC for better performance with large heaps
 -XX:+UseG1GC
--XX:G1HeapRegionSize=32m
--XX:+UseG1GC
 -XX:+UnlockExperimentalVMOptions
--XX:+UseCGroupMemoryLimitForHeap
 
 # Performance optimizations
 -XX:+DisableExplicitGC

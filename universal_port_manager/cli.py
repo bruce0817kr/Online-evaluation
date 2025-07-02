@@ -609,9 +609,9 @@ def doctor(ctx, group, fix, report):
     
     # 빠른 설정 가이드
     click.echo(f"\n🚀 빠른 설정 가이드:")
-    click.echo(f"  1. 포트 할당: python -m universal_port_manager allocate frontend backend")
-    click.echo(f"  2. 설정 생성: python -m universal_port_manager generate")  
-    click.echo(f"  3. 서비스 시작: python -m universal_port_manager start")
+    click.echo(f"  1. 포트 할당: python3 -m universal_port_manager allocate frontend backend")
+    click.echo(f"  2. 설정 생성: python3 -m universal_port_manager generate")  
+    click.echo(f"  3. 서비스 시작: python3 -m universal_port_manager start")
 
 def _basic_system_diagnosis():
     """기본 시스템 진단 (의존성 관리자 없이)"""

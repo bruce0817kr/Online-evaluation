@@ -1,25 +1,97 @@
 version: '3.8'
 
 services:
+  # 프론트엔드 테스트 환경
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CI=true
+      - NODE_ENV=test
+      - DISABLE_ESLINT_PLUGIN=true
+    command: npm run test:all
+    depends_on:
+      - backend-test
+    networks:
+      - test-network
+
+  # 백엔드 테스트 환경
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGO_URL=mongodb://mongo-test:27017/online_evaluation_test
+      - JWT_SECRET=test-secret-key
+      - CORS_ORIGINS=http://frontend-test:3000
+    command: python -m pytest tests/ -v --cov=.
+    depends_on:
+      - mongo-test
+    networks:
+      - test-network
+
+  # 테스트용 MongoDB
+  mongo-test:
+    image: mongo:7.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=online_evaluation_test
+    volumes:
+      - mongo-test-data:/data/db
+    networks:
+      - test-network
+
+  # E2E 테스트 러너
+  e2e-test:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.e2e
+    working_dir: /app
+    volumes:
+      - ./tests:/app
+      - ./frontend:/frontend
+      - ./backend:/backend
+    environment:
+      - FRONTEND_URL=http://frontend-test:3000
+      - BACKEND_URL=http://backend-test:8000
+    command: npx playwright test --reporter=list
+    depends_on:
+      - frontend-test
+      - backend-test
+    networks:
+      - test-network
+
+  # 통합 테스트 러너
   test-runner:
     build:
       context: .
-      dockerfile: Dockerfile.test
-    environment:
-      - TEST_URL=http://frontend-prod:3000
-      - API_URL=http://backend-prod:8080
-      - HEADLESS=true
-      - NODE_ENV=test
+      dockerfile: Dockerfile.test-runner
+    working_dir: /app
     volumes:
-      - ./tests:/app/tests
-      - ./test-results:/app/test-results
-      - ./screenshots:/app/screenshots
-    networks:
-      - online_evaluation_prod_network
+      - .:/app
+    environment:
+      - NODE_ENV=test
+      - PYTHONPATH=/app
+    command: python tests/run_all_tests.py --docker
     depends_on:
-      - frontend-prod
-      - backend-prod
+      - frontend-test
+      - backend-test
+      - e2e-test
+    networks:
+      - test-network
+
+volumes:
+  mongo-test-data:
 
 networks:
-  online_evaluation_prod_network:
-    external: true
+  test-network:
+    driver: bridge

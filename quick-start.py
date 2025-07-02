@@ -83,7 +83,7 @@ class QuickStarter:
             
             # UPM 시도 2: 포트 매니저 CLI 사용
             print("  Universal Port Manager 시도...")
-            upm_cmd = f"python -m universal_port_manager --project {self.project_name} allocate frontend backend mongodb redis"
+            upm_cmd = f"python3 -m universal_port_manager --project {self.project_name} allocate frontend backend mongodb redis"
             
             try:
                 result = subprocess.run(ump_cmd.split(), 
@@ -179,7 +179,7 @@ class QuickStarter:
         echo 'Backend 시작 중...' &&
         pip install --no-cache-dir --quiet fastapi uvicorn motor pymongo pydantic python-jose[cryptography] passlib[bcrypt] python-multipart &&
         echo 'Backend 의존성 설치 완료' &&
-        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+        python3 -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
       "
     depends_on:
       - mongodb

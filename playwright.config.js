@@ -23,7 +23,7 @@ module.exports = defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: `http://localhost:${process.env.FRONTEND_PORT || 3000}`,
+    baseURL: `http://localhost:${process.env.FRONTEND_PORT || 3002}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -82,14 +82,14 @@ module.exports = defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: `cd backend && python -m uvicorn server:app --host 0.0.0.0 --port ${process.env.BACKEND_PORT || 8002}`,
+      command: `cd backend && PYTHONIOENCODING=utf-8 python3 -m uvicorn server:app --host 0.0.0.0 --port ${process.env.BACKEND_PORT || 8002}`,
       port: parseInt(process.env.BACKEND_PORT || 8002),
       reuseExistingServer: !process.env.CI,
-      timeout: 120000,
+      timeout: 180000,
     },
     {
       command: 'cd frontend && npm start',
-      port: parseInt(process.env.FRONTEND_PORT || 3000),
+      port: parseInt(process.env.FRONTEND_PORT || 3002),
       reuseExistingServer: !process.env.CI,
       timeout: 120000,
     }

@@ -18,10 +18,12 @@ import NotificationCenter from './components/NotificationCenter.js'; // 알림 �
 import ToastNotification from './components/ToastNotification.js'; // 토스트 알림 컴포넌트 추가
 
 // PDF.js worker setup
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+// PDF.js worker setup
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   'pdfjs-dist/build/pdf.worker.min.mjs',
+//   import.meta.url,
+// ).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
 const API = `${BACKEND_URL}/api`;
@@ -47,6 +49,12 @@ const normalizePhoneNumber = (phone) => {
 
 // 보안 강화된 PDF 새창 열기 함수
 const openPDFInNewWindow = async (fileId, filename) => {
+  // TODO: Implement a more secure PDF viewing mechanism.
+  // Instead of directly opening a new window with base64 data, consider:
+  // 1. Requesting a secure, temporary, and token-based URL from the backend.
+  // 2. The backend serving the PDF with appropriate security headers (e.g., Content-Disposition: attachment).
+  // 3. Using a dedicated, sandboxed iframe or a robust third-party PDF viewer library
+  //    that handles security internally.
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -1290,7 +1298,7 @@ const ProjectManagement = ({ user }) => {
   const fetchProjects = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/projects`, {
+      const response = await fetch(`${API}/projects`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -1312,7 +1320,7 @@ const ProjectManagement = ({ user }) => {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {      const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/projects`, {
+      const response = await fetch(`${API}/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1340,7 +1348,7 @@ const ProjectManagement = ({ user }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/projects/${editingProject.id}`, {
+      const response = await fetch(`${API}/projects/${editingProject.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1367,7 +1375,7 @@ const ProjectManagement = ({ user }) => {
   const handleDeleteProject = async (projectId) => {
     if (!window.confirm('정말로 이 프로젝트를 삭제하시겠습니까?')) return;    try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080'}/projects/${projectId}`, {
+      const response = await fetch(`${API}/projects/${projectId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

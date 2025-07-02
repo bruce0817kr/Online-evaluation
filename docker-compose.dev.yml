@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # Redis 캐시 서버 - 개발 환경
@@ -29,19 +28,16 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: dev123
-      MONGO_INITDB_DATABASE: online_evaluation_dev
+      MONGO_INITDB_DATABASE: online_evaluation
     volumes:
       - mongodb_data_dev:/data/db
-      - ./scripts:/docker-entrypoint-initdb.d:ro
-    networks:
-      - dev-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok"]
       interval: 10s
       timeout: 5s
       retries: 3
-
-  # 백엔드 API 서버 - 개발 환경
+    networks:
+      - dev-network
   backend:
     build:
       context: .
@@ -51,15 +47,17 @@ services:
     restart: unless-stopped
     ports:
       - "8180:8080"
+    env_file:
+      - ./.env
     environment:
-      MONGO_URL: "mongodb://admin:dev123@mongodb:27017/evaluation_db_dev?authSource=admin"
+      MONGO_URL: "mongodb://admin:dev123@mongodb:27017/online_evaluation?authSource=admin"
       DB_NAME: "evaluation_db_dev"
       REDIS_URL: "redis://redis:6379"
       JWT_SECRET_KEY: "dev-jwt-secret-key-not-for-production"
       JWT_ALGORITHM: "HS256"
       JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "120"
       JWT_REFRESH_TOKEN_EXPIRE_DAYS: "30"
-      CORS_ORIGINS: "*"
+      CORS_ORIGINS: "http://localhost:3000"
       CORS_ALLOW_CREDENTIALS: "true"
       SECURITY_HEADERS_ENABLED: "true"
       RATE_LIMIT_REQUESTS_PER_MINUTE: "1000"
@@ -73,6 +71,7 @@ services:
       RELOAD: "true"
       API_TITLE: "Online Evaluation System API - Development"
       API_DESCRIPTION: "Development environment for evaluation management platform"
+      PYTHONIOENCODING: "utf-8"
     volumes:
       - ./backend:/app:rw
       - uploads_data_dev:/app/uploads
@@ -84,13 +83,12 @@ services:
         condition: service_healthy
     networks:
       - dev-network
+    command: bash -c "uvicorn server:app --host 0.0.0.0 --port 8080 --reload"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "f", "http://localhost:8080/docs"]
       interval: 10s
       timeout: 5s
       retries: 3
-    expose:
-      - "5678"
 
   # 프론트엔드 웹 서버 - 개발 환경
   frontend:
@@ -111,14 +109,13 @@ services:
     volumes:
       - ./frontend/src:/app/src:rw
       - ./frontend/public:/app/public:rw
-      - /app/node_modules
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - dev-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "f", "http://localhost:3000"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -157,10 +154,28 @@ services:
     networks:
       - dev-network
     profiles:
-      - debug  # =====================================================
+      - debug
+
+  # MongoDB 초기화 서비스
+  mongo-init:
+    image: mongo:7
+    container_name: online-evaluation-mongo-init-dev
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - dev-network
+    command: >
+      bash -c "
+        echo '🚀 MongoDB 초기화 시작...'
+        mongosh --host mongodb:27017 -u admin -p dev123 --authenticationDatabase admin /docker-entrypoint-initdb.d/init-mongo.js && \
+        echo '✅ MongoDB 초기화 완료!'
+      "
   # MONITORING STACK - DEVELOPMENT
   # =====================================================
-  
+
   # Prometheus - 개발 환경
   prometheus-dev:
     image: prom/prometheus:v2.47.0
@@ -206,58 +221,19 @@ services:
       - prometheus-dev
     profiles:
       - monitoring
-      
+
   # =====================================================
   # ELK STACK - DEVELOPMENT LOGGING
   # =====================================================
-  
+
   # Elasticsearch - 개발 환경 (단일 노드) - 성능 최적화
   elasticsearch-dev:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
     container_name: online-evaluation-elasticsearch-dev
     restart: unless-stopped
     ports:
-      - "9300:9200"
+      - "9302:9200"
       - "9400:9300"
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.enrollment.enabled=false
-      - cluster.name=online-evaluation-dev
-      - node.name=elasticsearch-dev
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-      - http.cors.enabled=true
-      - http.cors.allow-origin="*"
-      - http.cors.allow-headers="X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
-      - action.destructive_requires_name=false
-      # Performance optimizations
-      - indices.query.bool.max_clause_count=10000
-      - thread_pool.write.queue_size=1000
-      - thread_pool.search.queue_size=1000
-      - indices.cache.filter.size=20%
-      - indices.fielddata.cache.size=40%
-      - indices.requests.cache.size=2%
-      - index.refresh_interval=30s
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    deploy:
-      resources:
-        limits:
-          memory: 4g
-          cpus: '2.0'
-        reservations:
-          memory: 2g
-          cpus: '1.0'
-    volumes:
-      - elasticsearch_data_dev:/usr/share/elasticsearch/data
-      - ./logging/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-      - ./logging/elasticsearch/jvm.options:/usr/share/elasticsearch/config/jvm.options:ro
     networks:
       - dev-network
     healthcheck:
@@ -266,8 +242,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    profiles:
-      - logging      
+
   # Logstash - 개발 환경 - 성능 최적화
   logstash-dev:
     image: docker.elastic.co/logstash/logstash:8.15.0
@@ -320,7 +295,7 @@ services:
     ports:
       - "5701:5601"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch-dev:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch-dev:9200"
       - SERVER_NAME=kibana-dev
       - SERVER_HOST=0.0.0.0
       - ELASTICSEARCH_USERNAME=kibana_system
@@ -331,7 +306,7 @@ services:
     volumes:
       - ./logging/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
       - ./logging/kibana/dashboards:/usr/share/kibana/dashboards:ro
-      - ./logging/kibana/provisioning:/usr/share/kibana/provisioning:ro
+      - ./logging/kibana/provisioning:/etc/grafana/provisioning:ro
       - kibana_data_dev:/usr/share/kibana/data
     networks:
       - dev-network
@@ -345,7 +320,7 @@ services:
       retries: 3
       start_period: 60s
     profiles:
-      - logging  # Filebeat - 개발 환경
+      - logging
   filebeat-dev:
     image: docker.elastic.co/beats/filebeat:8.15.0
     container_name: online-evaluation-filebeat-dev
@@ -387,27 +362,29 @@ services:
       - dev-network
     depends_on:
       elasticsearch-dev:
-        condition: service_healthy    command: >
+        condition: service_healthy
+    command: >
       bash -c "
+        shopt -s nullglob # Enable nullglob to prevent unexpanded globs
         echo '🚀 Elasticsearch 초기화 시작...'
         
         for template_file in /setup/index-templates/*.json; do
-          if [ -f \"$$template_file\" ]; then
-            template_name=$$(basename \"$$template_file\" .json)
-            echo \"📋 인덱스 템플릿 생성: $$template_name\"
-            curl -X PUT \"elasticsearch-dev:9200/_index_template/$$template_name\" \
+          if [ -f "${template_file:-}" ]; then # Use curly braces and default value
+            template_name=$(basename "${template_file:-}" .json) # Use curly braces and default value
+            echo "📋 인덱스 템플릿 생성: ${template_name:-}" # Use curly braces and default value
+            curl -X PUT "elasticsearch-dev:9200/_index_template/${template_name:-}" \
               -H 'Content-Type: application/json' \
-              -d @\"$$template_file\" || echo \"⚠️ 템플릿 생성 실패: $$template_name\"
+              -d @"${template_file:-}" || echo "⚠️ 템플릿 생성 실패: ${template_name:-}"
           fi
         done
         
         for policy_file in /setup/ilm-policies/*.json; do
-          if [ -f \"$$policy_file\" ]; then
-            policy_name=$$(basename \"$$policy_file\" .json)
-            echo \"📅 ILM 정책 생성: $$policy_name\"
-            curl -X PUT \"elasticsearch-dev:9200/_ilm/policy/$$policy_name\" \
+          if [ -f "${policy_file:-}" ]; then # Use curly braces and default value
+            policy_name=$(basename "${policy_file:-}" .json) # Use curly braces and default value
+            echo "📅 ILM 정책 생성: ${policy_name:-}" # Use curly braces and default value
+            curl -X PUT "elasticsearch-dev:9200/_ilm/policy/${policy_name:-}" \
               -H 'Content-Type: application/json' \
-              -d @\"$$policy_file\" || echo \"⚠️ 정책 생성 실패: $$policy_name\"
+              -d @"${policy_file:-}" || echo "⚠️ 정책 생성 실패: ${policy_name:-}"
           fi
         done
         
@@ -431,8 +408,10 @@ services:
       - dev-network
     depends_on:
       kibana-dev:
-        condition: service_healthy    command: >
+        condition: service_healthy
+    command: >
       sh -c "
+        shopt -s nullglob # Enable nullglob to prevent unexpanded globs
         echo '🎯 Kibana 대시보드 설정 시작...'
         apk add --no-cache bash jq
         chmod +x /setup/setup-dashboards.sh
@@ -453,8 +432,6 @@ volumes:
   prometheus_data_dev:
     driver: local
   grafana_data_dev:
-    driver: local
-  elasticsearch_data_dev:
     driver: local
   logstash_data_dev:
     driver: local

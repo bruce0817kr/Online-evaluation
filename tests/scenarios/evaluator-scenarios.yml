@@ -1,0 +1,349 @@
+# 평가위원(Evaluator) 사용자 시나리오 정의
+# MCP 기반 시나리오 테스트용
+
+persona:
+  role: "evaluator"
+  name: "평가위원"
+  korean_name: "이평가"
+  email: "evaluator@company.com"
+  permissions: ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"]
+  priority: "medium"
+  expertise: ["기술 평가", "시장 분석"]
+
+# 핵심 시나리오 목록
+scenarios:
+  
+  # 시나리오 1: 첫 로그인 및 시스템 적응
+  - id: "evaluator_first_login"
+    name: "평가위원 첫 로그인 및 오리엔테이션"
+    description: "새로운 평가위원이 처음 시스템에 접속하여 평가 환경에 적응하는 과정"
+    priority: "critical"
+    estimated_time: "10분"
+    preconditions:
+      - "간사가 평가위원 계정 생성 완료"
+      - "자동 생성된 초기 패스워드 발급"
+      - "평가 배정 완료"
+    steps:
+      - action: "initial_login"
+        description: "자동 생성된 패스워드로 첫 로그인"
+        data: 
+          email: "evaluator@company.com"
+          auto_generated_password: true
+          force_password_change: true
+        expected: "로그인 성공 및 패스워드 변경 프롬프트"
+      
+      - action: "change_initial_password"
+        description: "초기 패스워드 변경"
+        data:
+          new_password: "MySecure123!@#"
+          confirm_password: "MySecure123!@#"
+          password_requirements:
+            - "8자 이상"
+            - "대소문자 포함"
+            - "숫자 포함"
+            - "특수문자 포함"
+        expected: "패스워드 변경 완료"
+      
+      - action: "view_dashboard_tutorial"
+        description: "대시보드 튜토리얼 확인"
+        data:
+          tutorial_sections:
+            - "평가 과제 확인 방법"
+            - "문서 뷰어 사용법"
+            - "AI 도우미 활용법"
+            - "평가 제출 프로세스"
+        expected: "튜토리얼 완료 확인"
+      
+      - action: "review_assigned_evaluations"
+        description: "배정된 평가 과제 확인"
+        expected: "평가 대상 회사 목록 및 마감일 표시"
+      
+      - action: "explore_evaluation_interface"
+        description: "평가 인터페이스 탐색"
+        data:
+          interface_elements:
+            - "평가 기준 확인"
+            - "점수 입력 방식"
+            - "코멘트 작성 영역"
+            - "임시 저장 기능"
+        expected: "인터페이스 숙지 완료"
+
+    success_criteria:
+      - "로그인 및 패스워드 변경 완료"
+      - "배정된 평가 과제 확인"
+      - "기본 기능 이해 완료"
+
+  # 시나리오 2: AI 도우미를 활용한 평가 수행
+  - id: "evaluator_ai_assisted_evaluation"
+    name: "AI 도우미 활용 평가 시나리오"
+    description: "평가위원이 AI 도우미의 도움을 받아 체계적으로 평가를 수행하는 과정"
+    priority: "critical"
+    estimated_time: "30분"
+    steps:
+      - action: "access_evaluation_task"
+        description: "평가 과제 선택 및 접근"
+        data:
+          company_name: "테크스타트업A"
+          evaluation_type: "종합 평가"
+          deadline: "2024-08-15"
+        expected: "평가 화면 로드"
+      
+      - action: "review_company_documents"
+        description: "회사 제출 자료 검토"
+        data:
+          documents:
+            - type: "사업계획서"
+              format: "PDF"
+              pages: 25
+              security: "watermark"
+            - type: "재무제표"
+              format: "Excel"
+              sheets: 3
+              security: "view_only"
+            - type: "기술소개서"
+              format: "PDF"
+              pages: 15
+              security: "download_restricted"
+        expected: "모든 문서 정상 조회"
+      
+      - action: "activate_ai_assistant"
+        description: "AI 도우미 활성화"
+        data:
+          ai_mode: "evaluation_assistant"
+          context: "스타트업 기술 평가"
+        expected: "AI 도우미 준비 완료"
+      
+      - action: "ai_document_analysis"
+        description: "AI를 통한 문서 분석 요청"
+        data:
+          analysis_request:
+            - "핵심 기술의 혁신성 분석"
+            - "시장 경쟁력 평가"
+            - "재무 건전성 검토"
+            - "팀 구성의 적절성 판단"
+          ai_prompt: "첨부된 사업계획서를 바탕으로 이 스타트업의 기술 혁신성을 객관적으로 분석해주세요."
+        expected: "AI 분석 결과 제공"
+      
+      - action: "evaluate_with_ai_insights"
+        description: "AI 인사이트를 참고하여 평가 수행"
+        data:
+          evaluation_sections:
+            - section: "기술 혁신성"
+              ai_insight: "블록체인 기반 결제 시스템의 독창성 있음"
+              evaluator_score: 8.5
+              evaluator_comment: "AI 분석과 동의하며, 추가로 확장성 측면에서 우수함"
+            - section: "시장 잠재력"
+              ai_insight: "글로벌 핀테크 시장 성장세 반영"
+              evaluator_score: 7.8
+              evaluator_comment: "국내 시장 진입 전략이 더 구체적이면 좋겠음"
+            - section: "팀 역량"
+              ai_insight: "경험 있는 개발팀과 신진 기획팀의 조화"
+              evaluator_score: 8.2
+              evaluator_comment: "기술 리더십은 우수하나 마케팅 전문성 보완 필요"
+        expected: "각 섹션별 점수 및 코멘트 완성"
+      
+      - action: "cross_validate_with_ai"
+        description: "AI와 평가 결과 교차 검증"
+        data:
+          validation_request: "내 평가 점수가 적절한지 검토해주세요"
+          ai_feedback_expected: true
+        expected: "AI 피드백 및 평가 일관성 확인"
+      
+      - action: "finalize_evaluation"
+        description: "평가 최종 완료"
+        data:
+          total_score: 8.17
+          confidence_level: "high"
+          ai_assistance_rating: "매우 도움됨"
+        expected: "평가 제출 완료"
+
+    success_criteria:
+      - "AI 도우미 정상 작동"
+      - "문서 분석 품질 양호"
+      - "평가 일관성 확보"
+      - "시간 효율성 향상"
+
+  # 시나리오 3: 복잡한 다단계 평가 수행
+  - id: "evaluator_complex_evaluation"
+    name: "복잡한 다단계 평가 시나리오"
+    description: "여러 단계와 다양한 평가 방식을 포함한 복합적인 평가 수행"
+    priority: "high"
+    estimated_time: "45분"
+    steps:
+      - action: "phase1_document_evaluation"
+        description: "1단계: 서류 평가"
+        data:
+          evaluation_type: "절대 평가"
+          documents: ["사업계획서", "재무제표", "기술문서"]
+          scoring_method: "weighted_average"
+          pass_threshold: 70
+        expected: "1단계 평가 완료 및 통과 여부 확인"
+      
+      - action: "phase2_presentation_evaluation"
+        description: "2단계: 발표 평가"
+        data:
+          evaluation_type: "실시간 평가"
+          presentation_duration: "20분"
+          q_and_a_duration: "10분"
+          evaluation_criteria:
+            - "발표 명확성"
+            - "질문 응답 능력"
+            - "비즈니스 이해도"
+            - "열정과 확신"
+        expected: "실시간 발표 평가 완료"
+      
+      - action: "phase3_collaborative_evaluation"
+        description: "3단계: 협업 평가"
+        data:
+          evaluation_type: "합의 평가"
+          other_evaluators: ["최평가2", "정평가3"]
+          discussion_points:
+            - "평가 점수 차이 논의"
+            - "최종 합의 도출"
+            - "종합 의견 작성"
+        expected: "협업 평가 및 합의 완료"
+      
+      - action: "submit_comprehensive_feedback"
+        description: "종합 피드백 제출"
+        data:
+          feedback_sections:
+            - "강점"
+            - "개선점"
+            - "권고사항"
+            - "향후 발전 방향"
+          feedback_quality: "상세하고 건설적"
+        expected: "종합 평가 보고서 완성"
+
+  # 시나리오 4: 평가 중 발생하는 문제 상황 대응
+  - id: "evaluator_problem_resolution"
+    name: "평가 중 문제 상황 대응 시나리오"
+    description: "평가 과정에서 발생할 수 있는 다양한 문제 상황 해결"
+    priority: "medium"
+    estimated_time: "20분"
+    steps:
+      - action: "document_access_issue"
+        description: "문서 접근 오류 발생"
+        data:
+          error_type: "권한 없음"
+          troubleshooting_steps:
+            - "페이지 새로고침"
+            - "로그아웃 후 재로그인"
+            - "간사에게 문의"
+        expected: "문제 해결 및 문서 접근 복구"
+      
+      - action: "ai_assistant_malfunction"
+        description: "AI 도우미 오작동"
+        data:
+          error_symptoms: "응답 없음"
+          fallback_options:
+            - "수동 평가 모드 전환"
+            - "이전 세션 복구"
+            - "기술 지원 요청"
+        expected: "대안 방법으로 평가 지속"
+      
+      - action: "time_extension_request"
+        description: "평가 시간 연장 요청"
+        data:
+          reason: "추가 검토 필요"
+          extension_period: "3일"
+          justification: "문서 분량이 예상보다 많음"
+        expected: "연장 승인 및 새로운 마감일 설정"
+      
+      - action: "technical_support_interaction"
+        description: "기술 지원과의 상호작용"
+        data:
+          support_channels: ["인앱 채팅", "이메일", "전화"]
+          issue_description: "상세하고 명확한 문제 설명"
+          response_time_expectation: "< 2시간"
+        expected: "신속한 기술 지원 및 문제 해결"
+
+  # 시나리오 5: 평가 품질 개선 및 피드백
+  - id: "evaluator_quality_improvement"
+    name: "평가 품질 개선 시나리오"
+    description: "평가 품질 향상을 위한 자기개발 및 시스템 활용"
+    priority: "medium"
+    estimated_time: "15분"
+    steps:
+      - action: "review_evaluation_history"
+        description: "과거 평가 이력 검토"
+        data:
+          review_metrics:
+            - "평가 일관성"
+            - "시간 효율성"
+            - "AI 활용도"
+            - "피드백 품질"
+        expected: "개인 평가 패턴 파악"
+      
+      - action: "participate_in_calibration"
+        description: "평가 캘리브레이션 참여"
+        data:
+          calibration_type: "다른 평가위원과의 점수 비교"
+          adjustment_recommendations: "표준편차 감소 제안"
+        expected: "평가 일관성 향상"
+      
+      - action: "provide_system_feedback"
+        description: "시스템 개선 의견 제공"
+        data:
+          feedback_categories:
+            - "UI/UX 개선점"
+            - "AI 도우미 성능"
+            - "새로운 기능 제안"
+          feedback_quality: "구체적이고 실용적"
+        expected: "피드백 제출 및 개발팀 전달"
+
+# 평가위원 특화 워크플로우
+specialized_workflows:
+  - id: "batch_evaluation"
+    name: "일괄 평가 처리"
+    description: "유사한 특성의 여러 회사를 효율적으로 평가"
+    
+  - id: "comparative_evaluation"
+    name: "비교 평가"
+    description: "여러 회사를 상대적으로 비교하여 평가"
+    
+  - id: "follow_up_evaluation"
+    name: "추적 평가"
+    description: "이전 평가 대비 개선사항 평가"
+
+# 성능 및 사용자 경험 기준
+user_experience_metrics:
+  document_load_time: "< 3초"
+  ai_response_time: "< 5초"
+  evaluation_save_time: "< 1초"
+  page_transition_time: "< 2초"
+  
+# 접근성 요구사항
+accessibility_requirements:
+  - "확대/축소 기능 (문서 뷰어)"
+  - "키보드 네비게이션"
+  - "고대비 모드"
+  - "텍스트 음성 변환 지원"
+
+# 모바일 대응
+mobile_scenarios:
+  - id: "mobile_quick_review"
+    description: "모바일에서 빠른 평가 검토"
+    
+  - id: "mobile_status_check"
+    description: "모바일에서 평가 진행 상황 확인"
+
+# 오프라인 대응
+offline_capabilities:
+  - "임시 저장된 평가 데이터"
+  - "오프라인 문서 뷰어"
+  - "온라인 복구 시 자동 동기화"
+
+# 보안 및 규정 준수
+security_compliance:
+  - "평가 데이터 암호화"
+  - "문서 워터마크"
+  - "접근 로그 기록"
+  - "화면 캡처 방지"
+  - "세션 타임아웃 관리"
+
+# 평가위원 만족도 지표
+satisfaction_metrics:
+  - "시스템 사용 편의성"
+  - "AI 도우미 유용성"
+  - "문서 뷰어 품질"
+  - "전반적인 평가 경험"

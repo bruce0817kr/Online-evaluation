@@ -1,0 +1,67 @@
+# Optimized build configuration for fast builds
+version: '3.8'
+
+x-build-args: &build-args
+  BUILDKIT_INLINE_CACHE: 1
+  DOCKER_BUILDKIT: 1
+
+services:
+  frontend-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: production
+      cache_from:
+        - online-evaluation-frontend:latest
+        - node:20-alpine
+      args:
+        <<: *build-args
+        REACT_APP_BACKEND_URL: "http://localhost:${BACKEND_PORT:-8002}"
+        REACT_APP_WS_URL: "ws://localhost:${BACKEND_PORT:-8002}"
+        REACT_APP_ENV: "production"
+    image: online-evaluation-frontend:latest
+    profiles:
+      - build
+
+  backend-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: production
+      cache_from:
+        - online-evaluation-backend:latest
+        - python:3.11-slim
+      args:
+        <<: *build-args
+    image: online-evaluation-backend:latest
+    profiles:
+      - build
+
+  # Fast development build
+  frontend-dev-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+      cache_from:
+        - online-evaluation-frontend:dev
+        - node:20-alpine
+      args:
+        <<: *build-args
+    image: online-evaluation-frontend:dev
+    profiles:
+      - dev-build
+
+  backend-dev-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: development
+      cache_from:
+        - online-evaluation-backend:dev
+        - python:3.11-slim
+      args:
+        <<: *build-args
+    image: online-evaluation-backend:dev
+    profiles:
+      - dev-build

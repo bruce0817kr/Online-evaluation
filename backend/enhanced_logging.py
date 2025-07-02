@@ -211,7 +211,7 @@ def setup_logging(
     
     # Root logger configuration
     root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level))
+    root_logger.setLevel(log_level)
     
     # Clear existing handlers
     root_logger.handlers.clear()
@@ -230,7 +230,7 @@ def setup_logging(
     
     # File handler for application logs
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
-    file_handler.setLevel(getattr(logging, log_level))
+    file_handler.setLevel(log_level)
     file_handler.setFormatter(json_formatter)
     root_logger.addHandler(file_handler)
     

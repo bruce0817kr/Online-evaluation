@@ -1,0 +1,169 @@
+{
+  "test_accounts": {
+    "admin": {
+      "primary": {
+        "name": "김관리",
+        "email": "admin@company.com",
+        "password": "Admin123!@#",
+        "role": "admin",
+        "permissions": ["all"],
+        "korean_name": "김관리",
+        "department": "IT운영팀",
+        "phone": "010-1234-5678",
+        "created_date": "2024-01-01",
+        "last_login": "2024-06-28"
+      },
+      "backup": {
+        "name": "이시스템",
+        "email": "sysadmin@company.com",
+        "password": "SysAdmin456!@#",
+        "role": "admin",
+        "permissions": ["all"],
+        "korean_name": "이시스템",
+        "department": "시스템관리팀"
+      }
+    },
+    "secretary": {
+      "primary": {
+        "name": "박간사",
+        "email": "secretary@company.com",
+        "password": "Secretary789!@#",
+        "role": "secretary",
+        "permissions": ["project_management", "template_management", "evaluator_assignment", "report_generation"],
+        "korean_name": "박간사",
+        "department": "평가관리팀",
+        "phone": "010-2345-6789",
+        "specialization": ["프로젝트 관리", "평가 시스템"],
+        "experience_years": 5
+      },
+      "secondary": {
+        "name": "최프로젝트",
+        "email": "project@company.com", 
+        "password": "Project321!@#",
+        "role": "secretary",
+        "permissions": ["project_management", "template_management"],
+        "korean_name": "최프로젝트",
+        "department": "기획팀"
+      }
+    },
+    "evaluators": [
+      {
+        "name": "이평가1",
+        "email": "eval1@company.com",
+        "password": "Eval123!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "이평가",
+        "expertise": ["기술 평가", "혁신성 분석", "AI/ML"],
+        "department": "기술연구소",
+        "career": "15년",
+        "education": "공학박사",
+        "specialization_areas": [
+          "인공지능 기술",
+          "블록체인",
+          "IoT 시스템",
+          "클라우드 컴퓨팅"
+        ],
+        "evaluation_history": {
+          "total_evaluations": 127,
+          "average_score": 8.2,
+          "consistency_rating": "high"
+        }
+      },
+      {
+        "name": "최평가2",
+        "email": "eval2@company.com",
+        "password": "Eval456!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "최평가",
+        "expertise": ["경영 전략", "시장 분석", "비즈니스 모델"],
+        "department": "경영전략팀",
+        "career": "12년",
+        "education": "경영학석사",
+        "specialization_areas": [
+          "전략기획",
+          "마케팅 전략",
+          "사업개발",
+          "시장조사"
+        ],
+        "evaluation_history": {
+          "total_evaluations": 98,
+          "average_score": 7.8,
+          "consistency_rating": "high"
+        }
+      },
+      {
+        "name": "정평가3",
+        "email": "eval3@company.com",
+        "password": "Eval789!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "정평가",
+        "expertise": ["재무 분석", "투자 평가", "리스크 관리"],
+        "department": "재무팀",
+        "career": "10년",
+        "education": "회계학석사, CPA",
+        "specialization_areas": [
+          "재무제표 분석",
+          "투자 심사",
+          "기업 가치 평가",
+          "리스크 모델링"
+        ],
+        "evaluation_history": {
+          "total_evaluations": 156,
+          "average_score": 7.5,
+          "consistency_rating": "very_high"
+        }
+      },
+      {
+        "name": "김기술",
+        "email": "tech@company.com",
+        "password": "Tech101!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "김기술",
+        "expertise": ["기술 혁신", "R&D 평가"],
+        "department": "연구개발팀",
+        "specialization_areas": ["신기술 평가", "특허 분석"]
+      },
+      {
+        "name": "박경영",
+        "email": "business@company.com",
+        "password": "Biz202!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "박경영",
+        "expertise": ["사업성 평가", "조직 관리"],
+        "department": "사업개발팀",
+        "specialization_areas": ["사업 모델", "조직 역량"]
+      },
+      {
+        "name": "이재무",
+        "email": "finance@company.com",
+        "password": "Fin303!@#",
+        "role": "evaluator",
+        "permissions": ["evaluation_read", "evaluation_write", "document_view", "ai_assistant"],
+        "korean_name": "이재무",
+        "expertise": ["재무 건전성", "투자 수익성"],
+        "department": "투자심사팀",
+        "specialization_areas": ["DCF 분석", "재무 건전성"]
+      }
+    ]
+  },
+  "password_policy": {
+    "min_length": 8,
+    "require_uppercase": true,
+    "require_lowercase": true,
+    "require_numbers": true,
+    "require_special_chars": true,
+    "expiry_days": 90,
+    "history_count": 5
+  },
+  "session_settings": {
+    "timeout_minutes": 240,
+    "concurrent_sessions": 1,
+    "ip_restriction": false,
+    "mfa_required": false
+  }
+}

@@ -1,6 +1,12 @@
 # Puppeteer E2E 테스트용 Docker 이미지
 FROM node:18-slim
 
+# Install Python and pip
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Install psutil for performance tests
+RUN pip3 install psutil
+
 # Puppeteer 의존성 설치
 RUN apt-get update && apt-get install -y \
     wget \

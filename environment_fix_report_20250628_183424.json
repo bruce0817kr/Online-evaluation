@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-06-28T18:34:24.528089",
+  "duration_seconds": 23.006341,
+  "fixes_applied": [
+    "Babel React preset installed",
+    "Created Babel configuration",
+    "Jest configuration updated"
+  ],
+  "errors_encountered": [
+    "Failed to install psutil",
+    "Failed to install playwright",
+    "Failed to install pyyaml",
+    "Failed to install aiofiles",
+    "Failed to install websockets",
+    "Playwright browser installation failed"
+  ],
+  "success_rate": 33.33333333333333,
+  "status": "PARTIAL_SUCCESS"
+}

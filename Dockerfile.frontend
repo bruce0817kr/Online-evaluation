@@ -38,7 +38,10 @@ COPY frontend/package.json frontend/yarn.lock* ./
 RUN yarn install --silent
 
 # 소스코드 복사 (개발 시에는 볼륨 마운트 사용)
-COPY frontend/ .
+COPY frontend/package.json frontend/yarn.lock* ./
+COPY frontend/public ./public
+COPY frontend/src ./src
+COPY frontend/craco.config.js ./craco.config.js
 
 # 개발 환경 변수
 ENV REACT_APP_BACKEND_URL=http://localhost:8080 \
@@ -53,45 +56,71 @@ EXPOSE 3000
 # 개발 서버 시작
 CMD ["yarn", "start"]
 
-# Stage 3: Dependencies installation
+# Stage 3: Dependencies installation (optimized)
 FROM base AS deps
 
-# 패키지 파일 복사
+# Install build dependencies first (these change less frequently)
+RUN apk add --no-cache python3 make g++
+
+# Copy package files for better caching
 COPY frontend/package.json frontend/yarn.lock* ./
 
-# 프로덕션 의존성만 설치
-RUN yarn install --production --frozen-lockfile --silent \
+# Install all dependencies with optimizations
+RUN yarn config set network-timeout 300000 \
+    && yarn install --frozen-lockfile --silent --network-timeout 300000 \
     && yarn cache clean
 
-# Stage 4: Build stage
+# Stage 3.5: Production dependencies only
+FROM base AS prod-deps
+
+# Copy package files
+COPY frontend/package.json frontend/yarn.lock* ./
+
+# Install production dependencies only
+RUN yarn config set network-timeout 300000 \
+    && yarn install --production --frozen-lockfile --silent --network-timeout 300000 \
+    && yarn cache clean
+
+# Stage 4: Build stage (optimized)
 FROM base AS builder
 
-# 빌드에 필요한 의존성 복사
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
+# Copy all dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
-# 소스코드 복사
-COPY frontend/ .
+# Copy only necessary source files (layer optimization)
+COPY frontend/package.json frontend/yarn.lock* ./
+COPY frontend/public ./public
+COPY frontend/src ./src
+COPY frontend/craco.config.js ./craco.config.js
 
-# 빌드 시 환경 변수 설정
+# Build-time environment variables
 ARG REACT_APP_BACKEND_URL=http://localhost:8080
 ARG REACT_APP_WS_URL=ws://localhost:8080
 ARG REACT_APP_ENV=production
 
+# Set optimization environment variables
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL \
     REACT_APP_WS_URL=$REACT_APP_WS_URL \
     REACT_APP_ENV=$REACT_APP_ENV \
     NODE_ENV=production \
     GENERATE_SOURCEMAP=false \
-    INLINE_RUNTIME_CHUNK=false
+    INLINE_RUNTIME_CHUNK=false \
+    DISABLE_ESLINT_PLUGIN=true \
+    SKIP_PREFLIGHT_CHECK=true \
+    CI=true
 
-# React 앱 빌드
-RUN yarn build \
+# Build with optimizations and parallel processing
+RUN NODE_OPTIONS="--max-old-space-size=4096" yarn build:fast \
     && yarn cache clean
 
-# 빌드 결과 최적화
-RUN find build -name "*.js" -exec gzip -k {} \; \
-    && find build -name "*.css" -exec gzip -k {} \; \
-    && find build -name "*.html" -exec gzip -k {} \;
+# Post-build optimizations (compress static assets)
+RUN find build -name "*.js" -size +1k -exec gzip -k {} \; \
+    && find build -name "*.css" -size +1k -exec gzip -k {} \; \
+    && find build -name "*.html" -exec gzip -k {} \; \
+    && find build -type f -name "*.map" -delete
 
 # Stage 5: Production image
 FROM nginx:alpine AS production

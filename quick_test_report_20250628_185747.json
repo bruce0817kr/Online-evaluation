@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-06-28T18:57:47.948125",
+  "test_type": "quick_validation",
+  "overall_score": 87.5,
+  "grade": "B+",
+  "checks_passed": 14,
+  "total_checks": 16,
+  "categories": {
+    "environment": {
+      "python": true,
+      "node": true,
+      "playwright": false,
+      "frontend_deps": true,
+      "test_files": true
+    },
+    "validations": {
+      "scenario_files_valid": true,
+      "test_data_valid": true,
+      "frontend_build": true,
+      "system_connectivity": true
+    },
+    "scenarios": {
+      "admin_scenario_structure": true,
+      "secretary_scenario_structure": true,
+      "evaluator_scenario_structure": true,
+      "test_data_structure": true
+    },
+    "performance": {
+      "build_size_check": false,
+      "dependency_check": true,
+      "file_structure_check": true
+    }
+  },
+  "recommendations": [
+    "Playwright 설치 필요: pip install playwright && playwright install"
+  ]
+}

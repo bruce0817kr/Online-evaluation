@@ -1,0 +1,62 @@
+2025-06-28 18:27:35,470 - INFO - [18:27:35] START: 🚀 Ultra Comprehensive Test Suite 시작
+2025-06-28 18:27:35,470 - INFO - [18:27:35] START: 전체 시나리오 테스트 실행
+2025-06-28 18:27:35,470 - INFO - [18:27:35] START: Executing: python tests/mcp_scenario_runner.py --all
+2025-06-28 18:27:35,582 - INFO - [18:27:35] START: Executing: python tests/cross_role_integration_tester.py
+2025-06-28 18:27:35,687 - INFO - [18:27:35] START: 성능 테스트 실행
+2025-06-28 18:27:35,687 - INFO - [18:27:35] START: Executing: cd frontend && npm run build
+2025-06-28 18:27:57,243 - INFO - [18:27:57] START: Executing: npx lighthouse http://localhost:3000 --output=json --quiet --chrome-flags='--headless'
+2025-06-28 18:28:35,823 - INFO - [18:28:35] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/auth/me
+2025-06-28 18:28:35,848 - INFO - [18:28:35] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/templates
+2025-06-28 18:28:35,853 - INFO - [18:28:35] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/evaluations
+2025-06-28 18:28:35,857 - INFO - [18:28:35] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/projects
+2025-06-28 18:28:35,863 - INFO - [18:28:35] START: Executing: node load_test.js
+2025-06-28 18:28:39,281 - INFO - [18:28:39] COMPLETE: 성능 테스트 완료 - 전체 점수: 60.0/100
+2025-06-28 18:28:39,281 - INFO - [18:28:39] START: 접근성 테스트 실행
+2025-06-28 18:28:39,282 - INFO - [18:28:39] START: Executing: cd frontend && npx jest --testNamePattern='accessibility' --json
+2025-06-28 18:29:15,347 - INFO - [18:29:15] COMPLETE: 접근성 테스트 완료 - WCAG 준수도: 100.0%
+2025-06-28 18:29:15,347 - INFO - [18:29:15] START: 사용자 중심 테스트 실행
+2025-06-28 18:29:15,347 - INFO - [18:29:15] COMPLETE: 사용자 중심 테스트 완료 - 만족도: 100.0%
+2025-06-28 18:29:15,348 - INFO - [18:29:15] START: 페르소나 성능 테스트 실행
+2025-06-28 18:29:15,348 - INFO - [18:29:15] START: admin 페르소나 성능 테스트
+2025-06-28 18:29:15,348 - INFO - [18:29:15] START: secretary 페르소나 성능 테스트
+2025-06-28 18:29:15,348 - INFO - [18:29:15] START: evaluator 페르소나 성능 테스트
+2025-06-28 18:29:15,349 - INFO - [18:29:15] COMPLETE: 페르소나 성능 테스트 완료 - 전체 점수: 90.0/100
+2025-06-28 18:29:15,349 - INFO - [18:29:15] START: 프론트엔드 특화 테스트 실행
+2025-06-28 18:29:15,349 - INFO - [18:29:15] START: Executing: cd frontend && npm run test:coverage
+2025-06-28 18:30:08,124 - INFO - [18:30:08] COMPLETE: 프론트엔드 특화 테스트 완료 - 품질 점수: 70.0/100
+2025-06-28 18:30:08,125 - INFO - [18:30:08] START: 종합 보고서 생성
+2025-06-28 18:30:08,218 - INFO - [18:30:08] COMPLETE: 종합 보고서 생성 완료: ultra_comprehensive_test_report_20250628_183008.json
+2025-06-28 18:30:08,219 - INFO - [18:30:08] SUCCESS: 🎉 Ultra Comprehensive Test 완료!
+2025-06-28 18:30:08,219 - INFO - [18:30:08] SUCCESS: 📊 전체 성공률: 50.0%
+2025-06-28 18:30:08,219 - INFO - [18:30:08] SUCCESS: 📄 보고서: ultra_comprehensive_test_report_20250628_183008.json
+2025-06-28 19:08:14,046 - INFO - [19:08:14] START: 🚀 Ultra Comprehensive Test Suite 시작
+2025-06-28 19:08:14,046 - INFO - [19:08:14] START: 전체 시나리오 테스트 실행
+2025-06-28 19:08:14,047 - INFO - [19:08:14] START: Executing: python tests/mcp_scenario_runner.py --all
+2025-06-28 19:08:14,120 - INFO - [19:08:14] START: Executing: python tests/cross_role_integration_tester.py
+2025-06-28 19:08:14,184 - INFO - [19:08:14] START: 성능 테스트 실행
+2025-06-28 19:08:14,185 - INFO - [19:08:14] START: Executing: cd frontend && npm run build
+2025-06-28 19:09:22,837 - INFO - [19:09:22] START: Executing: npx lighthouse http://localhost:3000 --output=json --quiet --chrome-flags='--headless'
+2025-06-28 19:09:49,716 - INFO - [19:09:49] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/auth/me
+2025-06-28 19:09:49,739 - INFO - [19:09:49] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/templates
+2025-06-28 19:09:49,743 - INFO - [19:09:49] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/evaluations
+2025-06-28 19:09:49,746 - INFO - [19:09:49] START: Executing: curl -w '%{time_total}' -o /dev/null -s http://localhost:8002/api/projects
+2025-06-28 19:09:49,750 - INFO - [19:09:49] START: Executing: node load_test.js
+2025-06-28 19:09:55,470 - INFO - [19:09:55] COMPLETE: 성능 테스트 완료 - 전체 점수: 50.0/100
+2025-06-28 19:09:55,471 - INFO - [19:09:55] START: 접근성 테스트 실행
+2025-06-28 19:09:55,471 - INFO - [19:09:55] START: Executing: cd frontend && npx jest --testNamePattern='accessibility' --json
+2025-06-28 19:10:40,175 - INFO - [19:10:40] COMPLETE: 접근성 테스트 완료 - WCAG 준수도: 100.0%
+2025-06-28 19:10:40,175 - INFO - [19:10:40] START: 사용자 중심 테스트 실행
+2025-06-28 19:10:40,175 - INFO - [19:10:40] COMPLETE: 사용자 중심 테스트 완료 - 만족도: 100.0%
+2025-06-28 19:10:40,175 - INFO - [19:10:40] START: 페르소나 성능 테스트 실행
+2025-06-28 19:10:40,175 - INFO - [19:10:40] START: admin 페르소나 성능 테스트
+2025-06-28 19:10:40,176 - INFO - [19:10:40] START: secretary 페르소나 성능 테스트
+2025-06-28 19:10:40,176 - INFO - [19:10:40] START: evaluator 페르소나 성능 테스트
+2025-06-28 19:10:40,176 - INFO - [19:10:40] COMPLETE: 페르소나 성능 테스트 완료 - 전체 점수: 90.0/100
+2025-06-28 19:10:40,176 - INFO - [19:10:40] START: 프론트엔드 특화 테스트 실행
+2025-06-28 19:10:40,177 - INFO - [19:10:40] START: Executing: cd frontend && npm run test:coverage
+2025-06-28 19:11:32,645 - INFO - [19:11:32] COMPLETE: 프론트엔드 특화 테스트 완료 - 품질 점수: 70.0/100
+2025-06-28 19:11:32,646 - INFO - [19:11:32] START: 종합 보고서 생성
+2025-06-28 19:11:32,737 - INFO - [19:11:32] COMPLETE: 종합 보고서 생성 완료: ultra_comprehensive_test_report_20250628_191132.json
+2025-06-28 19:11:32,737 - INFO - [19:11:32] SUCCESS: 🎉 Ultra Comprehensive Test 완료!
+2025-06-28 19:11:32,737 - INFO - [19:11:32] SUCCESS: 📊 전체 성공률: 50.0%
+2025-06-28 19:11:32,738 - INFO - [19:11:32] SUCCESS: 📄 보고서: ultra_comprehensive_test_report_20250628_191132.json

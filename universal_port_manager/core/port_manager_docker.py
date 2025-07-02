@@ -245,7 +245,7 @@ class PortManagerDocker:
                     config['command'] = 'npm run dev'
                 elif service_type == 'backend':
                     config['image'] = 'python:3.11-slim'
-                    config['command'] = 'python -m uvicorn main:app --host 0.0.0.0 --port 8000'
+                    config['command'] = 'python3 -m uvicorn main:app --host 0.0.0.0 --port 8000'
             
             # 환경 변수 추가
             config['environment'] = {
@@ -346,7 +346,7 @@ class PortManagerDocker:
                     if allocated_port.service_type == 'frontend':
                         service_config['command'] = 'npm run dev'
                     elif allocated_port.service_type == 'backend':
-                        service_config['command'] = 'python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload'
+                        service_config['command'] = 'python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload'
                 
                 if service_config:
                     override_data['services'][service_name] = service_config

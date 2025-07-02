@@ -128,13 +128,13 @@ class EmergencyFixer:
           'python-jose[cryptography]' 'passlib[bcrypt]' \\
           python-multipart python-dotenv &&
         echo 'Backend 의존성 설치 완료' &&
-        python -c '
+        python3 -c '
 import sys, os
 print(\"Python path:\", sys.path)
 print(\"Working dir:\", os.getcwd())
 print(\"Files:\", os.listdir(\".\"))
 ' &&
-        python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+        python3 -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
       "
     depends_on:
       - mongodb

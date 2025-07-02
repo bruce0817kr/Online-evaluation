@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 from enum import Enum
 import bleach
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field
+from pydantic.functional_validators import field_validator
 from fastapi import HTTPException, status, Request, UploadFile
 import mimetypes
 from urllib.parse import urlparse, parse_qs
@@ -478,12 +479,14 @@ class UserRegistrationValidator(SecureRequestValidator):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     
-    @validator('email')
+    @field_validator('email')
+    @classmethod
     def validate_email_security(cls, v):
         validator = SecurityValidator()
         return validator.validate_email(v)
     
-    @validator('username')
+    @field_validator('username')
+    @classmethod
     def validate_username(cls, v):
         if not re.match(r'^[a-zA-Z0-9_.-]+$', v):
             raise ValueError('Username can only contain letters, numbers, dots, hyphens, and underscores')

@@ -1,0 +1,293 @@
+{
+  "sample_companies": [
+    {
+      "id": "company_001",
+      "name": "테크스타트업A",
+      "korean_name": "테크혁신",
+      "industry": "IT/소프트웨어",
+      "sub_category": "AI/빅데이터",
+      "establishment_year": 2022,
+      "employees": 25,
+      "headquarters": "서울특별시 강남구",
+      "ceo": "김테크",
+      "business_description": "AI 기반 개인화 추천 엔진 개발 및 서비스",
+      "core_technology": [
+        "머신러닝 알고리즘",
+        "자연어 처리",
+        "실시간 데이터 분석",
+        "클라우드 인프라"
+      ],
+      "products_services": [
+        "개인화 추천 API",
+        "사용자 행동 분석 대시보드",
+        "A/B 테스트 플랫폼"
+      ],
+      "target_market": "이커머스, 미디어, 교육 플랫폼",
+      "competitors": ["네이버", "카카오", "구글"],
+      "financial_info": {
+        "last_funding_round": "Series A",
+        "funding_amount": "30억원",
+        "investors": ["알토스벤처스", "스프링캠프"],
+        "revenue_2023": "8억원",
+        "burn_rate_monthly": "2억원"
+      },
+      "team_info": {
+        "cto": "박개발",
+        "cmo": "이마케팅",
+        "total_developers": 15,
+        "senior_developers": 8
+      },
+      "evaluation_documents": [
+        {
+          "type": "사업계획서",
+          "filename": "techstartup_a_business_plan.pdf",
+          "pages": 32,
+          "last_updated": "2024-06-15"
+        },
+        {
+          "type": "재무제표",
+          "filename": "techstartup_a_financial.xlsx",
+          "sheets": 5,
+          "period": "2022-2024"
+        },
+        {
+          "type": "기술소개서",
+          "filename": "techstartup_a_technology.pdf",
+          "pages": 18,
+          "includes_demo": true
+        }
+      ]
+    },
+    {
+      "id": "company_002",
+      "name": "바이오스타트업B",
+      "korean_name": "바이오혁신",
+      "industry": "바이오/의료",
+      "sub_category": "디지털 헬스케어",
+      "establishment_year": 2021,
+      "employees": 35,
+      "headquarters": "대전광역시 유성구",
+      "ceo": "최바이오",
+      "business_description": "웨어러블 기기를 통한 개인 건강 모니터링 및 예측 서비스",
+      "core_technology": [
+        "생체신호 센싱 기술",
+        "의료 AI 진단",
+        "IoT 디바이스",
+        "개인 건강 데이터 분석"
+      ],
+      "products_services": [
+        "스마트 헬스 밴드",
+        "건강 예측 앱",
+        "의료진용 모니터링 플랫폼"
+      ],
+      "target_market": "개인 소비자, 병원, 보험회사",
+      "competitors": ["삼성헬스", "핏비트", "애플워치"],
+      "financial_info": {
+        "last_funding_round": "Pre-Series A",
+        "funding_amount": "20억원",
+        "investors": ["본엔젤스", "프라이머"],
+        "revenue_2023": "12억원",
+        "burn_rate_monthly": "1.5억원"
+      },
+      "regulatory_status": {
+        "fda_approval": "진행중",
+        "ce_marking": "완료",
+        "kfda_approval": "승인"
+      },
+      "evaluation_documents": [
+        {
+          "type": "사업계획서",
+          "filename": "biostartup_b_business_plan.pdf",
+          "pages": 28,
+          "last_updated": "2024-06-10"
+        },
+        {
+          "type": "재무제표",
+          "filename": "biostartup_b_financial.xlsx",
+          "sheets": 4,
+          "period": "2021-2024"
+        },
+        {
+          "type": "임상시험결과",
+          "filename": "biostartup_b_clinical_trial.pdf",
+          "pages": 45,
+          "trial_participants": 200
+        }
+      ]
+    },
+    {
+      "id": "company_003",
+      "name": "핀테크스타트업C",
+      "korean_name": "핀테크혁신",
+      "industry": "금융/핀테크",
+      "sub_category": "블록체인/결제",
+      "establishment_year": 2023,
+      "employees": 18,
+      "headquarters": "부산광역시 해운대구",
+      "ceo": "정핀테크",
+      "business_description": "블록체인 기반 소액 결제 및 디지털 자산 관리 서비스",
+      "core_technology": [
+        "블록체인 프로토콜",
+        "스마트 컨트랙트",
+        "암호화폐 지갑",
+        "DeFi 프로토콜"
+      ],
+      "products_services": [
+        "디지털 지갑 앱",
+        "P2P 송금 서비스",
+        "소상공인 결제 솔루션"
+      ],
+      "target_market": "소상공인, 개인 투자자, 해외 송금 고객",
+      "competitors": ["토스", "카카오페이", "업비트"],
+      "financial_info": {
+        "last_funding_round": "Seed",
+        "funding_amount": "15억원",
+        "investors": ["퓨처플레이", "스톤브릿지"],
+        "revenue_2023": "3억원",
+        "burn_rate_monthly": "8천만원"
+      },
+      "regulatory_compliance": {
+        "isms_certification": "진행중",
+        "pci_dss_compliance": "완료",
+        "aml_kyc_system": "구축완료"
+      },
+      "evaluation_documents": [
+        {
+          "type": "사업계획서",
+          "filename": "fintech_c_business_plan.pdf",
+          "pages": 24,
+          "last_updated": "2024-06-20"
+        },
+        {
+          "type": "재무제표",
+          "filename": "fintech_c_financial.xlsx",
+          "sheets": 3,
+          "period": "2023-2024"
+        },
+        {
+          "type": "보안감사보고서",
+          "filename": "fintech_c_security_audit.pdf",
+          "pages": 22,
+          "audit_date": "2024-05-15"
+        }
+      ]
+    },
+    {
+      "id": "company_004",
+      "name": "그린에너지D",
+      "korean_name": "그린혁신",
+      "industry": "에너지/환경",
+      "sub_category": "재생에너지",
+      "establishment_year": 2020,
+      "employees": 42,
+      "headquarters": "울산광역시 남구",
+      "ceo": "김그린",
+      "business_description": "태양광 패널 효율성 향상 및 스마트 에너지 관리 시스템",
+      "core_technology": [
+        "페로브스카이트 태양전지",
+        "에너지 저장 시스템",
+        "스마트 그리드 연동",
+        "AI 기반 전력 최적화"
+      ],
+      "products_services": [
+        "고효율 태양광 패널",
+        "가정용 에너지 관리 시스템",
+        "상업용 마이크로그리드"
+      ],
+      "target_market": "개인 주택, 상업 건물, 지방자치단체",
+      "evaluation_documents": [
+        {
+          "type": "사업계획서",
+          "filename": "green_energy_d_business_plan.pdf",
+          "pages": 35,
+          "last_updated": "2024-06-05"
+        },
+        {
+          "type": "기술검증서",
+          "filename": "green_energy_d_tech_validation.pdf",
+          "pages": 28,
+          "test_results": "국가기술표준원 인증"
+        }
+      ]
+    },
+    {
+      "id": "company_005",
+      "name": "에듀테크E",
+      "korean_name": "에듀혁신",
+      "industry": "교육/에듀테크",
+      "sub_category": "온라인 교육",
+      "establishment_year": 2021,
+      "employees": 28,
+      "headquarters": "경기도 성남시 분당구",
+      "ceo": "박에듀",
+      "business_description": "AI 기반 개인화 학습 플랫폼 및 가상현실 교육 콘텐츠",
+      "core_technology": [
+        "적응형 학습 알고리즘",
+        "VR/AR 교육 콘텐츠",
+        "학습 분석 대시보드",
+        "음성 인식 기술"
+      ],
+      "products_services": [
+        "개인화 학습 앱",
+        "VR 과학 실험실",
+        "교사용 학습 관리 시스템"
+      ],
+      "target_market": "초중고등학교, 대학교, 학원, 개인 학습자",
+      "evaluation_documents": [
+        {
+          "type": "사업계획서",
+          "filename": "edutech_e_business_plan.pdf",
+          "pages": 30,
+          "last_updated": "2024-06-12"
+        },
+        {
+          "type": "교육효과분석",
+          "filename": "edutech_e_learning_effectiveness.pdf",
+          "pages": 20,
+          "study_participants": 1500
+        }
+      ]
+    }
+  ],
+  "evaluation_criteria": {
+    "기술_혁신성": {
+      "weight": 30,
+      "sub_criteria": [
+        {"name": "핵심 기술의 독창성", "max_score": 10},
+        {"name": "기술의 시장 적용 가능성", "max_score": 10},
+        {"name": "기술 개발 역량", "max_score": 10}
+      ]
+    },
+    "시장_잠재력": {
+      "weight": 25,
+      "sub_criteria": [
+        {"name": "목표 시장 규모", "max_score": 8},
+        {"name": "시장 진입 전략", "max_score": 9},
+        {"name": "경쟁 우위 요소", "max_score": 8}
+      ]
+    },
+    "팀_역량": {
+      "weight": 25,
+      "sub_criteria": [
+        {"name": "경영진 경험", "max_score": 8},
+        {"name": "팀 구성의 적절성", "max_score": 9},
+        {"name": "실행 능력", "max_score": 8}
+      ]
+    },
+    "재무_건전성": {
+      "weight": 20,
+      "sub_criteria": [
+        {"name": "자금 조달 능력", "max_score": 7},
+        {"name": "수익 모델의 명확성", "max_score": 7},
+        {"name": "재무 계획의 현실성", "max_score": 6}
+      ]
+    }
+  },
+  "scoring_guidelines": {
+    "excellent": {"range": "9-10", "description": "업계 최고 수준"},
+    "good": {"range": "7-8", "description": "평균 이상의 우수한 수준"},
+    "average": {"range": "5-6", "description": "평균적인 수준"},
+    "below_average": {"range": "3-4", "description": "개선이 필요한 수준"},
+    "poor": {"range": "1-2", "description": "심각한 문제가 있는 수준"}
+  }
+}

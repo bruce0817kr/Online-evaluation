@@ -1,0 +1,49 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "modules": false,
+        "useBuiltIns": "usage",
+        "corejs": 3,
+        "targets": {
+          "browsers": [">0.2%", "not dead", "not op_mini all"]
+        }
+      }
+    ],
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    [
+      "@babel/plugin-transform-class-properties",
+      {
+        "loose": true
+      }
+    ],
+    [
+      "@babel/plugin-transform-private-methods",
+      {
+        "loose": true
+      }
+    ],
+    [
+      "@babel/plugin-proposal-private-property-in-object",
+      {
+        "loose": true
+      }
+    ]
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        ["babel-plugin-transform-remove-console", {"exclude": ["error", "warn"]}]
+      ]
+    }
+  }
+}

@@ -26,7 +26,7 @@ except ImportError as e:
     HAS_OPENAI = False
     HAS_ANTHROPIC = False
     HAS_GOOGLE = False
-    print(f"⚠️ AI 라이브러리가 설치되지 않았습니다: {e}")
+    print(f"AI 라이브러리가 설치되지 않았습니다: {e}")
 
 # 텍스트 처리용
 import re

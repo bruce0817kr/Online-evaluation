@@ -203,7 +203,7 @@ async def main():
     else:
         await rehash_user_passwords()
         print("\n패스워드 재해시 완료. 검증을 위해 다음 명령어를 실행하세요:")
-        print("python scripts/fix_password_hashes.py verify")
+        print("python3 scripts/fix_password_hashes.py verify")
 
 if __name__ == "__main__":
     asyncio.run(main())

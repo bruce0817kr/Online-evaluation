@@ -304,7 +304,7 @@ def scenario_development_workflow():
     print("\n5️⃣ 개발 완료 후 정리")
     print("   🧹 정리 명령:")
     print("     docker-compose down")
-    print("     python -m universal_port_manager.cli cleanup")
+    print("     python3 -m universal_port_manager.cli cleanup")
     
     print("\n✅ 개발 워크플로우 시나리오 완료!")
     
@@ -376,7 +376,7 @@ CACHES = {
 echo "🚀 포트 매니저를 사용한 Docker 배포"
 
 # 포트 할당
-python -c "
+python3 -c "
 from universal_port_manager import PortManager
 pm = PortManager(project_name='$1')
 pm.allocate_services(['frontend', 'backend', 'database'])

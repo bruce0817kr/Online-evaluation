@@ -69,14 +69,19 @@ ENV PYTHONPATH=/app \
 # 개발 서버 시작 (Hot reload 지원)
 CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--log-level", "debug"]
 
-# Stage 3: Production dependencies
+# Stage 3: Production dependencies (optimized)
 FROM base as production-deps
 
-# Production 전용 Python 패키지 설치
+# Copy requirements first for better caching
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir gunicorn
+
+# Install production dependencies with optimizations
+RUN pip install --no-cache-dir --upgrade pip==24.3.1 && \
+    pip install --no-cache-dir --compile -r requirements.txt && \
+    pip install --no-cache-dir --compile gunicorn uvloop && \
+    pip cache purge && \
+    find /usr/local -name "*.pyc" -delete && \
+    find /usr/local -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Stage 4: Production image
 FROM python:3.11-slim as production

@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 import logging
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import uuid
 from bson import ObjectId
 
@@ -81,9 +81,10 @@ class EvaluationTemplateEnhanced(BaseModel):
     usage_count: int = Field(0, description="사용 횟수")
     last_used_at: Optional[datetime] = Field(None, description="마지막 사용 일시")
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_encoders={datetime: lambda dt: dt.isoformat()}
+    )
 
 class EvaluationTemplateCreateEnhanced(BaseModel):
     """향상된 템플릿 생성 요청 모델"""

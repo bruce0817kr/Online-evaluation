@@ -1,13 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
 
 # Temporary fix for missing email-validator - using str instead of EmailStr
-try:
-    from pydantic import EmailStr
-except ImportError:
-    EmailStr = str  # Fallback to str if email-validator is not installed
+from pydantic import EmailStr
 
 class Token(BaseModel):
     access_token: str
@@ -16,7 +13,7 @@ class Token(BaseModel):
 
 class UserBase(BaseModel):
     login_id: str = Field(..., description="User's login ID")
-    email: str = Field(..., description="User's email address")  # Changed from EmailStr to str
+    email: EmailStr = Field(..., description="User's email address")
     user_name: str = Field(..., description="User's full name")
     phone: Optional[str] = Field(None, description="User's phone number")
     role: str = Field(..., description="User's role (admin, secretary, evaluator)")
@@ -31,11 +28,14 @@ class User(UserBase):
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Timestamp of user creation")
     last_login: Optional[datetime] = Field(None, description="Timestamp of last login")
     
-    class Config:
-        validate_by_name = True # Pydantic V2 (renamed from allow_population_by_field_name)
-        allow_population_by_field_name = True  # For backward compatibility
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
-        from_attributes = True # For Pydantic V2 (renamed from orm_mode)
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True
+    )
+
+    @field_serializer('created_at', 'last_login', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
     
     @classmethod
     def from_mongo(cls, data: dict):
@@ -60,34 +60,39 @@ class UserResponse(UserBase):
     created_at: datetime = Field(..., description="Timestamp of user creation")
     last_login: Optional[datetime] = Field(None, description="Timestamp of last login")
 
-    class Config:
-        from_attributes = True # For Pydantic V2
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_serializer('created_at', 'last_login', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class SecretarySignupRequest(BaseModel):
     name: str
     phone: str
-    email: str  # Changed from EmailStr to str
+    email: EmailStr
     reason: Optional[str] = None
 
 class SecretaryApproval(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     name: str
     phone: str
-    email: str  # Changed from EmailStr to str
+    email: EmailStr
     reason: Optional[str] = None
     status: str = Field("pending", description="Approval status: pending, approved, rejected")
     requested_at: datetime = Field(default_factory=datetime.utcnow)
     reviewed_at: Optional[datetime] = None
     reviewed_by: Optional[str] = None # Admin user ID
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('requested_at', 'reviewed_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class EvaluatorCreate(BaseModel):
     user_name: str
     phone: str
-    email: str  # Changed from EmailStr to str
+    email: EmailStr
     # Add other fields as necessary based on usage in server.py
 
 class ProjectBase(BaseModel):
@@ -106,9 +111,11 @@ class Project(ProjectBase):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: Optional[str] = None # User ID
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('start_date', 'end_date', 'deadline', 'created_at', 'updated_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
         
 # Update Company model to include project_id field
 class CompanyBase(BaseModel):
@@ -124,9 +131,11 @@ class Company(CompanyBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('created_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 # Add FileMetadata model for file upload functionality
 class FileMetadata(BaseModel):
@@ -140,9 +149,11 @@ class FileMetadata(BaseModel):
     company_id: str = Field(..., description="Company ID this file belongs to")
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('uploaded_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 # Add EvaluationTemplateCreate model for template creation
 class EvaluationTemplateCreate(BaseModel):
@@ -268,7 +279,7 @@ class AdvancedSearchResult(BaseModel):
 class BulkUserImportRow(BaseModel):
     login_id: str
     user_name: str
-    email: str  # Changed from EmailStr to str
+    email: EmailStr
     phone: Optional[str] = None
     role: str
     password: Optional[str] = None # If provided, will be used. Otherwise, auto-generated.
@@ -286,7 +297,7 @@ class PasswordChangeRequest(BaseModel):
     new_password: str
 
 class PasswordResetRequest(BaseModel):
-    email: str  # Changed from EmailStr to str
+    email: EmailStr
 
 class TwoFactorAuthSetupResponse(BaseModel):
     qr_code_url: Optional[str] = None # For TOTP
@@ -338,9 +349,11 @@ class EvaluationTemplate(BaseModel):
     is_default: bool = Field(False, description="Whether this is a default template")
     status: str = Field("draft", description="Template status: draft, active, archived")
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('created_at', 'updated_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class EvaluationCriterionEnhanced(BaseModel):
     """향상된 평가 기준 모델 (사업별 지표 및 가점 관리용)"""
@@ -393,9 +406,11 @@ class EvaluationTemplateEnhanced(BaseModel):
     usage_count: int = Field(0, description="사용 횟수")
     last_used_at: Optional[datetime] = Field(None, description="마지막 사용 일시")
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('created_at', 'updated_at', 'approved_at', 'last_used_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class EvaluationTemplateCreateEnhanced(BaseModel):
     """향상된 템플릿 생성 요청 모델"""
@@ -425,9 +440,11 @@ class EvaluationScore(BaseModel):
     opinion: Optional[str] = Field(None, description="Evaluator's opinion/comment")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('created_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class EvaluationSubmission(BaseModel):
     sheet_id: str = Field(..., description="Evaluation sheet ID")
@@ -504,7 +521,7 @@ class SystemStats(BaseModel):
 class Feedback(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: Optional[str] = None # Anonymous feedback possible
-    email: Optional[str] = None # If user provides it  # Changed from EmailStr to str
+    email: Optional[EmailStr] = None # If user provides it
     feedback_type: str # e.g., "bug_report", "feature_request", "general"
     subject: str
     message: str
@@ -645,11 +662,11 @@ class Evaluation(EvaluationBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        validate_by_name = True
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+    @field_serializer('created_at', 'updated_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
     @classmethod
     def from_mongo(cls, data: dict):
@@ -669,10 +686,11 @@ class ScoreSubmission(BaseModel):
     total_score: int = Field(0, description="총점")
     submitted_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
-        validate_by_name = True
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(populate_by_name=True)
+
+    @field_serializer('submitted_at', when_used='json')
+    def serialize_datetime(self, value):
+        return value.isoformat() if value else None
 
 class ScoreSubmissionCreate(BaseModel):
     """점수 제출 요청 모델"""
@@ -680,8 +698,7 @@ class ScoreSubmissionCreate(BaseModel):
     scores: Dict[str, int] = Field(..., description="항목별 점수")
     comment: Optional[str] = Field("", description="평가 코멘트")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(validate_by_name=True) # Changed from class Config:
 
 # AI 공급자 관리 모델들
 class AIProviderConfig(BaseModel):
@@ -699,10 +716,7 @@ class AIProviderConfig(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str = Field(..., description="설정한 관리자 ID")
     
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
-        from_attributes = True
+    model_config = ConfigDict(populate_by_name=True) # Changed from class Config: and removed json_encoders
     
     @classmethod
     def from_mongo(cls, data: dict):
@@ -733,9 +747,7 @@ class AIModelConfig(BaseModel):
     capabilities: List[str] = Field(default_factory=list, description="지원 기능 목록")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(validate_by_name=True)
 
 class AIProviderConfigCreate(BaseModel):
     """AI 공급자 설정 생성 요청 모델"""
@@ -783,9 +795,7 @@ class AIAnalysisJob(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = Field(None, description="완료 시간")
     
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.isoformat()}
+    model_config = ConfigDict(validate_by_name=True)
 
 class AIUsageStatistics(BaseModel):
     """AI 사용 통계 모델"""

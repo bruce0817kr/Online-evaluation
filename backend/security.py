@@ -6,6 +6,8 @@ Implements security best practices for FastAPI applications
 import os
 import secrets
 import hashlib
+from pathlib import Path
+from dotenv import dotenv_values, set_key
 import re
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta, timezone # Ensure timezone is imported
@@ -34,7 +36,19 @@ class SecurityConfig:
     
     def __init__(self):
         # JWT Configuration
-        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET", os.getenv("JWT_SECRET_KEY", self._generate_secret_key()))
+        # Enhanced secret key with fallback generation
+        jwt_secret = os.getenv("JWT_SECRET") or os.getenv("JWT_SECRET_KEY")
+        if not jwt_secret:
+            logger.warning("JWT_SECRET not found in environment. Generating a new one and saving to .env")
+            jwt_secret = self._generate_secret_key()
+            # Save the new key to the .env file
+            env_path = Path(__file__).parent.parent / ".env"
+            # Ensure the .env file exists
+            if not env_path.exists():
+                env_path.touch()
+            set_key(str(env_path), "JWT_SECRET_KEY", jwt_secret)
+            os.environ["JWT_SECRET_KEY"] = jwt_secret # Update current environment
+        self.JWT_SECRET_KEY = jwt_secret
         self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
         self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "240"))  # 4시간으로 연장
         self.JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7"))
@@ -150,6 +164,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             if isinstance(hashed_password, str):
                 hashed_password = hashed_password.encode('utf-8')
             return bcrypt.checkpw(plain_password, hashed_password)
+        except ImportError:
+            logger.error("bcrypt module not found. Please install it: pip install bcrypt")
+            return False
         except Exception as e2:
             logger.error(f"Password verification failed: {e2}")
             return False
@@ -181,6 +198,13 @@ def set_database(database: AsyncIOMotorDatabase):
     """서버 시작 시 데이터베이스 인스턴스를 설정합니다."""
     global db
     db = database
+
+def get_database():
+    """FastAPI 종속성 주입을 위한 데이터베이스 인스턴스를 반환합니다."""
+    if db is None:
+        logger.error("Database not initialized in get_database dependency.")
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    return db
 
 # Simple test function to verify module loading
 def test_function():
@@ -528,7 +552,10 @@ class JWTBearer(HTTPBearer):
                     detail="Invalid authentication scheme."
                 )
             
-            payload = JWTManager.verify_token(credentials.credentials)
+            payload = get_jwt_manager().verify_token(credentials.credentials, HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token."
+            ))
             request.state.user = payload
             return credentials.credentials
         else:
@@ -559,11 +586,6 @@ def generate_evaluator_credentials(name: str, phone: str) -> tuple[str, str]:
     
     # Extract digits from phone number for password
     # Format: "010-1234-5678" -> "01012345678"
-    raw_phone = re.sub(r'\D', '', phone)
-    password = raw_phone if raw_phone else "password123"
-    
-    # Ensure minimum password length and add some complexity if needed
-    if len(password) < 8:
-        password = password + "abc123"
+    password = secrets.token_urlsafe(16)
     
     return login_id, password

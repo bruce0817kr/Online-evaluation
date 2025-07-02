@@ -6,6 +6,7 @@ from typing import List, Optional
 from datetime import datetime
 import logging
 from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models import (
     Evaluation, EvaluationCreate, EvaluationCriterion,
@@ -14,7 +15,7 @@ from models import (
 from security import (
     check_admin_or_secretary, check_evaluator_role, 
     check_evaluator_assignment, get_current_user,
-    db
+    get_database
 )
 
 logger = logging.getLogger(__name__)
@@ -23,13 +24,12 @@ router = APIRouter(prefix="/api/evaluations", tags=["evaluations"])
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_evaluation(
     evaluation_data: EvaluationCreate,
-    current_user: User = Depends(check_admin_or_secretary)
+    current_user: User = Depends(check_admin_or_secretary),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> dict:
     """
     새로운 평가 프로젝트 생성 (관리자/간사 전용)
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         # 평가 데이터 구성
@@ -62,15 +62,14 @@ async def create_evaluation(
 @router.get("/")
 async def list_evaluations(
     current_user: User = Depends(get_current_user),
-    assigned_to_me: bool = False
+    assigned_to_me: bool = False,
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> List[dict]:
     """
     평가 목록 조회
     - 관리자/간사: 모든 평가 조회 가능
     - 평가위원: assigned_to_me=True일 때 자신에게 배정된 평가만 조회
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         # 쿼리 조건 설정
@@ -78,7 +77,7 @@ async def list_evaluations(
         
         if current_user.role == "evaluator" and assigned_to_me:
             # 평가위원이 자신에게 배정된 평가만 조회
-            query["assigned_evaluators"] = current_user.id
+            query["assigned_evaluators"] = ObjectId(current_user.id)
         elif current_user.role == "evaluator" and not assigned_to_me:
             # 평가위원이 전체 목록을 요청하면 권한 없음
             raise HTTPException(
@@ -115,13 +114,12 @@ async def list_evaluations(
 @router.get("/{evaluation_id}")
 async def get_evaluation(
     evaluation_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> dict:
     """
     특정 평가 상세 조회
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         # ObjectId 유효성 검사
@@ -167,13 +165,12 @@ async def get_evaluation(
 async def assign_evaluators(
     evaluation_id: str,
     payload: dict,
-    current_user: User = Depends(check_admin_or_secretary)
+    current_user: User = Depends(check_admin_or_secretary),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> dict:
     """
     평가에 평가위원 배정 (관리자/간사 전용)
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         evaluator_ids = payload.get("evaluator_ids", [])
@@ -232,13 +229,12 @@ async def assign_evaluators(
 async def submit_scores(
     evaluation_id: str,
     submission: ScoreSubmissionCreate,
-    current_user: User = Depends(check_evaluator_assignment)
+    current_user: User = Depends(check_evaluator_assignment),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> dict:
     """
     평가 점수 제출 (배정된 평가위원 전용)
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         # ObjectId 유효성 검사
@@ -313,13 +309,12 @@ async def submit_scores(
 @router.get("/{evaluation_id}/progress")
 async def get_evaluation_progress(
     evaluation_id: str,
-    current_user: User = Depends(check_admin_or_secretary)
+    current_user: User = Depends(check_admin_or_secretary),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ) -> dict:
     """
     평가 진행 상황 조회 (관리자/간사 전용)
     """
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     try:
         # ObjectId 유효성 검사
@@ -381,11 +376,10 @@ from fastapi.responses import StreamingResponse
 @router.post("/bulk-upload-excel")
 async def bulk_upload_evaluations_excel(
     file: UploadFile = File(...),
-    current_user: User = Depends(check_admin_or_secretary)
+    current_user: User = Depends(check_admin_or_secretary),
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     """Excel 파일을 통한 평가 대량 생성"""
-    if db is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
     
     # 파일 타입 검증
     if not file.filename.endswith(('.xlsx', '.xls')):
@@ -541,7 +535,8 @@ async def download_excel_template():
 @router.post("/validate-excel")
 async def validate_excel(
     file: UploadFile = File(...),
-    current_user: User = Depends(check_admin_or_secretary)
+    current_user: User = Depends(check_admin_or_secretary),
+    db: AsyncIOMotorDatabase = Depends(get_database) # Inject db
 ):
     """Excel 파일 유효성 검증 (업로드 전 미리보기)"""
     

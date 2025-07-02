@@ -382,7 +382,7 @@ async def process_ai_evaluation_job(job_id: str, request_data: AIEvaluationReque
         job["error_messages"].append(f"작업 실행 오류: {str(e)}")
         logger.error(f"AI 평가 작업 실패: {job_id}, 오류: {e}")
 
-@ai_evaluation_control_router.post("/execute")
+@ai_evaluation_control_router.post("/execute", operation_id="execute_ai_evaluations_post")
 async def execute_ai_evaluations(
     request_data: AIEvaluationRequest,
     background_tasks: BackgroundTasks,
@@ -439,7 +439,7 @@ async def execute_ai_evaluations(
         logger.error(f"AI 평가 실행 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 평가 실행 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.get("/jobs/{job_id}")
+@ai_evaluation_control_router.get("/jobs/{job_id}", operation_id="get_ai_evaluation_job_status_by_id")
 async def get_ai_evaluation_job_status(
     job_id: str,
     current_user: User = Depends(get_current_user)
@@ -467,7 +467,7 @@ async def get_ai_evaluation_job_status(
         logger.error(f"AI 평가 작업 상태 조회 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 평가 작업 상태 조회 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.get("/jobs")
+@ai_evaluation_control_router.get("/jobs", operation_id="list_ai_evaluation_jobs")
 async def get_ai_evaluation_jobs(
     current_user: User = Depends(get_current_user),
     limit: int = Query(20, le=100),
@@ -510,7 +510,7 @@ async def get_ai_evaluation_jobs(
         logger.error(f"AI 평가 작업 목록 조회 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 평가 작업 목록 조회 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.get("/results/{evaluation_id}")
+@ai_evaluation_control_router.get("/results/{evaluation_id}", operation_id="get_ai_evaluation_result_by_id")
 async def get_ai_evaluation_result(
     evaluation_id: str,
     current_user: User = Depends(get_current_user)
@@ -538,7 +538,7 @@ async def get_ai_evaluation_result(
         logger.error(f"AI 평가 결과 조회 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 평가 결과 조회 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.post("/approve")
+@ai_evaluation_control_router.post("/approve", operation_id="approve_ai_evaluation_post")
 async def approve_ai_evaluation(
     approval_data: AIEvaluationApproval,
     current_user: User = Depends(get_current_user)
@@ -626,7 +626,7 @@ async def approve_ai_evaluation(
         logger.error(f"AI 평가 승인/거부 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 평가 승인/거부 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.get("/providers")
+@ai_evaluation_control_router.get("/providers", operation_id="list_ai_providers")
 async def get_ai_providers(current_user: User = Depends(get_current_user)):
     """사용 가능한 AI 공급자 목록 조회"""
     try:
@@ -648,7 +648,7 @@ async def get_ai_providers(current_user: User = Depends(get_current_user)):
         logger.error(f"AI 공급자 조회 오류: {e}")
         raise HTTPException(status_code=500, detail="AI 공급자 조회 중 오류가 발생했습니다")
 
-@ai_evaluation_control_router.post("/jobs/{job_id}/cancel")
+@ai_evaluation_control_router.post("/jobs/{job_id}/cancel", operation_id="cancel_ai_evaluation_job_by_id")
 async def cancel_ai_evaluation_job(
     job_id: str,
     current_user: User = Depends(get_current_user)

@@ -153,3 +153,951 @@
 2025-06-12 05:18:04,595 - security_monitoring - INFO - Connected to MongoDB for security event storage
 2025-06-24 13:46:13,180 - security_monitoring - INFO - Connected to Redis for security monitoring
 2025-06-24 13:46:13,223 - security_monitoring - ERROR - Failed to connect to MongoDB: Command createIndexes requires authentication, full error: {'ok': 0.0, 'errmsg': 'Command createIndexes requires authentication', 'code': 13, 'codeName': 'Unauthorized'}
+2025-06-30 02:03:02,509 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:03:02,574 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:04:30,566 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:04:30,579 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:04:55,541 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:04:55,555 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:05:06,538 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:05:06,551 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:05:18,235 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:05:18,247 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:05:33,919 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:05:33,932 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:06:04,459 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:06:04,473 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:06:16,292 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:06:16,305 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:06:25,930 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:06:25,944 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:06:42,322 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:06:42,335 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:07:34,583 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:07:34,596 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:07:46,308 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:07:46,322 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:09:07,136 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:09:07,150 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:09:21,627 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:09:21,641 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:09:37,344 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:09:37,356 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:09:54,937 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:09:54,950 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:10:11,880 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:10:11,894 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:10:28,881 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:10:28,894 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:10:56,544 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:10:56,556 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:11:10,645 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:11:10,660 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:13:10,694 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:13:10,709 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:13:25,546 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:13:25,559 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:32:00,840 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:32:00,854 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:32:44,709 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:32:44,722 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:33:39,347 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:33:39,360 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:34:06,447 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:34:06,459 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:34:20,728 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:34:20,741 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:34:37,850 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:34:37,863 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:34:57,120 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:34:57,133 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:35:09,805 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:35:09,818 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:35:24,839 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:35:24,852 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:35:40,433 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:35:40,445 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:35:54,979 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:35:54,991 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:36:08,369 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:36:08,381 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:36:24,423 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:36:24,435 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:36:41,144 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:36:41,158 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:36:57,912 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:36:57,925 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 11:37:27,246 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 11:37:57,252 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 6861f8676109400815108f06, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 02:58:33,013 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:58:33,027 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 02:58:50,707 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 02:58:50,720 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:00:18,067 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:00:18,081 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:00:37,883 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:00:37,896 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:01:51,430 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:01:51,442 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:02:09,232 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:02:09,248 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 12:02:35,414 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 12:03:05,702 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 6861fe4b9b27abbc5aeb9337, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 03:23:44,611 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:23:44,624 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:24:04,527 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:24:04,540 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 12:24:36,523 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 12:25:06,849 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68620374ec621dfad96fe48e, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 03:46:55,268 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:46:55,282 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 03:47:17,720 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 03:47:17,733 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 12:47:47,382 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 12:48:17,576 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 686208e3d182635a81cbc5ff, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 04:17:34,727 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 04:17:34,741 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 13:19:29,110 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 13:19:59,470 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68621051fdce5be0cab847a7, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 04:40:27,967 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 04:40:27,979 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 13:40:41,459 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 13:41:11,929 - security_monitoring - ERROR - Failed to connect to MongoDB: localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 686215492e10aa9ca4348c82, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] 대상 컴퓨터에서 연결을 거부했으므로 연결하지 못했습니다 (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 05:02:11,220 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 05:02:11,237 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-06-30 06:05:30,441 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 06:05:30,455 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed'}
+2025-06-30 06:11:43,436 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 06:11:43,448 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed'}
+2025-06-30 06:17:39,237 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 06:17:39,249 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751264242, 23), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751264242, 23)}
+2025-06-30 07:36:31,195 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:36:31,207 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751268984, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751268984, 1)}
+2025-06-30 07:38:13,097 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:38:13,109 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269083, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269083, 1)}
+2025-06-30 07:49:22,695 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:49:22,707 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269756, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269756, 1)}
+2025-06-30 07:49:48,398 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:49:48,411 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269783, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269783, 1)}
+2025-06-30 07:50:24,605 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:50:24,617 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269821, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269821, 1)}
+2025-06-30 07:51:29,071 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:51:29,084 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269885, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269885, 1)}
+2025-06-30 07:51:44,188 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:51:44,200 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269902, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269902, 1)}
+2025-06-30 07:51:53,972 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:51:53,984 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269913, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269913, 1)}
+2025-06-30 07:52:59,538 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:52:59,550 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751269975, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751269975, 1)}
+2025-06-30 07:54:20,203 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 07:54:20,225 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751270056, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751270056, 1)}
+2025-06-30 08:19:51,805 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:19:51,817 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271591, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271591, 1)}
+2025-06-30 08:20:46,244 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:20:46,255 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271646, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271646, 1)}
+2025-06-30 08:21:08,496 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:21:08,509 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271666, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271666, 1)}
+2025-06-30 08:22:04,024 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:22:04,036 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271720, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271720, 1)}
+2025-06-30 08:22:22,372 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:22:22,384 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271733, 64), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271733, 61)}
+2025-06-30 08:22:36,850 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:22:36,861 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271755, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271755, 1)}
+2025-06-30 08:22:54,546 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:22:54,558 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271765, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271765, 1)}
+2025-06-30 08:23:18,197 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:23:18,208 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271792, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271792, 1)}
+2025-06-30 08:23:40,065 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:23:40,076 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271819, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271819, 1)}
+2025-06-30 08:24:08,906 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:24:08,920 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271847, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271847, 1)}
+2025-06-30 08:24:39,734 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:24:39,746 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271874, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271874, 1)}
+2025-06-30 08:25:12,989 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:25:13,001 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271911, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271911, 1)}
+2025-06-30 08:25:44,914 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:25:44,928 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271939, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271939, 1)}
+2025-06-30 08:26:16,026 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:26:16,038 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271973, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271973, 1)}
+2025-06-30 08:26:35,949 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:26:35,962 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed', '$clusterTime': {'clusterTime': Timestamp(1751271993, 1), 'signature': {'hash': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00', 'keyId': 0}}, 'operationTime': Timestamp(1751271993, 1)}
+2025-06-30 08:38:41,912 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:39:09,272 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624d11035167764a5e61ff, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:39:12,344 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:39:39,684 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624d302c98f0d10c9098e0, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:39:42,713 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:40:10,040 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624d4ed39c0b5df9f05ece, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:40:13,028 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:40:40,388 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624d6d9bc8756972bc863b, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:42:34,804 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:43:02,126 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624dfa88e0046425f5b6fe, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:50:14,075 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-06-30 08:50:39,180 - security_monitoring - ERROR - Failed to connect to MongoDB: mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 68624fc63974482b5055b94f, topology_type: Unknown, servers: [<ServerDescription ('mongodb', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('mongodb:27017: [Errno -5] No address associated with hostname (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-30 08:58:48,343 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-06-30 08:58:48,355 - security_monitoring - ERROR - Failed to connect to MongoDB: Command createIndexes requires authentication, full error: {'ok': 0.0, 'errmsg': 'Command createIndexes requires authentication', 'code': 13, 'codeName': 'Unauthorized'}
+2025-07-01 00:31:33,448 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:31:33,459 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed'}
+2025-07-01 00:31:57,193 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:31:57,202 - security_monitoring - ERROR - Failed to connect to MongoDB: Authentication failed., full error: {'ok': 0.0, 'errmsg': 'Authentication failed.', 'code': 18, 'codeName': 'AuthenticationFailed'}
+2025-07-01 00:37:20,563 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:37:20,606 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 00:37:53,396 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:37:53,409 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 00:38:16,446 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:38:16,458 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 00:41:35,654 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 00:41:35,668 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 03:32:01,837 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 03:32:01,884 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:13:05,438 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:13:05,486 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:20:59,201 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:20:59,213 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:22:18,413 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:22:18,426 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:23:51,729 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:23:51,745 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:31:03,812 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:31:03,824 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:33:06,219 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:33:06,231 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:34:20,336 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:34:20,350 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:35:54,004 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:35:54,017 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:37:39,683 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:37:39,700 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:39:51,001 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:39:51,016 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:43:25,453 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:43:25,466 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:45:28,925 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:45:28,937 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:47:16,771 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:47:16,784 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:51:16,368 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:51:16,380 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:52:44,731 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:52:44,743 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:54:09,636 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:54:09,647 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:56:23,663 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:56:23,674 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 13:59:12,247 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 13:59:12,261 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:01:58,513 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:01:58,524 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:03:44,058 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:03:44,069 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:14:22,072 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:14:22,085 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:17:08,217 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:17:08,230 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:17:41,859 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:17:41,871 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:17:54,186 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:17:54,201 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:18:07,795 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:18:07,809 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:18:25,449 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:18:25,464 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:19:24,248 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:19:24,260 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:24:18,309 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:24:18,322 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:25:19,220 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:25:19,234 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:25:40,043 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:25:40,054 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:25:57,075 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:25:57,089 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:26:47,799 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:26:47,812 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:27:09,916 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:27:09,930 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:27:27,481 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:27:27,496 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:27:46,223 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:27:46,237 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:28:10,122 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:28:10,136 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:28:44,981 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:28:44,993 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:32:06,948 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:32:06,962 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:32:25,904 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:32:25,919 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:32:54,021 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:32:54,035 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:33:48,138 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:33:48,150 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:35:10,014 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:35:10,029 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:35:28,477 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:35:28,490 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:35:49,550 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:35:49,563 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:36:26,271 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:36:26,285 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:38:11,677 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:38:11,691 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:38:59,581 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:38:59,596 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:39:32,704 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:39:32,716 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:40:05,436 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:40:05,448 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:40:29,319 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:40:29,332 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:40:52,632 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:40:52,645 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:41:48,402 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:41:48,417 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:42:10,929 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:42:10,944 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:42:37,037 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:42:37,050 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:43:10,671 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:43:10,684 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:44:55,434 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:44:55,447 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:45:16,823 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:45:16,837 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:45:39,018 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:45:39,031 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:46:03,610 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:46:03,624 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:46:35,784 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:46:35,796 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:46:57,635 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:46:57,648 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:48:12,364 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:48:12,377 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:48:42,074 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:48:42,090 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:49:02,814 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:49:02,827 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:49:24,883 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:49:24,895 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:49:47,562 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:49:47,576 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:50:14,841 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:50:14,854 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:50:59,456 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:50:59,471 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:51:21,937 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:51:21,951 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:51:52,755 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:51:52,770 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:52:40,106 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:52:40,122 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:54:08,440 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:54:08,458 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:54:29,159 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:54:29,174 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:55:23,126 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:55:23,142 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:56:11,180 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:56:11,197 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:58:29,121 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:58:29,135 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 14:58:52,009 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 14:58:52,023 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:01:01,638 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:01:01,654 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:02:12,247 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:02:12,264 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:04:22,850 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:04:22,864 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:06:11,782 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:06:11,796 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:06:35,422 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:06:35,436 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:07:16,152 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:07:16,166 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:08:43,095 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:08:43,112 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:09:11,125 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:09:11,142 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:09:36,967 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:09:36,985 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:10:34,316 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:10:34,330 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:12:00,397 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:12:00,412 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:12:40,231 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:12:40,244 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:13:03,203 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:13:03,221 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:13:40,765 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:13:40,782 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:15:12,843 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:15:12,859 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:15:57,735 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:15:57,747 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:16:40,100 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:16:40,117 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:17:16,519 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:17:16,535 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:18:47,179 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:18:47,196 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:19:14,817 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:19:14,833 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:19:39,731 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:19:39,746 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:20:19,844 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:20:19,860 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:22:03,276 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:22:03,291 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:22:34,189 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:22:34,202 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:22:59,672 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:22:59,688 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:23:37,557 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:23:37,568 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:26:07,868 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:26:07,887 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:26:41,440 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:26:41,452 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:27:43,001 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:27:43,017 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 15:28:23,190 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 15:28:23,209 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-01 22:50:01,820 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-01 22:50:01,863 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:06:46,730 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:06:46,753 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:06:50,270 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:06:50,283 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:06:53,346 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:06:53,360 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:07:02,077 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:07:02,091 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:07:07,253 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:07:07,265 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:07:12,246 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:07:12,260 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:08:32,769 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:08:32,784 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:00,545 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:00,560 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:04,733 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:04,746 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:17,416 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:17,431 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:29,320 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:29,335 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:43,133 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:43,149 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:30:55,184 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:30:55,197 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:31:16,599 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:31:16,615 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:31:28,081 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:31:28,099 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:31:49,397 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:31:49,413 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:32:06,791 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:32:06,804 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:32:26,314 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:32:26,328 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:32:35,236 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:32:35,250 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:00,512 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:00,525 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:08,021 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:08,034 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:16,672 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:16,686 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:30,447 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:30,459 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:48,886 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:48,899 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:36:59,648 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:36:59,663 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:37:12,399 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:37:12,412 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:37:23,738 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:37:23,751 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:09,786 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:09,799 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:18,174 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:18,187 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:25,010 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:25,023 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:32,381 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:32,395 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:43,521 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:43,533 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:38:55,270 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:38:55,283 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:44:30,640 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:44:30,656 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:44:52,452 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:44:52,465 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:45:15,656 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:45:15,671 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:45:27,361 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:45:27,375 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:45:51,283 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:45:51,298 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:45:59,134 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:45:59,149 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:46:12,448 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:46:12,462 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:46:43,323 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:46:43,341 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:47:00,680 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:47:00,695 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:47:10,062 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:47:10,076 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:47:17,183 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:47:17,198 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:47:28,037 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:47:28,053 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:47:55,185 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:47:55,199 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:48:03,587 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:48:03,605 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:49:23,484 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:49:23,498 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:49:38,960 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:49:38,975 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:50:28,277 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:50:28,295 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:50:43,388 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:50:43,403 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:51:06,606 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:51:06,620 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:53:28,233 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:53:28,247 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:53:40,282 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:53:40,295 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:53:54,182 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:53:54,196 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:54:16,797 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:54:16,810 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:54:33,872 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:54:33,885 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:54:46,962 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:54:46,976 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:55:01,810 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:55:01,824 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:56:12,982 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:56:12,997 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:56:45,072 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:56:45,085 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:57:10,462 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:57:10,476 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:57:21,753 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:57:21,768 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:57:56,998 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:57:57,012 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:58:56,151 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:58:56,165 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:59:18,502 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:59:18,516 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:59:31,042 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:59:31,057 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:59:44,368 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:59:44,381 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 00:59:59,765 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 00:59:59,779 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:01:06,354 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:01:06,368 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:01:20,010 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:01:20,024 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:01:32,705 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:01:32,718 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:01:47,477 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:01:47,492 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:02:08,385 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:02:08,401 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:02:21,892 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:02:21,906 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:02:35,997 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:02:36,011 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:02:50,342 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:02:50,357 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:03:03,925 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:03:03,938 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:03:15,826 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:03:15,839 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:03:46,257 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:03:46,272 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:03:57,982 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:03:57,996 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:04:34,646 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:04:34,660 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:04:47,107 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:04:47,121 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:05:02,222 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:05:02,236 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:05:16,794 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:05:16,817 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:05:27,209 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:05:27,225 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:05:41,832 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:05:41,845 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:05:53,038 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:05:53,052 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:06:04,733 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:06:04,745 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:06:27,140 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:06:27,153 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:06:39,940 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:06:39,954 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:08:13,666 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:08:13,678 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:08:31,596 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:08:31,610 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:08:43,128 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:08:43,141 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:09:38,067 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:09:38,080 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:09:52,325 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:09:52,340 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:10:07,304 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:10:07,317 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:10:21,753 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:10:21,767 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:10:37,771 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:10:37,785 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:11:52,167 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:11:52,180 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:12:04,397 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:12:04,413 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:12:16,029 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:12:16,042 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:12:29,802 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:12:29,816 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:12:44,530 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:12:44,546 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:12:55,503 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:12:55,517 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:13:09,593 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:13:09,608 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:13:30,135 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:13:30,147 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:13:41,214 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:13:41,228 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:13:54,334 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:13:54,347 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:14:09,369 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:14:09,386 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:14:21,306 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:14:21,319 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:14:33,201 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:14:33,217 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:14:44,180 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:14:44,193 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:14:57,112 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:14:57,128 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:15:24,193 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:15:24,208 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:15:35,501 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:15:35,516 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:15:56,880 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:15:56,893 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:16:07,964 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:16:07,979 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:16:22,525 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:16:22,537 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:16:36,948 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:16:36,963 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:16:48,533 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:16:48,547 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:17:01,784 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:17:01,798 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:17:15,130 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:17:15,146 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:17:31,042 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:17:31,057 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:17:48,975 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:17:48,989 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:18:03,843 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:18:03,860 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:18:15,212 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:18:15,225 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:18:27,427 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:18:27,443 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:18:40,090 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:18:40,103 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:18:55,920 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:18:55,933 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:19:07,473 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:19:07,486 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:19:23,028 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:19:23,041 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:19:37,776 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:19:37,790 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:19:49,234 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:19:49,251 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:19:59,843 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:19:59,857 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:20:17,691 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:20:17,704 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:20:45,551 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:20:45,566 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:20:59,406 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:20:59,419 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:21:12,219 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:21:12,234 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:21:33,540 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:21:33,555 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:21:35,790 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:21:35,807 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:22:27,319 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:22:27,332 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:22:29,741 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:22:29,760 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:24:09,327 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:24:09,341 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:24:26,394 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:24:26,411 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:24:28,562 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:24:28,577 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:24:40,732 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:24:40,748 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:24:58,197 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:24:58,211 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:25:15,099 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:25:15,113 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:25:38,557 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:25:38,572 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:25:59,007 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:25:59,021 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:26:01,190 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:26:01,204 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:26:29,891 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:26:29,907 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:26:44,278 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:26:44,292 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:27:01,743 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:27:01,757 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:28:23,051 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:28:23,065 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:28:25,144 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:28:25,158 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:29:08,555 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:29:08,571 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:29:29,590 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:29:29,607 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:29:32,114 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:29:32,129 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:29:47,917 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:29:47,930 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:29:50,107 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:29:50,129 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:30:05,826 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:30:05,842 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:30:07,953 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:30:07,968 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:30:23,661 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:30:23,674 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:30:56,899 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:30:56,913 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:30:59,045 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:30:59,059 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:31:01,204 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:31:01,219 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:31:53,142 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:31:53,156 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:31:55,447 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:31:55,460 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:32:24,030 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:32:24,047 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:32:26,185 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:32:26,200 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:32:58,421 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:32:58,433 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:33:00,527 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:33:00,540 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:33:02,444 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:33:02,459 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:33:20,202 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:33:20,218 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:33:52,729 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:33:52,742 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:34:11,693 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:34:11,707 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:34:30,578 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:34:30,592 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:34:48,685 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:34:48,698 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:35:22,347 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:35:22,359 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:35:41,039 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:35:41,052 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:36:02,483 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:36:02,497 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:37:34,409 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:37:34,422 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:37:36,504 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:37:36,518 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:37:57,025 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:37:57,040 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:38:16,710 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:38:16,725 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:38:32,826 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:38:32,842 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:38:52,222 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:38:52,238 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:39:12,977 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:39:12,990 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:39:31,456 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:39:31,473 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:39:53,715 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:39:53,731 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:40:14,158 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:40:14,172 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:40:16,434 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:40:16,452 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:40:35,822 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:40:35,838 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:41:26,895 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:41:26,909 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:42:13,220 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:42:13,234 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:42:15,307 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:42:15,321 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:42:36,633 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:42:36,648 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:43:09,686 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:43:09,701 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:43:11,867 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:43:11,882 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:43:29,651 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:43:29,665 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:43:31,686 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:43:31,699 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:45:06,824 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:45:06,839 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:45:08,957 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:45:08,972 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:46:18,352 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:46:18,366 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:46:55,713 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:46:55,726 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:47:50,716 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:47:50,731 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:48:23,951 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:48:23,964 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:48:26,108 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:48:26,122 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:49:06,129 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:49:06,143 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:49:31,567 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:49:31,582 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:50:37,842 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:50:37,856 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:50:39,867 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:50:39,880 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:50:59,918 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:50:59,931 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:51:23,505 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:51:23,520 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:51:44,580 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:51:44,594 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:51:46,567 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:51:46,581 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:52:08,507 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:52:08,521 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:52:31,103 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:52:31,121 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:53:11,475 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:53:11,489 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:53:35,056 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:53:35,070 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:54:04,007 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:54:04,021 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:54:26,071 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:54:26,083 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:55:02,074 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:55:02,088 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:56:37,293 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:56:37,306 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:57:27,199 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:57:27,213 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:58:43,378 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:58:43,392 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 01:59:40,434 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 01:59:40,448 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:02:09,361 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:02:09,374 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:02:29,981 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:02:29,994 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:03:09,683 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:03:09,697 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:03:35,928 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:03:35,942 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:05:43,253 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:05:43,266 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:08:54,305 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:08:54,319 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:09:26,937 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:09:26,954 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:09:56,538 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:09:56,552 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:10:32,956 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:10:32,971 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:11:41,538 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:11:41,553 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:12:35,682 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:12:35,697 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:12:37,850 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:12:37,866 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:12:58,061 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:12:58,076 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:13:52,308 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:13:52,322 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:15:41,283 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:15:41,298 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:16:02,228 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:16:02,243 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:17:46,004 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:17:46,019 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:18:14,822 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:18:14,835 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:18:16,908 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:18:16,922 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:18:43,809 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:18:43,822 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:19:39,647 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:19:39,661 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:21:30,043 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:21:30,057 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:22:01,102 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:22:01,116 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:22:03,354 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:22:03,373 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:22:54,008 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:22:54,022 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 02:23:19,445 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 02:23:19,458 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:34:14,501 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:34:14,522 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:35:39,643 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:35:39,658 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:37:10,875 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:37:10,890 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:37:59,658 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:37:59,673 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:39:12,102 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:39:12,118 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:40:05,991 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:40:06,006 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:42:54,049 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:42:54,065 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:43:49,115 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:43:49,133 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:44:49,853 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:44:49,898 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:49:07,009 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:49:07,054 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 04:59:51,102 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 04:59:51,148 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 07:27:18,079 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 07:27:18,141 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 07:58:01,439 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 07:58:01,495 - security_monitoring - INFO - Connected to MongoDB for security event storage

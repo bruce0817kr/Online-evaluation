@@ -1,0 +1,51 @@
+# Percy Configuration for Visual Regression Testing
+version: 2
+snapshot:
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+    - 1920  # Large Desktop
+  min-height: 1024
+  enable-javascript: true
+  disable-shadow: false
+  
+# Discovery settings
+discovery:
+  allowed-hosts:
+    - localhost
+    - 127.0.0.1
+  disable-cache: false
+  concurrency: 5
+  
+# Static site settings for testing
+static:
+  base-url: /
+  files: 'frontend/build/**/*'
+  ignore-files: 
+    - '**/*.map'
+    - '**/node_modules/**'
+
+# CSS and Asset handling
+percy-css: |
+  /* Ensure consistent rendering across browsers */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Hide dynamic elements that may cause false positives */
+  .timestamp,
+  .loading-spinner,
+  .notification-toast {
+    visibility: hidden !important;
+  }
+
+# Environment specific settings
+environments:
+  - name: "Chrome"
+    browser: "chrome"
+  - name: "Firefox"
+    browser: "firefox"
+  - name: "Safari"
+    browser: "safari"
