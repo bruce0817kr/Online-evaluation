@@ -47,6 +47,10 @@ venv/
 .venv/
 __pycache__/
 
+# Reports
+*.json
+*.html
+
 # ===================
 # ADDITIONAL RULES TO PREVENT FILE SIZE VIOLATIONS
 # ===================

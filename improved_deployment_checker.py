@@ -33,10 +33,10 @@ logger = logging.getLogger(__name__)
 class ImprovedDockerDeploymentChecker:
     def __init__(self):
         self.services = {
-            'redis': {'port': 6379, 'name': 'online-evaluation-redis'},
-            'mongodb': {'port': 27017, 'name': 'online-evaluation-mongodb'},
-            'backend': {'port': 8080, 'name': 'online-evaluation-backend'},
-            'frontend': {'port': 3000, 'name': 'online-evaluation-frontend'}
+            'redis': {'port': 6479, 'name': 'online-evaluation-redis-dev'},
+            'mongodb': {'port': 27117, 'name': 'online-evaluation-mongodb-dev'},
+            'backend': {'port': 8180, 'name': 'online-evaluation-backend-dev'},
+            'frontend': {'port': 3100, 'name': 'online-evaluation-frontend-dev'}
         }
         self.test_results = {}
         
@@ -67,41 +67,28 @@ class ImprovedDockerDeploymentChecker:
         """실행 중인 Docker 컨테이너 확인"""
         logger.info("🐳 Docker 컨테이너 상태 확인 중...")
         
-        # Docker가 실행 중인지 먼저 확인
         docker_output = self.safe_run_command(['docker', 'version'])
         if not docker_output:
             logger.error("❌ Docker가 실행되지 않거나 접근할 수 없습니다")
             self.test_results['docker_containers'] = False
             return False
         
-        # 실행 중인 컨테이너 목록 가져오기
-        ps_output = self.safe_run_command(['docker', 'ps', '--format', 'table {{.Names}}\t{{.Status}}'])
-        if not ps_output:
+        # Get running container names directly
+        ps_output = self.safe_run_command(['docker', 'ps', '--format', '{{.Names}}'])
+        if ps_output is None: # Check for None explicitly
             logger.error("❌ Docker 컨테이너 목록을 가져올 수 없습니다")
             self.test_results['docker_containers'] = False
             return False
         
-        lines = ps_output.strip().split('\n')
-        if len(lines) <= 1:  # 헤더만 있는 경우
-            logger.error("❌ 실행 중인 컨테이너가 없습니다")
-            self.test_results['docker_containers'] = False
-            return False
+        running_containers = [name.strip().replace('"', '') for name in ps_output.strip().split('\n')]
         
-        running_containers = {}
-        for line in lines[1:]:  # 헤더 제외
-            parts = line.split('\t')
-            if len(parts) >= 2:
-                name = parts[0].strip()
-                status = parts[1].strip()
-                running_containers[name] = status
-        
-        logger.info(f"실행 중인 컨테이너: {len(running_containers)}개")
+        logger.info(f"실행 중인 컨테이너: {len(running_containers)}개 - {running_containers}")
         
         all_running = True
         for service_name, config in self.services.items():
             container_name = config['name']
             if container_name in running_containers:
-                logger.info(f"✅ {service_name}: {running_containers[container_name]}")
+                logger.info(f"✅ {service_name}: 컨테이너가 실행 중입니다.")
             else:
                 logger.error(f"❌ {service_name}: 컨테이너가 실행되지 않음")
                 all_running = False
@@ -138,10 +125,10 @@ class ImprovedDockerDeploymentChecker:
         logger.info("🏥 헬스 엔드포인트 확인 중...")
         
         health_checks = [
-            {'name': 'Backend Health', 'url': 'http://localhost:8080/health'},
-            {'name': 'Backend Root', 'url': 'http://localhost:8080/'},
-            {'name': 'Backend Docs', 'url': 'http://localhost:8080/docs'},
-            {'name': 'Frontend', 'url': 'http://localhost:3000'}
+            {'name': 'Backend Health', 'url': 'http://localhost:8180/health'},
+            {'name': 'Backend Root', 'url': 'http://localhost:8180/'},
+            {'name': 'Backend Docs', 'url': 'http://localhost:8180/docs'},
+            {'name': 'Frontend', 'url': 'http://localhost:3100'}
         ]
         
         all_healthy = True
@@ -173,11 +160,12 @@ class ImprovedDockerDeploymentChecker:
         
         try:
             # 새로운 API 엔드포인트 사용
-            response = requests.get('http://localhost:8080/api/status', timeout=15)
+            response = requests.get('http://localhost:8180/db-status', timeout=15)
             if response.status_code == 200:
                 data = response.json()
-                db_status = data.get('database', {}).get('status') == 'connected'
-                cache_status = data.get('cache', {}).get('status') == 'connected'
+                databases_info = data.get('databases', {})
+                db_status = databases_info.get('mongodb', {}).get('status') == 'healthy'
+                cache_status = databases_info.get('redis', {}).get('status') == 'healthy'
                 
                 if db_status:
                     logger.info("✅ MongoDB: 연결됨")
@@ -209,10 +197,10 @@ class ImprovedDockerDeploymentChecker:
         logger.info("🔧 API 기능 확인 중...")
         
         api_tests = [
-            {'name': 'API Root', 'url': 'http://localhost:8080/', 'expected_codes': [200]},
-            {'name': 'API Status', 'url': 'http://localhost:8080/api/status', 'expected_codes': [200]},
-            {'name': 'Users API', 'url': 'http://localhost:8080/api/users', 'expected_codes': [200, 404]},
-            {'name': 'Tests API', 'url': 'http://localhost:8080/api/tests', 'expected_codes': [200, 404]}
+            {'name': 'API Root', 'url': 'http://localhost:8180/', 'expected_codes': [200]},
+            {'name': 'API Status', 'url': 'http://localhost:8180/api/status', 'expected_codes': [200]},
+            {'name': 'Users API', 'url': 'http://localhost:8180/api/users', 'expected_codes': [200, 404]},
+            {'name': 'Tests API', 'url': 'http://localhost:8180/api/tests', 'expected_codes': [200, 404]}
         ]
         
         all_functional = True
