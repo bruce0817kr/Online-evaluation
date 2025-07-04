@@ -109,6 +109,7 @@
 | 도구 이름 | 분류 | 기능 및 역할 | 핵심 명령어 / 사용법 |
 | :--- | :--- | :--- | :--- |
 | **`vooster-ai`** | **기획/설계** | 코드 작성 전, 기능 명세로부터 PRD/TRD, 코드 가이드, 작업 계획(`plan.md`)을 수립합니다. | `!vooster-ai [기능 명세]` (주로 `architect` 페르소나가 내부적으로 호출) |
+| **`vooster-ai`** | **기획/설계** | 코드 작성 전, 기능 명세로부터 PRD/TRD, 코드 가이드, 작업 계획(`plan.md`)을 수립합니다. | `!vooster-ai [기능 명세]` (주로 `architect` 페르소나가 내부적으로 호출) |
 | **`mcp-taskmanager`** | **작업 관리** | `plan.md`를 기반으로 TDD 사이클 등 구체적인 개발 단계를 실행하고 추적합니다. | `go`, `next` (주로 `/user:build` 등 파워 명령어 내부에서 자동 실행) |
 | **`Magic`** | **코드 생성** | `frontend` 페르소나가 사용자 스타일에 맞는 UI 컴포넌트를 생성할 때 사용합니다. | `/user:build --magic` |
 | **`Puppeteer`** | **E2E 테스트** | `qa` 또는 `frontend` 페르소나가 실제 브라우저에서 E2E 테스트를 실행할 때 사용합니다. | `/user:test --pup` |
@@ -118,6 +119,34 @@
 | `context7` | **인지 모듈** | 최근 대화의 문맥을 유지하고, `Context7` 도구를 통해 외부 문서를 참조합니다. | `--c7` |
 | `allpepper-memory-bank` | **인지 모듈** | 프로젝트의 핵심 아키텍처, 결정 사항 등 장기 기억을 담당합니다. | `!mem-save`, `!mem-recall` |
 
+## 5.1. vooster-ai 연동 및 사용법 (vooster-ai Integration and Usage)
+
+**vooster-ai**는 프로젝트의 기획 단계(PRD/TRD)와 실제 개발 사이클을 연결하는 핵심적인 오케스트레이션 도구입니다.
+
+#### 5.1.1. MCP 서버 연결 (최초 설정)
+
+에이전트 환경에 아래 MCP 서버 정보를 설정해야 합니다.
+
+```json
+{
+  "mcpServers": {
+    "vooster-ai": {
+      "command": "npx",
+      "args": ["-y", "vooster-ai-mcp-tool"]
+    }
+  }
+}
+```
+
+#### 5.1.2. 워크플로우 (Workflow)
+
+`vooster-ai`가 설정되면, 다음 명령어로 TDD 사이클을 시작합니다.
+
+*   `안녕 vooster, 다음 작업 진행해줘`
+    *   이 명령을 수신하면, 당신은 **vooster-ai**에 다음 작업을 조회합니다.
+    *   **vooster-ai**는 관리 중인 `plan.md`를 기반으로 현재 진행해야 할 태스크를 당신에게 전달합니다.
+    *   당신은 전달받은 태스크를 **mcp-taskmanager**를 통해 TDD 원칙에 따라 수행합니다. (이는 내부적으로 `go` 명령을 실행하는 것과 유사합니다.)
+
 ## 6\. 확장 도구 상세: Gemini MCP Tool
 
 자신의 능력을 넘어서는 작업을 위해 \*\*`Gemini MCP Tool`\*\*을 호출합니다.
@@ -126,9 +155,9 @@
   * **핵심 구문**: Gemini에게 파일/디렉토리를 전달할 때는 반드시 **`@` 구문**을 사용합니다. (`@src/main.js`, `@.`)
   * **사용자 직접 호출**: 사용자는 `/analyze`, `/sandbox` 명령어로 Gemini 도구를 직접 호출할 수 있습니다.
 
-## 7\. 통합 워크플로우 예시 (Integrated Workflow Examples)
+## 6\. 통합 워크플로우 예시 (Integrated Workflow Examples)
 
-#### **A. "plan.md와 'go'를 이용한 TDD 개발" 플로우**
+#### **6.1. "plan.md와 'go'를 이용한 TDD 개발" 플로우**
 
 1.  **사용자**: (다음 내용으로 `plan.md` 파일을 준비)
     ```markdown
@@ -145,7 +174,7 @@
     `/w src/calculator.rs\n// ...테스트를 통과시킬 최소한의 Rust 코드...`
 7.  **(테스트 통과 후)**: "Green. 모든 테스트가 통과했습니다. Refactor 단계: 현재 코드는 충분히 단순하므로 리팩토링은 필요하지 않습니다. 다음 작업을 위해 'go'를 입력해주세요."
 
-#### **B. "대규모 레거시 코드 리팩토링" 플로우**
+#### **6.2. "대규모 레거시 코드 리팩토링" 플로우**
 
 1.  **사용자**: `/persona:refactorer`
 2.  **사용자**: "기존 결제 모듈 리팩토링 계획을 세워줘. 코드가 너무 방대하고 복잡해. `@src/legacy/payment`"

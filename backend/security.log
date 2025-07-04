@@ -1101,3 +1101,23 @@
 2025-07-02 07:27:18,141 - security_monitoring - INFO - Connected to MongoDB for security event storage
 2025-07-02 07:58:01,439 - security_monitoring - INFO - Connected to Redis for security monitoring
 2025-07-02 07:58:01,495 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-02 10:24:47,967 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-02 10:24:47,998 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:02:46,351 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-03 01:02:46,372 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:06:32,603 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-03 01:06:32,618 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:08:18,538 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-03 01:08:18,551 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:09:52,361 - security_monitoring - INFO - Connected to Redis for security monitoring
+2025-07-03 01:09:52,374 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:14:53,204 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-07-03 01:14:53,251 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:41:24,237 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-07-03 01:41:24,289 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 01:49:12,050 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-07-03 01:49:12,108 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 02:20:52,490 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-07-03 02:20:52,505 - security_monitoring - INFO - Connected to MongoDB for security event storage
+2025-07-03 04:04:42,816 - security_monitoring - ERROR - Failed to connect to Redis: Error 111 connecting to localhost:6379. Connection refused.
+2025-07-03 04:04:42,848 - security_monitoring - INFO - Connected to MongoDB for security event storage

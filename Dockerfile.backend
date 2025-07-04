@@ -60,11 +60,7 @@ COPY backend/ .
 RUN mkdir -p /app/uploads /app/logs /app/tests
 
 # 개발 환경 설정
-ENV PYTHONPATH=/app \
-    HOST=0.0.0.0 \
-    PORT=8080 \
-    RELOAD=true \
-    DEBUG=true
+ENV PYTHONPATH=/app     HOST=0.0.0.0     PORT=8080     RELOAD=true     DEBUG=true     CORS_ORIGINS="http://localhost:3002,http://localhost:3100"
 
 # 개발 서버 시작 (Hot reload 지원)
 CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--log-level", "debug"]
